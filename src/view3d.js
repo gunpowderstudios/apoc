@@ -70,6 +70,7 @@ export class View3D {
     // capture phase: decide about pawn dragging BEFORE OrbitControls sees the press
     el.addEventListener('pointerdown', e => {
       down = { x: e.clientX, y: e.clientY, moved: false };
+      if (e.button === 0 && e.altKey) { this._leftWas = this.ctl.mouseButtons.LEFT; this.ctl.mouseButtons.LEFT = THREE.MOUSE.PAN; }   // Alt/Option + drag = pan too
       if (e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
@@ -93,6 +94,7 @@ export class View3D {
       }
     });
     const up = e => {
+      if (this._leftWas !== undefined) { this.ctl.mouseButtons.LEFT = this._leftWas; this._leftWas = undefined; }
       if (this.drag) {
         const d = this.drag; this.drag = null; this.ctl.enabled = true; d.mesh.userData.free = false;
         if (down && down.moved) { down = null; if (this.onDrop) this.onDrop(d.pid, d.node); return; }
