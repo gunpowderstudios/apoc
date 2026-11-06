@@ -233,6 +233,12 @@ const THEN = {};
 THEN.found = (s, p, r) => { gain(s, p, r, 1); logm(s, `${p.name} finds 1 ${RES_LABEL[r]}.`, p.id); };
 THEN.robbed = (s, p, r) => { if (p.res[r] > 0) { spend(s, p, r, 1); logm(s, `${p.name} is robbed of 1 ${RES_LABEL[r]}.`, p.id); } };
 THEN.loseOne = THEN.robbed;
+THEN.contra = (s, p, r, ctx) => {
+  if (p.res[r] > 0) spend(s, p, r, 1);
+  const have = ALLRES.filter(x => p.res[x] > 0);
+  if (ctx.n > 1 && have.length) pickRes(s, p, 'contra', 'Swap for 3 MEDS: give resource 2 of 2', have, { n: 1 });
+  else { gain(s, p, 'meds', 3); logm(s, `${p.name} swaps 2 resources for 3 MEDS.`, p.id); }
+};
 THEN.diveCan = (s, p, r) => { gain(s, p, r, 1); logm(s, `${p.name} opens a mystery can: 1 ${RES_LABEL[r]}.`, p.id); };
 THEN.burgle4 = (s, p, r) => { gain(s, p, r, 1); logm(s, `${p.name} finds 1 ${RES_LABEL[r]} in the house.`, p.id); };
 THEN.burgle5 = (s, p, r, ctx) => { gain(s, p, r, 1); if (ctx.n > 1) pickRes(s, p, 'burgle5', 'Second pick from the padlocked containers', ALLRES.filter(x => x !== 'ducttape'), { n: ctx.n - 1 }); };
@@ -541,6 +547,7 @@ function loseOneRes(s, q) {
 }
 RESOLVE.contraband = (s, pd, o) => {
   const p = s.players[pd.pl]; if (o !== 'yes') return;
+  if (!p.ai) { pickRes(s, p, 'contra', 'Swap for 3 MEDS: give resource 1 of 2', ALLRES.filter(r => p.res[r] > 0), { n: 2 }); return; }   // people choose which 2 resources to give
   let n = 0; const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
   for (const r of have) while (p.res[r] > 0 && n < 2) { spend(s, p, r, 1); n++; }
   gain(s, p, 'meds', 3); logm(s, `${p.name} swaps 2 resources for 3 MEDS.`, p.id);
