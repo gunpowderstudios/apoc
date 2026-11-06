@@ -127,3 +127,12 @@ img.zm{cursor:zoom-in}
 .evp.flash{animation:evpflash 1s ease-in-out infinite}
 @keyframes evpflash{0%,100%{box-shadow:0 0 0 #fff0}50%{box-shadow:0 0 22px 4px #fff}}
 #bGraph,#bExp{display:none!important}
+
+.rules{max-height:72vh;overflow:auto;font-size:14px;line-height:1.45;padding-right:6px}
+.rules details{border:1px solid #3a3f47;border-radius:8px;margin:6px 0;background:#23272d}
+.rules summary{cursor:pointer;padding:9px 12px;font-weight:700;font-size:15px}
+.rules details[open] summary{border-bottom:1px solid #3a3f47;color:#ffd54f}
+.rules details>*:not(summary){margin-left:14px;margin-right:12px}
+.rules ul,.rules ol{margin-top:6px;margin-bottom:8px;padding-left:20px}.rules p{margin:6px 0}
+.rules h4{margin:10px 0 4px;color:#9fd49f}
+.rtbl{border-collapse:collapse;margin:6px 0 10px}.rtbl th,.rtbl td{border:1px solid #3a3f47;padding:4px 9px;text-align:left}.rtbl th{background:#2d3238}
