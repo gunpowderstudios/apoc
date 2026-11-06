@@ -5,7 +5,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
-const PIECE_H = { frost: 0.040, jessica: 0.040, naomi: 0.038, sam: 0.038 };
+const PIECE_H = { frost: 0.040, jessica: 0.040, naomi: 0.040, sam: 0.040 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const RCOL = { food: 0x2eae4e, knowhow: 0x4f6d7a, chem: 0xf2d300, hardware: 0xf4f4f4, tech: 0xb3202a, meds: 0x1e9be0, ducttape: 0x9aa0a6 };
@@ -134,21 +134,23 @@ export class View3D {
   sync(s, ui) {
     this.syncTable(s);
     // resource tokens
-    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin])]);
+    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin]), this.hide ? this.hide.size : -1, this.hl || null]);
     if (sig !== this.sig) {
       this.sig = sig; this.tokens.clear();
       const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), coinMat = new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 });
       for (const n of this.board.nodes) {
-        const L = s.loc[n.id]; if (!L) continue;
+        const L = s.loc[n.id]; if (!L || (this.hide && this.hide.has(n.id))) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
         const [cx, cz] = this.w(n);
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
         const SP = 0.0175, PER = 6, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
         if (L.coin) piles.push({ coin: true, c: L.coin });
-        const z0 = cz + (n.kind === 'building' ? 0.032 : 0.016);
+        const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016);
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
+          const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
+          if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0006, z0 + row * SP); this.tokens.add(ring); }
           for (let k = 0; k < pl.c; k++) {
             const m = new THREE.Mesh(geo, pl.coin ? coinMat : this.tokenMat(pl.r));
             m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);

@@ -101,7 +101,7 @@ async function onStart() {
     mode = lobbyMode === 'host' ? 'host' : 'local';
     const seedTxt = $('#seed').value.trim();
     S = E.createGame({ players, seed: seedTxt ? (+seedTxt || [...seedTxt].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) : undefined, sandbox: $('#sandbox').checked });
-    hist = []; enterApp(); afterChange();
+    hist = []; enterApp(); afterChange(); runSetup();
   } catch (e) { console.error(e); lobbyMsg(String(e.message || e)); }
 }
 async function openRoom() {
@@ -203,7 +203,31 @@ function runCmd(pl, cmd) {
   afterChange(); return r;
 }
 function hostExec(seat, cmd) { return runCmd(seat, cmd); }
+// ---- table set-up: tokens are placed building by building, with a sound and a "Setting up..." bar
+let setupHold = false;
+function tick() {
+  try {
+    const ac = tick.ac || (tick.ac = new (window.AudioContext || window.webkitAudioContext)()), t0 = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(640 + Math.random() * 160, t0); o.frequency.exponentialRampToValueAtTime(180, t0 + 0.07);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.35, t0 + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
+    o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + 0.1);
+  } catch (e) {}
+}
+async function runSetup() {
+  if (!V3 || !S || mode === 'guest') return;
+  const ids = E.D.board.nodes.filter(n => { const L = S.loc[n.id]; return L && (L.coin || Object.values(L.res).some(v => v > 0)); }).map(n => n.id);
+  for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+  setupHold = true; setView('3d'); V3.reset(); V3.hide = new Set(ids); render();
+  const ov = $('#setup'), bar = $('#setupBar'); ov.hidden = false; bar.style.width = '0%';
+  for (let i = 0; i < ids.length; i++) {
+    await new Promise(r => setTimeout(r, 130));
+    V3.hide.delete(ids[i]); tick(); bar.style.width = Math.round((i + 1) / ids.length * 100) + '%'; V3.sync(S, { targets });
+  }
+  await new Promise(r => setTimeout(r, 250));
+  ov.hidden = true; V3.hide = null; setupHold = false; render(); schedule();
+}
 function doCmd(cmd) {
+  if (setupHold) return { ok: false, error: 'Setting up…' };
   if (mode === 'guest') return net.send({ cmd });
   const r = runCmd(actor(), cmd); if (!r.ok) toast(r.error || 'Not allowed'); return r;
 }
@@ -217,6 +241,7 @@ function togglePause() {
   $('#pausedTag').hidden = !paused; if (!paused) schedule();
 }
 function schedule() {
+  if (setupHold) return;
   if (mode === 'guest' || busy || !S || S.over) return;
   if (paused && !stepOnce) return;
   if (!AI.next(S)) return;
@@ -254,6 +279,7 @@ function updateTargets() {
 function onBoardClick(id) {
   if (!S || !id) return;
   if (V2 && V2.edit) { V2.sel = id; V2.dirty = true; return; }
+  if (moveSel) return void dropStack(id);
   if (S.sandbox && sbxMove) return void doCmd({ t: 'sbxMove', to: id, p: sbxTarget });
   const t = targets[id]; if (!t) return;
   doCmd(t.steps.length === 1 ? { t: 'move', to: id } : { t: 'path', steps: t.steps });
@@ -282,10 +308,19 @@ function onDrop(pid, id) {
 }
 
 // ---- click a token pile: choose how many, then move them to/from your player area
+let moveSel = null;
+function dropStack(id) {
+  const m = moveSel; moveSel = null; if (V3) V3.hl = null;
+  if (id !== m.node) doCmd({ t: 'moveStack', from: m.node, to: id, r: m.r }); else render();
+}
+function cancelMove() { if (moveSel) { moveSel = null; if (V3) V3.hl = null; render(); } }
 function closePop() { const p = $('#pop'); if (p) p.hidden = true; }
 function onToken(info) {
   if (!S || S.over) return; closePop();
-  if (!iAct() || S.pending) return toast(S.pending ? 'Make the pending decision first' : 'It is not your turn');
+  if (moveSel) return dropStack(info.node !== undefined ? info.node : moveSel.node);
+  const myTurn = iAct() && !S.pending;
+  if (!myTurn && info.mat !== undefined) return toast(S.pending ? 'Make the pending decision first' : 'It is not your turn');
+  if (S.pending && info.mat === undefined && !iAct()) return;
   const p = S.players[actor()], label = E.RES_LABEL[info.r] || (info.r === 'coin' ? 'PrepCoin' : info.r);
   const ic = info.r === 'coin' ? 'assets/counters/prepcoin.webp' : `assets/counters/${ICON[info.r]}.webp`;
   const room = E.holdLimit(p) - E.resTotal(p), done = () => { closePop(); };
@@ -300,11 +335,11 @@ function onToken(info) {
     if (canSell) { html += `<div class="row">Sell ${qtySel(have)} for ${E.defc(S).sell} PrepCoin each</div><div class="row"><button class="primary" id="popGo">Sell</button></div>`; acts = [() => { const n = +$('#popQty').value; doCmd({ t: 'market', sell: { [info.r]: n } }); done(); }]; }
     else html += `<div class="note">You can only sell at a place with a sell icon (e.g. the Pawn Shop), and you need an action.</div>`;
   } else {
-    if (p.node !== info.node) return toast(`Move to ${spot.name || info.node} first, then take the tokens`);
-    const L = S.loc[info.node], count = info.r === 'coin' ? L.coin : L.res[info.r];
+    const L = S.loc[info.node], count = info.r === 'coin' ? L.coin : L.res[info.r], away = !myTurn || p.node !== info.node;
     const freeSpot = spot.kind !== 'building' || info.node === E.D.board.churchNode;
     html = `<h4><img src="${ic}">${esc(label)} <span class="note">${count} at ${esc(spot.name || info.node)}</span></h4>`;
-    if (info.r === 'coin') {
+    if (away) html += `<div class="note">${myTurn ? `Move to ${esc(spot.name || info.node)} to take these.` : 'You can only take tokens on your own turn.'}</div>`;
+    else if (info.r === 'coin') {
       if (freeSpot) { html += `<div class="row"><button class="primary" id="popGo">Take all ${count} coin</button></div>`; acts = [() => { doCmd({ t: 'pickupCoin' }); done(); }]; }
       else html += '<div class="note">Not available to take here.</div>';
     } else if (freeSpot) {
@@ -322,15 +357,17 @@ function onToken(info) {
       } else html += `<div class="note">${S.ts && S.ts.actions <= 0 ? 'No actions left this turn.' : 'Nothing to do with these right now.'}</div>`;
     }
   }
+  if (info.mat === undefined) html += `<div class="row"><button id="popMove">Move stack…</button></div>`;
   html += `<div class="row"><button id="popX">Cancel</button></div>`;
   pop.innerHTML = html; pop.hidden = false;
   const go = $('#popGo'); if (go) go.onclick = acts[0];
   acts.forEach((f, i) => { const b = $('#popA' + i); if (b) b.onclick = f; });
   $('#popX').onclick = closePop;
+  const mv = $('#popMove'); if (mv) mv.onclick = () => { moveSel = { node: info.node, r: info.r }; V3 && (V3.hl = moveSel); closePop(); toast('Stack selected: click the space to move it to (Esc to cancel)'); render(); };
   const w = pop.offsetWidth, h = pop.offsetHeight;
   pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, info.cx + 12)) + 'px'; pop.style.top = Math.max(8, Math.min(innerHeight - h - 8, info.cy - 20)) + 'px';
 }
-window.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); cancelMove(); } });
 
 function onHover(id) {
   const tip = $('#tip'); if (!id || !S) { tip.textContent = 'Drag = pan · wheel = zoom'; return; }
@@ -364,7 +401,7 @@ function render() {
   if (!S) return;
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderModal();
+  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
@@ -408,7 +445,9 @@ function renderTurn() {
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
   if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>` + (S.sandbox ? sandboxPanel() : ''); return; }
   if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>' + (S.sandbox ? sandboxPanel() : ''); return; }
-  if (ts.step === 'roll') {
+  if (ts.step === 'newsroll') {
+    h += `<div class="btns">${btn('📰 Roll the NEWS dice', () => doCmd({ t: 'rollNews' }), { cls: 'primary' })}</div><div class="note">Read the news card, then roll. Only a matching face (nuclear / pandemic / AI) makes the event happen; fake news does nothing.</div>`;
+  } else if (ts.step === 'roll') {
     const noNight = pa.tagged || E.nightBlocked(S);
     h += `<div class="btns">${btn('☀ Roll DAY dice', () => doCmd({ t: 'roll', kind: 'day' }), { cls: 'primary' })}${btn('🌙 Roll NIGHT dice', () => doCmd({ t: 'roll', kind: 'night' }), { dis: noNight, title: noNight ? 'Tagged or curfew: day dice only' : '' })}</div>`;
     h += '<div class="note">Day = safer. Night = more moves, more risk.</div>';
@@ -459,22 +498,27 @@ function renderHand() {
   el.innerHTML = `<div class="note" style="flex:none">${esc(p.name)}'s items${p.itemCount !== undefined ? '' : ''}:</div>` + (items.length ? items.map(i => `<div class="itm ${i.broken ? 'broken' : ''}" data-i="${H.push(() => { modalFn = () => itemModal(p.id, i.uid); render(); }) - 1}" title="${i.id === 'hidden' ? 'hidden' : esc(E.D.item[i.id].name)}"><img src="${itemImg(i.id)}">${i.tokens !== undefined && i.tokens !== null ? `<span class="tk">${i.tokens}</span>` : ''}</div>`).join('') : '<span class="note">none</span>');
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
-const newsSnd = new Audio('assets/sfx/breaking-news.mp3');
-function showNewsCard(c, line) {
-  const sym = (/News dice: ([A-Z ]+)\./.exec(line) || [])[1] || '', fake = /FAKE/.test(sym), hit = !fake && sym.toLowerCase() === c.type;
-  const nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type], box = $('#newscard');
+const newsSnd = new Audio('assets/sfx/breaking-news.mp3'); let newsShown = null, newsClosed = null;
+function renderNewsPanel() {
+  const box = $('#newscard'); if (setupHold) { box.hidden = true; return; }
+  const nw = S && !S.over && S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];
+  if (!c) { box.hidden = true; return; }
+  const key = nw.id + ':' + S.round + ':' + S.cur;
+  if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; }
+  if (newsClosed === key) { box.hidden = true; return; }
+  const sym = nw.sym, fake = sym === 'fake', hit = sym && sym === c.type, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
+  const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. Only a ${nm} face makes this event happen.</div>`
+    : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? 'MATCH! The event happens.' : fake ? 'nothing happens.' : `doesn't match ${nm}, nothing happens.`}</div>`;
   box.innerHTML = `<button class="x" title="Close">×</button>
-    <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>
-    <div class="res ${hit ? 'hit' : 'miss'}">News dice: ${esc(sym)} - ${hit ? 'MATCH! The event happens.' : fake ? 'Fake news, nothing happens.' : `doesn't match ${nm}, nothing happens.`}</div>
+    <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
     <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)} (the rest of the article is just for fun)</div>`;
-  box.hidden = false; box.querySelector('.x').onclick = () => { box.hidden = true; };
+  box.hidden = false; box.querySelector('.x').onclick = () => { newsClosed = key; box.hidden = true; };
 }
 function renderBanner() {
-  const nl = S.log.filter(l => l.n > lastSeq); if (lastSeq === 0) { lastSeq = S.log.length ? S.log[S.log.length - 1].n : 0; const ln = [...S.log].reverse().find(l => /^NEWS: "/.test(l.t)); if (ln) { const mm = /^NEWS: "(.+?)"/.exec(ln.t), cc = E.D.news.find(n => n.title === mm[1]); if (cc) showNewsCard(cc, ln.t); } } else if (nl.length) {
+  const nl = S.log.filter(l => l.n > lastSeq); if (lastSeq === 0) { lastSeq = S.log.length ? S.log[S.log.length - 1].n : 0; } else if (nl.length) {
     lastSeq = nl[nl.length - 1].n;
     for (const l of nl) {
-      const m = /^NEWS: "(.+?)"/.exec(l.t); const c = m && E.D.news.find(n => n.title === m[1]);
-      if (c) { showNewsCard(c, l.t); try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} bannerHtml = `<div><img src="${c.img}" height="150" style="border-radius:6px;float:left;margin-right:8px"><b>${esc(c.title)}</b><br>${esc(c.text || '')}<br><span class="note">${esc(l.t.replace(/^NEWS:[^.]*\.\s*/, ''))}</span></div>`; bannerUntil = Date.now() + 9000; }
+      if (false) {}
       else if (/DEFCON|SHTF|escalat/i.test(l.t)) { bannerHtml = `<div><b>${esc(l.t)}</b></div>`; bannerUntil = Date.now() + 8000; }
     }
     clearTimeout(renderBanner.t); renderBanner.t = setTimeout(() => { $('#banner').innerHTML = ''; }, 9000);

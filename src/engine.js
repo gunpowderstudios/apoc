@@ -538,17 +538,26 @@ RESOLVE.outbreak = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'pay') 
 function doNews(s, p) {
   const ts = s.ts;
   const id = s.newsDeck.shift();
-  if (!id) { logm(s, 'The news deck is empty.'); return; }
+  if (!id) { logm(s, 'The news deck is empty.'); ts.news = null; ts.step = 'roll'; return; }
   const card = D.newsById[id];
-  const face = Math.floor(rnd(s) * 6), sym = D.cfg.newsDie[face];
-  s.lastRoll = { pl: p.id, kind: 'news', face, sym, card: id };
-  logm(s, `NEWS: "${card.title}" (${card.type.toUpperCase()}). News dice: ${sym === 'fake' ? 'FAKE NEWS' : sym.toUpperCase()}.`, p.id);
+  ts.news = { id, type: card.type, sym: null };
+  logm(s, `NEWS: "${card.title}" (${card.type.toUpperCase()}). Roll the news dice to see if the event happens.`, p.id);
   s.stand[card.type].push(id);
+  if (s.stand[card.type].length >= 5) ts.escalate = card.type;
+  ts.step = 'newsroll';   // pause: read the card, then roll the news dice
+}
+// The news dice (3 fake news faces + nuclear / pandemic / AI): the card's event only happens if the face matches the card's type.
+function rollNews(s, p) {
+  const ts = s.ts, card = D.newsById[ts.news.id];
+  const face = Math.floor(rnd(s) * 6), sym = D.cfg.newsDie[face];
+  ts.news.sym = sym;
+  s.lastRoll = { pl: p.id, kind: 'news', face, sym, card: card.id };
+  logm(s, `News dice: ${sym === 'fake' ? 'FAKE NEWS' : sym.toUpperCase()}.`, p.id);
   if (sym === card.type && card.effect !== 'none') {
     logm(s, `EVENT! ${card.title} - ${card.text}`, p.id);
     EVT[card.effect](s, p, card);
   } else if (sym === card.type) logm(s, 'Event: (not yet designed).');
-  if (s.stand[card.type].length >= 5) ts.escalate = card.type;
+  ts.step = 'roll';
 }
 function escalate(s, type) {
   s.defcon++; s.panic.push(type);
@@ -616,14 +625,14 @@ export function advance(s) {
       }
       case 'news': {
         if (!p.thug) { /* nothing */ }
-        doNews(s, p);
-        ts.step = 'roll'; break;
+        doNews(s, p); break;
       }
       case 'roll': {
         if (ts.skipPrep) { ts.step = 'endturn'; break; }
         if (p.health === 0 && p.node === D.board.hospitalNode) { ts.step = 'endturn'; break; }
         return;
       }
+      case 'newsroll': return;
       case 'prep': return;
       case 'endturn': {
         endTurn(s); if (s.stage === 'grab' || s.over) { continue; }
@@ -808,6 +817,7 @@ export function dispatch(s, pl, cmd) {
     return OK;
   }
   if (s.pending) return err('A decision is pending');
+  if (cmd.t === 'moveStack') return moveStack(s, pl, cmd);
   if (cmd.t.startsWith('sbx')) return sandbox(s, pl, cmd);
   if (s.stage === 'grab') return grabCmd(s, pl, cmd);
   if (s.cur !== pl && !s.sandbox) return err('Not your turn');
@@ -816,6 +826,16 @@ export function dispatch(s, pl, cmd) {
   return r;
 }
 
+// Table tool: pick up a whole stack of one token type and put it down somewhere else (setup tweaks / "like a real board game").
+function moveStack(s, pl, cmd) {
+  const A = s.loc[cmd.from], B = s.loc[cmd.to];
+  if (!A || !B || cmd.from === cmd.to) return err('Pick a different space');
+  const n = cmd.r === 'coin' ? A.coin : (A.res[cmd.r] || 0);
+  if (!n) return err('Nothing to move');
+  if (cmd.r === 'coin') { A.coin = 0; B.coin += n; } else { delete A.res[cmd.r]; B.res[cmd.r] = (B.res[cmd.r] || 0) + n; }
+  logm(s, `${s.players[pl] ? s.players[pl].name : 'Player'} moves ${n} ${cmd.r === 'coin' ? 'PrepCoin' : RES_LABEL[cmd.r]} from ${D.node[cmd.from].name || cmd.from} to ${D.node[cmd.to].name || cmd.to}.`, pl);
+  return OK;
+}
 function sandbox(s, pl, cmd) {
   if (!s.sandbox) return err('Sandbox is off');
   const p = cmd.p !== undefined ? s.players[cmd.p] : cur(s);
@@ -860,6 +880,10 @@ function grabCmd(s, pl, cmd) {
 function turnCmd(s, p, cmd) {
   const ts = s.ts;
   const df = defc(s);
+  if (ts.step === 'newsroll') {
+    if (cmd.t === 'rollNews') { rollNews(s, p); return OK; }
+    return err('Roll the news dice first');
+  }
   const free = ['craft', 'scrap', 'fix', 'heal', 'pickup', 'pickupCoin', 'pickupItem', 'hunt', 'thief', 'postThug', 'moonshine', 'dropThug'];
   if (ts.step === 'roll') {
     if (cmd.t === 'roll') {
