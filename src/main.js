@@ -9,7 +9,7 @@ import { HostNet, GuestNet } from './net.js';
 const $ = s => document.querySelector(s);
 const ICON = { food: 'food', knowhow: 'know-how', chem: 'chem', hardware: 'hardware', tech: 'tech', meds: 'meds', ducttape: 'duct-tape' };
 const PREPS = ['jessica', 'sam', 'frost', 'naomi'];
-const NAMES = ['Tim', 'Paul', 'Tuss', 'Mike'];
+const NAMES = ['Tim', 'Paul', 'Russ', 'Mike'];
 const img = src => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
