@@ -52,7 +52,7 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #pop h4{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}#pop h4 img{width:22px;height:22px}
 #pop .row{margin-top:6px}#pop select{min-width:56px}#pop .note{margin-top:4px}
 
-#newscard{position:fixed;left:12px;top:60px;z-index:15;width:300px;background:#1b1e22ee;border:2px solid #888;border-radius:10px;padding:10px;box-shadow:0 8px 30px #000a}
+#newscard{position:fixed;left:12px;top:118px;z-index:15;width:300px;background:#1b1e22ee;border:2px solid #888;border-radius:10px;padding:10px;box-shadow:0 8px 30px #000a}
 #newscard img.card{width:100%;border-radius:6px;display:block}
 #newscard .ev{display:flex;gap:8px;align-items:center;margin-top:8px}#newscard .ev img{width:44px;height:44px}
 #newscard .res{margin-top:8px;padding:6px 8px;border-radius:6px;font-weight:600}
@@ -65,3 +65,11 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #tools button{position:relative;width:44px;height:44px;padding:0;border-radius:8px;background:#2a2e34;border:1px solid #555;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #tools button.on{background:#3d6fb5;border-color:#9cf}
 #tools kbd{position:absolute;right:3px;bottom:1px;font:600 9px sans-serif;color:#fff;opacity:.7}
+
+#turnbar{position:absolute;left:12px;right:12px;top:10px;z-index:11;display:flex;align-items:stretch;gap:4px;pointer-events:none}
+#turnbar .who{display:flex;align-items:center;padding:0 16px;border-radius:10px 0 0 10px;font:700 20px sans-serif;color:#fff;background:var(--c,#555);white-space:nowrap}
+#turnbar .st{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 10px;background:#23272ddd;color:#8a919b;font:600 16px sans-serif;border:2px solid #3a3f47;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);text-align:center}
+#turnbar .st b{display:inline-flex;width:26px;height:26px;border-radius:50%;background:#3a3f47;color:#fff;align-items:center;justify-content:center;font-size:14px}
+#turnbar .st.done{color:#9fd49f}#turnbar .st.done b{background:#2e7d32}
+#turnbar .st.now{background:#ffd54f;color:#1b1e22;border-color:#fff;box-shadow:0 0 18px #ffd54faa;font-size:19px}#turnbar .st.now b{background:#1b1e22;color:#ffd54f}
+#c3,#c2{top:0}

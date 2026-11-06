@@ -417,7 +417,7 @@ function render() {
   if (!S) return;
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderModal();
+  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
@@ -524,6 +524,17 @@ function newsPileModal() {
     <div style="font-size:18px;font-weight:600;margin:8px 0">${esc(c.text || 'Not yet designed')}</div>
     <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''} The rest of the article is just for fun.</div>
     <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
+}
+const TURN_STEPS = ['Eat & Thugs', 'Draw News', 'Roll News Dice', 'Roll Day / Night', 'Move & Actions', 'End Turn'];
+function renderTurnBar() {
+  const el = $('#turnbar'); if (!S || S.over || setupHold) { el.innerHTML = ''; return; }
+  const pa = S.players[actor()]; let now;
+  if (S.stage === 'grab') now = 4;
+  else { const st = S.ts && S.ts.step; now = { begin: 0, begin2: 0, eat: 0, thug: 0, news: 1, newsroll: 2, roll: 3, prep: 4, endturn: 5 }[st] ?? 0; }
+  const labels = S.stage === 'grab' ? ['Panic Grab', '', '', '', 'Move & Grab', ''] : TURN_STEPS;
+  el.style.setProperty('--c', pcol(pa));
+  el.innerHTML = `<div class="who">${esc(pa.name)}${pa.ai ? ' (AI)' : ''}</div>` + (S.stage === 'grab' ? `<div class="st now"><b>!</b>PANIC GRAB: move and grab (${S.grab ? S.grab.moves : 0} moves left)</div>`
+    : labels.map((l, i) => `<div class="st ${i < now ? 'done' : i === now ? 'now' : ''}"><b>${i < now ? '✓' : i + 1}</b>${l}</div>`).join(''));
 }
 function renderNewsPanel() {
   const box = $('#newscard'); if (setupHold) { box.hidden = true; return; }
