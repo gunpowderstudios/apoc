@@ -325,7 +325,7 @@ export class View3D {
     // player mats: character card (backpack side until bunker), resource piles and item cards
     const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
-      this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length;
+      this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length; this.matItems = s.players.some(q => q.items.length > 0);
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.03;
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;
@@ -402,13 +402,30 @@ export class View3D {
     }
     this.ctl.update(); this.r.render(this.scene, this.cam);
   }
-  // C key: centre the whole scene (chart, news row, board, pool, player mats) in view
+  // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
   fitAll() {
-    const tg = new THREE.Vector3(0.01, 0, -0.015), dir = new THREE.Vector3(0, Math.sin(1.0), Math.cos(1.0)), cam = this.cam.clone();
-    const pts = []; for (const x of [-0.6, 0.62]) for (const z of [-0.5, 0.47]) for (const y of [0, 0.06]) pts.push(new THREE.Vector3(x, y, z));
-    const fits = d => { cam.position.copy(tg).addScaledVector(dir, d); cam.lookAt(tg); cam.updateMatrixWorld(true); cam.updateProjectionMatrix(); return pts.every(q => { const v = q.clone().project(cam); return Math.abs(v.x) <= 0.97 && Math.abs(v.y) <= 0.97; }); };
-    let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (fits(m)) hi = m; else lo = m; }
-    this.flyTo(tg.clone().addScaledVector(dir, hi), tg, 800);
+    const el = 0.9, az = THREE.MathUtils.degToRad(18), hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
+    const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
+    rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
+    rect(-0.585, -0.425, -0.2667, 0.06, 0.01);  // DEFCON chart
+    rect(-0.56, -0.45, 0.13, 0.28, 0.07);       // item deck
+    rect(-0.4, 0.235, -0.49, -0.295, 0.03);     // news row
+    rect(0.415, 0.6, -0.245, 0.09, 0.02);       // pool
+    { const n = this.nPlayers || 2, hx = ((n - 1) / 2) * 0.225 + 0.11; rect(-hx, hx, 0.285, this.matItems ? 0.575 : 0.5, 0.01); }   // player mats, their tokens and (if any) item cards
+    const box = d => {   // projected bounding box of the whole scene for distance d (NDC)
+      cam.position.copy(tg).addScaledVector(dir, d); cam.lookAt(tg); cam.updateMatrixWorld(true); cam.updateProjectionMatrix();
+      let x0 = 9, x1 = -9, y0 = 9, y1 = -9; for (const q of pts) { const v = q.clone().project(cam); x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); }
+      return { x0, x1, y0, y1 };
+    };
+    let d = 1.5;
+    for (let it = 0; it < 10; it++) {
+      let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window
+      const q = box(d), cx = (q.x0 + q.x1) / 2, cy = (q.y0 + q.y1) / 2;   // then centre it evenly
+      const half = d * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
+      tg.x += Math.cos(az) * cx * half * this.cam.aspect; tg.z += Math.sin(az) * cx * half * this.cam.aspect;   // slide sideways along the screen
+      tg.x -= hx * cy * half / Math.sin(el); tg.z -= hz * cy * half / Math.sin(el);                                 // and up/down the table
+    }
+    this.flyTo(tg.clone().addScaledVector(dir, d), tg, 800);
   }
   reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
   // left-mouse tool: select (default: original mouse controls), pan, zoom (drag), rotate. Select keeps the original mouse: left-drag rotates, right-drag pans, wheel zooms; pieces and tokens are still picked up first.

@@ -14,7 +14,7 @@ h1{margin:0 0 12px;font-size:28px;letter-spacing:3px}h1 small{font-size:12px;let
 .dot{width:16px;height:16px;border-radius:50%}
 #app{display:flex;flex-direction:column;height:100vh}
 header{display:flex;gap:6px;padding:6px 10px;background:#1b1e22;border-bottom:1px solid #333;align-items:center}
-header b{letter-spacing:3px;font-size:18px;margin-right:8px}.grow{flex:1}
+header b{letter-spacing:1.5px;font-size:18px;margin-right:8px}.grow{flex:1}
 main{flex:1;display:flex;min-height:0}
 #boardWrap{flex:1;position:relative;min-width:0;background:#16181b}
 #c2,#c3{position:absolute;inset:0}#cv{display:block}
