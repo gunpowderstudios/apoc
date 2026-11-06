@@ -5,7 +5,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
-const PIECE_H = { frost: 0.040, jessica: 0.040, naomi: 0.038, sam: 0.038 };
+const PIECE_H = { frost: 0.044, jessica: 0.040, naomi: 0.0418, sam: 0.0304 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const RCOL = { food: 0x2eae4e, knowhow: 0x4f6d7a, chem: 0xf2d300, hardware: 0xf4f4f4, tech: 0xb3202a, meds: 0x1e9be0, ducttape: 0x9aa0a6 };
