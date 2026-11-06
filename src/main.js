@@ -147,8 +147,6 @@ function enterApp() {
   V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;
   V2.loop(() => S, () => ({}));
   $('#roomTag').textContent = net && net.code ? 'Room ' + net.code : '';
-  $('#v2d').onclick = () => setView('2d'); $('#v3d').onclick = () => setView('3d');
-  $('#bRot').onclick = () => V2.rotate();
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
@@ -163,10 +161,21 @@ function enterApp() {
   setView('3d');   // open in the 3D view by default
   window.apoc = { get S() { return S; }, get V3() { return V3; }, get targets() { return targets; }, click: onBoardClick, E, AI };   // handy for console debugging
 }
+// ---- tool icons (bottom right of the table) + keyboard shortcuts S / P / Z / R
+function setTool(tool) {
+  if (tool === 'rotate' && view === '2d') { V2.rotate(); return; }
+  document.querySelectorAll('#tools button').forEach(b => b.classList.toggle('on', b.dataset.tool === tool));
+  if (V3) V3.setTool(tool);
+}
+document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+window.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
+  const k = { s: 'select', p: 'pan', z: 'zoom', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
+});
 function setView(v) {
-  view = v; $('#c2').hidden = v !== '2d'; $('#c3').hidden = v !== '3d'; $('#v2d').classList.toggle('on', v === '2d'); $('#v3d').classList.toggle('on', v === '3d');
+  view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => { closePop(); onBoardClick(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y);
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => { closePop(); onBoardClick(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }

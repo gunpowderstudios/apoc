@@ -24,7 +24,7 @@ export class View3D {
     this.cam.position.set(0, 1.15, 1.0); this.cam.lookAt(0, 0, 0.15);
     this.ctl = new OrbitControls(this.cam, r.domElement);
     this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.12; this.ctl.maxDistance = 2.6;
-    this.ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    this.ctl.mouseButtons = { LEFT: undefined, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     this.ctl.update();
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 0.85));
     const sun = new THREE.DirectionalLight(0xfff2dd, 3.4); sun.position.set(-0.4, 0.9, 0.5); sun.castShadow = true;
@@ -311,5 +311,10 @@ export class View3D {
     this.ctl.update(); this.r.render(this.scene, this.cam);
   }
   reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
+  // left-mouse tool: select (pieces only), pan, zoom (drag), rotate. Right button always pans, wheel always zooms.
+  setTool(tool) {
+    const M = THREE.MOUSE; this.tool = tool;
+    this.ctl.mouseButtons = { LEFT: { select: undefined, pan: M.PAN, zoom: M.DOLLY, rotate: M.ROTATE }[tool], MIDDLE: M.DOLLY, RIGHT: M.PAN };
+  }
   topDown() { this.cam.position.set(0, 0.95, 0.001); this.ctl.target.set(0, 0, 0); this.ctl.update(); }
 }
