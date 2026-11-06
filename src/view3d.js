@@ -235,7 +235,7 @@ export class View3D {
     this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(1.9, 1, 1.9); 
     // news piles
     const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck;
-    const psig = JSON.stringify([deckN, s.stand]);
+    const psig = JSON.stringify([deckN, s.stand, s.spent]);
     if (psig !== this.psig) {
       this.psig = psig; this.piles.clear();
       const make = (key, n, topUrl, name) => {
@@ -246,7 +246,7 @@ export class View3D {
         const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.11); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
-      for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? `assets/news/${a[a.length - 1]}.jpg` : '', ty.toUpperCase()); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? ((s.spent || []).includes(a[a.length - 1]) ? 'assets/news/back.jpg' : `assets/news/${a[a.length - 1]}.jpg`) : '', ty.toUpperCase()); }
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards

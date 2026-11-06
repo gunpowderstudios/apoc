@@ -53,7 +53,7 @@ export function createGame(opts) {
   const cfg = D.cfg;
   const s = {
     v: 1, rng: (opts.seed ?? (Date.now() & 0x7fffffff)) | 0, log: [], players: [], cur: 0, round: 1,
-    defcon: 0, panic: [], stand: { ai: [], pandemic: [], nuclear: [] }, offers: [], pid: 0,
+    defcon: 0, panic: [], stand: { ai: [], pandemic: [], nuclear: [] }, spent: [], offers: [], pid: 0,
     pending: null, queue: [], sandbox: !!opts.sandbox, over: null, stage: 'turn', ts: null, grab: null,
     supply: { ...cfg.supply }, bustedLeft: cfg.busted, thugsBar: cfg.thugs, bunkerBonusTaken: false,
     loc: {}, itemDeck: [], newsDeck: [], endTimes: { yellow: [], orange: [] }, uid: 0, lastRoll: null, seq: 0,
@@ -103,7 +103,7 @@ export function spend(s, p, r, n) { p.res[r] -= n; s.supply[r] += n; }
 export function afford(p, cost) { return Object.entries(cost).every(([r, n]) => p.res[r] >= n); }
 function activeEffects(s) {
   const out = new Set();
-  for (const t of APOC_TYPES) { const top = s.stand[t][s.stand[t].length - 1]; if (top) out.add(D.newsById[top].effect); }
+  for (const t of APOC_TYPES) { const top = s.stand[t][s.stand[t].length - 1]; if (top && (s.spent || []).includes(top)) out.add(D.newsById[top].effect); }
   return out;
 }
 export const hospitalOpen = s => defc(s).hospital && !activeEffects(s).has('hospitalClosed');
@@ -555,8 +555,10 @@ function rollNews(s, p) {
   logm(s, `News dice: ${sym === 'fake' ? 'FAKE NEWS' : sym.toUpperCase()}.`, p.id);
   // a matching face triggers the event of the newest card of that type that is out on the table (this turn's card or an earlier one)
   const top = sym !== 'fake' && s.stand[sym].length ? D.newsById[s.stand[sym][s.stand[sym].length - 1]] : null;
-  if (top) {
-    ts.news.fired = top.id;
+  s.spent = s.spent || [];
+  if (top && s.spent.includes(top.id)) logm(s, `The ${sym.toUpperCase()} paper on top has already been used (turned over): nothing happens.`, p.id);
+  else if (top) {
+    ts.news.fired = top.id; s.spent.push(top.id);   // the paper is turned over on its pile; it still counts towards the five
     if (top.effect !== 'none') { logm(s, `EVENT! ${top.title} - ${top.text}`, p.id); EVT[top.effect](s, p, top); }
     else logm(s, 'Event: (not yet designed).');
   }
@@ -566,6 +568,7 @@ function escalate(s, type) {
   s.defcon++; s.panic.push(type);
   logm(s, `DEFCON rises to ${defc(s).id.toUpperCase()}! ${type.toUpperCase()} token placed on the Panic Index.`);
   for (const t of APOC_TYPES) { s.newsDeck.push(...s.stand[t]); s.stand[t] = []; }
+  s.spent = [];
   s.offers = [];
   if (s.defcon === 1) for (const q of s.players) { if (q.tagged) { q.tagged = false; s.bustedLeft++; logm(s, `${q.name}'s TAGGED token is discarded.`); } }
   const lvl = ['green', 'yellow', 'orange'][s.defcon];
