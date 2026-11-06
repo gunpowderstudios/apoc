@@ -3,6 +3,7 @@ import * as E from './engine.js';
 import * as AI from './ai.js';
 import { View2D, PCOL } from './view2d.js';
 import { View3D } from './view3d.js';
+import { VERSION } from './version.js';
 import { HostNet, GuestNet } from './net.js';
 
 const $ = s => document.querySelector(s);
@@ -23,7 +24,7 @@ async function boot() {
   D = E.init({ board, items, news, preppers, config });
   boardImg = await img('assets/board/board.jpg');
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
-  buildSeats(); bindLobby();
+  $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
 function buildSeats() {
   const types = lobbyMode === 'host' ? [['human', 'Human (this device)'], ['remote', 'Remote player'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
@@ -102,7 +103,7 @@ function onGuestMsg(m) {
 // ---------------------------------------------------------------- app shell
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
-  document.title = 'APOC test table';
+  document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
   V2.onClick = onBoardClick; V2.onHover = onHover;
   V2.loop(() => S, () => ({}));
@@ -221,8 +222,15 @@ const chip = (r, n) => `<span class="chip" title="${E.RES_LABEL[r]}"><img src="a
 const chips = res => E.ALLRES.filter(r => res[r] > 0).map(r => chip(r, res[r])).join('') || '<span class="note">nothing</span>';
 const itemImg = id => id === 'DUCT' ? 'assets/counters/duct-tape.webp' : id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${id}.jpg`;
 
+const diceSnd = new Audio('assets/sfx/dice.mp3'); let lastRollKey = null, rollInit = false;
+function rollSound() {
+  const k = S.lastRoll ? JSON.stringify(S.lastRoll) + S.log.length : null;
+  if (rollInit && k && k !== lastRollKey) { try { diceSnd.currentTime = 0; diceSnd.play().catch(() => {}); } catch (e) {} }
+  lastRollKey = k; rollInit = true;
+}
 function render() {
   if (!S) return;
+  rollSound();
   H = []; updateTargets();
   renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
