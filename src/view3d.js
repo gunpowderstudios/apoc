@@ -76,7 +76,7 @@ export class View3D {
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
     el.addEventListener('pointermove', e => {
-      if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; }
+      if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; this.updateDrop(e); }
       if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
       if (this.drag) {
         if (!down || !down.moved) return;
@@ -111,10 +111,32 @@ export class View3D {
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', () => { if (this.drag) { this.drag.mesh.userData.free = false; this.drag = null; this.ctl.enabled = true; } down = null; });
   }
+  // drop-zone highlight while holding tokens: a translucent cover over the space / card under the pointer (green = can drop, red = can't, amber = put back)
+  updateDrop(e) {
+    const h = this.hit(e); let tgt = null;
+    if (h) { if (h.type === 'board' && h.id) tgt = { type: 'node', id: h.id }; else if (h.type === 'mat') tgt = { type: 'mat', id: h.matId }; else if (h.type === 'token') tgt = h.info.mat !== undefined ? { type: 'mat', id: h.info.mat } : { type: 'node', id: h.info.node }; }
+    const key = tgt ? tgt.type + tgt.id : ''; if (key === this.dropKey) return; this.dropKey = key;
+    if (!tgt) return this.setDrop(null);
+    const ok = this.onHeldHover ? this.onHeldHover(tgt) : true;
+    let w = 0.09, d = 0.09, x = 0, z = 0;
+    if (tgt.type === 'mat') { const n = this.nPlayers || 1; x = this.matX(tgt.id, n); z = this.H / 2 + 0.03 + 0.0745; w = 0.22; d = 0.16; }
+    else {
+      const nd = this.board.nodes.find(q => q.id === tgt.id); if (!nd) return this.setDrop(null);
+      if (nd.seg) { const [x0, y0, x1, y1] = nd.seg; [x, z] = this.w({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 }); const horiz = Math.abs(x1 - x0) >= Math.abs(y1 - y0); w = (horiz ? Math.abs(x1 - x0) : 64) * this.k; d = (horiz ? 64 : Math.abs(y1 - y0)) * this.k; }
+      else { [x, z] = this.w(nd); const s = (nd.kind === 'building' ? 130 : 64) * this.k; w = d = s; if (nd.kind === 'building') z += 0.01; }
+    }
+    this.setDrop({ x, z, w, d, ok });
+  }
+  setDrop(f) {
+    if (!this.dropFx) { this.dropFx = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.38, depthWrite: false, side: THREE.DoubleSide })); this.dropFx.rotation.x = -Math.PI / 2; this.dropFx.renderOrder = 5; this.scene.add(this.dropFx); }
+    this.dropFx.visible = !!f; if (!f) return;
+    this.dropFx.material.color.set(f.ok === true ? 0x2ecc40 : f.ok === 'same' ? 0xffc107 : 0xe53935);
+    this.dropFx.scale.set(f.w, f.d, 1); this.dropFx.position.set(f.x, 0.004, f.z);
+  }
   // tokens held in the hand: a floating stack that follows the pointer until the next click
   setHeld(h) {
     if (this.heldG) { this.scene.remove(this.heldG); this.heldG = null; }
-    if (!h) return;
+    this.dropKey = null; if (!h) { this.setDrop(null); return; }
     this.heldPlane = this.heldPlane || new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.0);
     const g = new THREE.Group(), geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
     for (let i = 0; i < Math.min(h.n, 14); i++) { const m = new THREE.Mesh(geo, h.r === 'coin' ? new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: .7, roughness: .3 }) : this.tokenMat(h.r)); m.position.y = i * 0.003; m.castShadow = true; g.add(m); }
@@ -254,7 +276,7 @@ export class View3D {
     // player mats: character card (backpack side until bunker), resource piles and item cards
     const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
-      this.matSig = msig; this.mats.clear();
+      this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length;
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.0185;
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;

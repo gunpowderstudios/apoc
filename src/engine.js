@@ -535,6 +535,11 @@ RESOLVE.contraband = (s, pd, o) => {
 RESOLVE.crypto = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'all') { const n = p.res.tech; spend(s, p, 'tech', n); p.coin += 2 * n; logm(s, `${p.name} cashes in ${n} TECH for ${2 * n} PREPCOIN.`, p.id); } };
 RESOLVE.outbreak = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'pay') { spend(s, p, 'meds', 1); logm(s, `${p.name} pays 1 MEDS.`); } else hurt(s, p, pd.ctx.dmg || 2, 'outbreak'); };
 
+function doEat(s, p) {
+  if (p.res.food >= 1) { spend(s, p, 'food', 1); logm(s, `${p.name} eats 1 food.`, p.id); }
+  else { logm(s, `${p.name} has nothing to eat.`, p.id); hurt(s, p, 1, 'hunger'); }
+  s.ts.step = 'thug';
+}
 function doNews(s, p) {
   const ts = s.ts;
   const id = s.newsDeck.shift();
@@ -613,11 +618,7 @@ export function advance(s) {
         }
         ts.step = 'eat'; break;
       }
-      case 'eat': {
-        if (p.res.food >= 1) { spend(s, p, 'food', 1); logm(s, `${p.name} eats 1 food.`, p.id); }
-        else { logm(s, `${p.name} has nothing to eat.`, p.id); hurt(s, p, 1, 'hunger'); }
-        ts.step = 'thug'; break;
-      }
+      case 'eat': return;   // wait for the player to press Eat
       case 'thug': {
         if (p.thug) {
           const opts = [];
@@ -629,10 +630,7 @@ export function advance(s) {
         }
         ts.step = 'news'; break;
       }
-      case 'news': {
-        if (!p.thug) { /* nothing */ }
-        doNews(s, p); break;
-      }
+      case 'news': return;   // wait for the player to draw the news
       case 'roll': {
         if (ts.skipPrep) { ts.step = 'endturn'; break; }
         if (p.health === 0 && p.node === D.board.hospitalNode) { ts.step = 'endturn'; break; }
@@ -897,6 +895,8 @@ function grabCmd(s, pl, cmd) {
 function turnCmd(s, p, cmd) {
   const ts = s.ts;
   const df = defc(s);
+  if (ts.step === 'eat') { if (cmd.t === 'eat') { doEat(s, p); return OK; } return err('Press Eat first'); }
+  if (ts.step === 'news') { if (cmd.t === 'drawNews') { doNews(s, p); return OK; } return err('Draw the news first'); }
   if (ts.step === 'newsroll') {
     if (cmd.t === 'rollNews') { rollNews(s, p); return OK; }
     return err('Roll the news dice first');

@@ -99,6 +99,8 @@ export function next(s) {
   const ts = s.ts;
   ts.aiFail = ts.aiFail || [];
   const C = cmd => ({ pl: p.id, cmd });
+  if (ts.step === 'eat') return C({ t: 'eat' });
+  if (ts.step === 'news') return C({ t: 'drawNews' });
   if (ts.step === 'newsroll') return C({ t: 'rollNews' });
   if (ts.step === 'roll') {
     const night = !p.tagged && !E.nightBlocked(s) && p.health >= 6 && chance(0.4);

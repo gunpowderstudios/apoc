@@ -175,7 +175,11 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
+    if (!moveSel) return false;
+    if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
+    const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
+  }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -461,7 +465,11 @@ function renderTurn() {
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
   if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>` + (S.sandbox ? sandboxPanel() : ''); return; }
   if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>' + (S.sandbox ? sandboxPanel() : ''); return; }
-  if (ts.step === 'newsroll') {
+  if (ts.step === 'eat') {
+    h += `<div class="btns">${btn('🍽 Eat (1 food)', () => doCmd({ t: 'eat' }), { cls: 'primary' })}</div><div class="note">Press when you are ready. No food = lose 1 health.</div>`;
+  } else if (ts.step === 'news') {
+    h += `<div class="btns">${btn('📰 Draw the news', () => doCmd({ t: 'drawNews' }), { cls: 'primary' })}</div><div class="note">Draw a newspaper card for this turn.</div>`;
+  } else if (ts.step === 'newsroll') {
     h += `<div class="btns">${btn('📰 Roll the NEWS dice', () => doCmd({ t: 'rollNews' }), { cls: 'primary' })}</div><div class="note">Read the news card, then roll. Only a matching face (nuclear / pandemic / AI) makes the event happen; fake news does nothing.</div>`;
   } else if (ts.step === 'roll') {
     const noNight = pa.tagged || E.nightBlocked(S);
@@ -526,15 +534,29 @@ function newsPileModal() {
     <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
 }
 const TURN_STEPS = ['Eat & Thugs', 'Draw News', 'Roll News Dice', 'Roll Day / Night', 'Move & Actions', 'End Turn'];
+let dayPick = false;
 function renderTurnBar() {
   const el = $('#turnbar'); if (!S || S.over || setupHold) { el.innerHTML = ''; return; }
-  const pa = S.players[actor()]; let now;
+  const pa = S.players[actor()], me = iAct() && !S.pending && !pa.ai; let now;
   if (S.stage === 'grab') now = 4;
   else { const st = S.ts && S.ts.step; now = { begin: 0, begin2: 0, eat: 0, thug: 0, news: 1, newsroll: 2, roll: 3, prep: 4, endturn: 5 }[st] ?? 0; }
-  const labels = S.stage === 'grab' ? ['Panic Grab', '', '', '', 'Move & Grab', ''] : TURN_STEPS;
+  const step = S.ts && S.ts.step, goStep = S.stage === 'grab' ? -1 : step === 'eat' ? 0 : step === 'news' ? 1 : step === 'newsroll' ? 2 : step === 'roll' ? 3 : -1;
+  const endGo = me && step === 'prep';
+  if (goStep !== 3) dayPick = false;
   el.style.setProperty('--c', pcol(pa));
+  const noNight = pa.tagged || E.nightBlocked(S);
   el.innerHTML = `<div class="who">${esc(pa.name)}${pa.ai ? ' (AI)' : ''}</div>` + (S.stage === 'grab' ? `<div class="st now"><b>!</b>PANIC GRAB: move and grab (${S.grab ? S.grab.moves : 0} moves left)</div>`
-    : labels.map((l, i) => `<div class="st ${i < now ? 'done' : i === now ? 'now' : ''}"><b>${i < now ? '✓' : i + 1}</b>${l}</div>`).join(''));
+    : TURN_STEPS.map((l, i) => {
+      const go = me && (i === goStep || (i === 5 && endGo));
+      const pick = i === 3 && dayPick && go ? `<div class="pick"><button data-d="day">☀ Day</button><button data-d="night" ${noNight ? 'disabled title="Tagged or curfew: day dice only"' : ''}>🌙 Night</button></div>` : '';
+      return `<div class="st ${i < now ? 'done' : i === now ? 'now' : ''} ${go ? 'go' : ''}" data-step="${i}"><b>${i < now ? '✓' : i + 1}</b>${l}${go && i !== 3 ? '<span class="clk">click</span>' : go && !dayPick ? '<span class="clk">click</span>' : ''}${pick}</div>`;
+    }).join(''));
+  el.querySelectorAll('.st.go').forEach(c => c.onclick = e => {
+    const i = +c.dataset.step, d = e.target.closest('button[data-d]');
+    if (d) { dayPick = false; return void doCmd({ t: 'roll', kind: d.dataset.d }); }
+    if (i === 0) doCmd({ t: 'eat' }); else if (i === 1) doCmd({ t: 'drawNews' }); else if (i === 2) doCmd({ t: 'rollNews' });
+    else if (i === 3) { dayPick = !dayPick; renderTurnBar(); } else if (i === 5) doCmd({ t: 'endTurn' });
+  });
 }
 function renderNewsPanel() {
   const box = $('#newscard'); if (setupHold) { box.hidden = true; return; }

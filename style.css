@@ -73,3 +73,12 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #turnbar .st.done{color:#9fd49f}#turnbar .st.done b{background:#2e7d32}
 #turnbar .st.now{background:#ffd54f;color:#1b1e22;border-color:#fff;box-shadow:0 0 18px #ffd54faa;font-size:19px}#turnbar .st.now b{background:#1b1e22;color:#ffd54f}
 #c3,#c2{top:0}
+
+#turnbar .st.go{pointer-events:auto;cursor:pointer;position:relative}
+#turnbar .st.go:hover{filter:brightness(1.12)}
+#turnbar .st.go .clk{margin-left:6px;font:600 11px sans-serif;background:#1b1e22;color:#ffd54f;border-radius:10px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
+#turnbar .st.go:not(.now) .clk{background:#3d6fb5;color:#fff}
+#turnbar .pick{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:6px;display:flex;gap:6px;background:#1b1e22;border:1px solid #888;border-radius:8px;padding:6px;z-index:5;clip-path:none}
+#turnbar .pick button{font:600 15px sans-serif;padding:8px 14px}
+#turnbar .st{clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%)}
+#turnbar .st.go:has(.pick){clip-path:none}
