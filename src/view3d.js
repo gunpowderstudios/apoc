@@ -210,7 +210,7 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
-    this.newsPos = { deck: [W + 0.03 + 0.052, -hb + 0.0735], ai: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735], pandemic: [W + 0.03 + 0.052, -hb + 0.0735 + 0.17], nuclear: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735 + 0.17] };
+    this.newsPos = { deck: [W + 0.03 + 0.068, -hb + 0.0955], ai: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955], pandemic: [W + 0.03 + 0.068, -hb + 0.0955 + 0.22], nuclear: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955 + 0.22] };
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
@@ -226,12 +226,12 @@ export class View3D {
         if (n <= 0) return;
         const [x, z] = this.newsPos[key], h = Math.max(0.001, n * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 });
         const top = new THREE.MeshStandardMaterial({ map: this.tex(topUrl), roughness: 0.8 });
-        const m = new THREE.Mesh(new THREE.BoxGeometry(0.1036, h, 0.147), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
-        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.1, 0.019, 1); lb.position.set(x, h + 0.012, z + 0.085); this.piles.add(lb);
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.1347, h, 0.191), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
+        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.11); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
       for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? `assets/news/${a[a.length - 1]}.jpg` : '', ty.toUpperCase()); }
-      for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.1, 0.019, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
     const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
