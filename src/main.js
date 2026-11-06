@@ -63,7 +63,7 @@ function bindLobby() {
   document.querySelectorAll('#modeTabs button').forEach(b => b.onclick = () => {
     lobbyMode = b.dataset.m; document.querySelectorAll('#modeTabs button').forEach(x => x.classList.toggle('on', x === b));
     $('#seatsBox').hidden = lobbyMode === 'join'; $('#joinBox').hidden = lobbyMode !== 'join'; $('#hostInfo').hidden = lobbyMode !== 'host' || !net;
-    $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'Start game' : 'Open room') : 'Start game';
+    $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'New game' : 'Open room') : 'New game';
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
@@ -110,7 +110,7 @@ async function openRoom() {
   net.onLeave = pid => { guestNames.delete(pid); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) net.send(pid, { err: r.error }); };
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code);
-  $('#startBtn').textContent = 'Start game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
+  $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
 }
 const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
 async function doJoin() {
