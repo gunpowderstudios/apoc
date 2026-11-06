@@ -1,1 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>APOC – test table</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<div id="lobby" class="screen">
+  <div class="card">
+    <h1>APOC <small>pre-APOC test table · Gunpowder Studios</small></h1>
+    <div class="tabs" id="modeTabs">
+      <button data-m="solo" class="on">Solo / vs AI / hot-seat</button>
+      <button data-m="host">Host online</button>
+      <button data-m="join">Join online</button>
+    </div>
+    <div id="seatsBox">
+      <div id="seats"></div>
+      <label class="chk"><input type="checkbox" id="sandbox"> Sandbox / test tools (give resources, move anywhere, set DEFCON)</label>
+      <label class="chk">Seed <input id="seed" size="8" placeholder="random"></label>
+    </div>
+    <div id="joinBox" hidden>
+      <label>Room code <input id="joinCode" size="6" maxlength="6" style="text-transform:uppercase"></label>
+      <label>Your name <input id="joinName" value="Guest"></label>
+    </div>
+    <div id="hostInfo" class="note" hidden></div>
+    <div class="row"><button id="startBtn" class="primary">Start game</button><span id="lobbyMsg" class="note"></span></div>
+    <p class="note">Pre-APOC game only: when the DEFCON/SHTF trigger fires, the game ends with the Panic Grab and says which Mission Pack to open.</p>
+  </div>
+</div>
 
+<div id="app" hidden>
+  <header>
+    <b>APOC</b>
+    <span id="roomTag"></span>
+    <div class="grow"></div>
+    <button id="v2d" class="on">2D</button><button id="v3d">3D</button>
+    <button id="bRot" title="Rotate the 2D board 180° for the other side of the table">⟲ Flip</button>
+    <button id="bReset" title="Reset camera">⌖ Reset</button>
+    <button id="bGraph" title="Show the movement graph over the board">Graph</button>
+    <button id="bUndo" title="Undo your last command (host/solo)">↶ Undo</button>
+    <button id="bLog" title="Download full game state + log (JSON) for bug reports">⇩ Export</button>
+    <button id="bRules" title="Assumptions list">Assumptions</button>
+  </header>
+  <main>
+    <section id="boardWrap">
+      <div id="c2"><canvas id="cv"></canvas></div>
+      <div id="c3" hidden></div>
+      <div id="banner"></div>
+      <div id="tip"></div>
+    </section>
+    <aside>
+      <div id="status"></div>
+      <div id="players"></div>
+      <div id="turn"></div>
+      <div id="log"></div>
+    </aside>
+  </main>
+  <footer id="hand"></footer>
+</div>
+<div id="modal" hidden><div id="modalBox"></div></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

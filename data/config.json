@@ -1,0 +1,223 @@
+{
+ "supply": {
+  "food": 30,
+  "knowhow": 20,
+  "chem": 20,
+  "hardware": 20,
+  "tech": 20,
+  "meds": 20,
+  "ducttape": 10
+ },
+ "busted": 16,
+ "thugs": 4,
+ "startCoin": 2,
+ "startFood": 3,
+ "maxHealth": 10,
+ "baseMoves": 4,
+ "backpack": 10,
+ "itemCopies": 4,
+ "defcon": [
+  {
+   "id": "green",
+   "name": "PEACE",
+   "buy": 1,
+   "sell": 1,
+   "steal": true,
+   "loot": false,
+   "burgle": false,
+   "hospital": true
+  },
+  {
+   "id": "yellow",
+   "name": "PANIC",
+   "buy": 2,
+   "sell": 1,
+   "steal": false,
+   "loot": true,
+   "burgle": true,
+   "hospital": true
+  },
+  {
+   "id": "orange",
+   "name": "MAYHEM",
+   "buy": 3,
+   "sell": 1,
+   "steal": false,
+   "loot": true,
+   "burgle": true,
+   "hospital": false
+  },
+  {
+   "id": "red",
+   "name": "SHTF",
+   "buy": 3,
+   "sell": 1,
+   "steal": false,
+   "loot": true,
+   "burgle": true,
+   "hospital": false
+  }
+ ],
+ "shops": {
+  "gunshop": [
+   [
+    "rifle",
+    7
+   ],
+   [
+    "chainsaw",
+    6
+   ],
+   [
+    "pistol",
+    5
+   ],
+   [
+    "walkie-talkie",
+    4
+   ],
+   [
+    "bow",
+    4
+   ],
+   [
+    "kevlar-vest",
+    3
+   ],
+   [
+    "knife",
+    2
+   ]
+  ],
+  "hardwarestore": [
+   [
+    "flashlight",
+    4
+   ],
+   [
+    "walkie-talkie",
+    4
+   ],
+   [
+    "camping-stove",
+    4
+   ],
+   [
+    "bolt-cutters",
+    3
+   ],
+   [
+    "knife",
+    2
+   ],
+   [
+    "DUCT",
+    2
+   ]
+  ]
+ },
+ "dayDie": [
+  [
+   "food",
+   1
+  ],
+  [
+   "foodcoin",
+   1
+  ],
+  [
+   "food",
+   2
+  ],
+  [
+   "moves",
+   2
+  ],
+  [
+   "moves",
+   3
+  ],
+  [
+   "moves",
+   4
+  ]
+ ],
+ "nightDie": [
+  [
+   "found",
+   1
+  ],
+  [
+   "moves",
+   3
+  ],
+  [
+   "food",
+   2
+  ],
+  [
+   "bitten",
+   1
+  ],
+  [
+   "robbed",
+   1
+  ],
+  [
+   "action",
+   1
+  ]
+ ],
+ "newsDie": [
+  "pandemic",
+  "ai",
+  "nuclear",
+  "fake",
+  "fake",
+  "fake"
+ ],
+ "sellNodes": [
+  "truckstop",
+  "salvage",
+  "pawn",
+  "prison"
+ ],
+ "tradeNodes": [
+  "basketball",
+  "prison"
+ ],
+ "art": {
+  "day": [
+   "assets/dice/f01.webp",
+   "assets/dice/f02.webp",
+   "assets/dice/f03.webp",
+   "assets/dice/f04.webp",
+   "assets/dice/f05.webp",
+   "assets/dice/f06.webp"
+  ],
+  "night": [
+   "assets/dice/f07.webp",
+   "assets/dice/f08.webp",
+   "assets/dice/f09.webp",
+   "assets/dice/f10.webp",
+   "assets/dice/f11.webp",
+   "assets/dice/f12.webp"
+  ],
+  "news": [
+   "assets/dice/f13.webp",
+   "assets/dice/f14.webp",
+   "assets/dice/f15.webp",
+   "assets/dice/f16.webp",
+   "assets/dice/f17.webp",
+   "assets/dice/f18.webp"
+  ],
+  "risk": [
+   "assets/dice/f25.webp",
+   "assets/dice/f26.webp",
+   "assets/dice/f27.webp",
+   "assets/dice/f28.webp",
+   "assets/dice/f29.webp",
+   "assets/dice/f30.webp"
+  ]
+ }
+}

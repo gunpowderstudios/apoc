@@ -1,0 +1,494 @@
+[
+ {
+  "id": "walkie-talkie",
+  "name": "Walkie-Talkie",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   }
+  ],
+  "img": "assets/items/walkie-talkie.jpg",
+  "copies": 4,
+  "text": "Recruit a thug remotely. (Mission use: post-APOC)",
+  "remoteThug": true
+ },
+ {
+  "id": "knife",
+  "name": "Knife",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": true
+   }
+  ],
+  "img": "assets/items/knife.jpg",
+  "copies": 4,
+  "text": "+1 STEAL / COMBAT",
+  "bonus": {
+   "steal": 1,
+   "combat": 1
+  }
+ },
+ {
+  "id": "dog",
+  "name": "Dog",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "food",
+    "x": false
+   },
+   {
+    "r": "food",
+    "x": true
+   }
+  ],
+  "img": "assets/items/dog.jpg",
+  "copies": 4,
+  "text": "+1 COMBAT, +1 STEAL / LOOT / SCAVENGE",
+  "bonus": {
+   "combat": 1,
+   "steal": 1,
+   "loot": 1,
+   "scavenge": 1
+  }
+ },
+ {
+  "id": "bow",
+  "name": "Bow",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   }
+  ],
+  "img": "assets/items/bow.jpg",
+  "copies": 4,
+  "text": "+1 LOOT / COMBAT. HUNT: roll risk die once per turn: 1-2 gain 1 FOOD",
+  "bonus": {
+   "loot": 1,
+   "combat": 1
+  },
+  "hunt": true
+ },
+ {
+  "id": "pistol",
+  "name": "Pistol",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/pistol.jpg",
+  "copies": 4,
+  "text": "+1 LOOT / BURGLE / COMBAT",
+  "bonus": {
+   "loot": 1,
+   "burgle": 1,
+   "combat": 1
+  },
+  "gun": true
+ },
+ {
+  "id": "rifle",
+  "name": "Rifle",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/rifle.jpg",
+  "copies": 4,
+  "text": "+2 LOOT / BURGLE / COMBAT",
+  "bonus": {
+   "loot": 2,
+   "burgle": 2,
+   "combat": 2
+  },
+  "gun": true
+ },
+ {
+  "id": "chainsaw",
+  "name": "Chainsaw",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/chainsaw.jpg",
+  "copies": 4,
+  "text": "+3 COMBAT",
+  "bonus": {
+   "combat": 3
+  }
+ },
+ {
+  "id": "bed",
+  "name": "Bed",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": true
+   }
+  ],
+  "img": "assets/items/bed.jpg",
+  "copies": 4,
+  "text": "Recover 1 HEALTH at the start of each turn",
+  "needsBunker": true
+ },
+ {
+  "id": "bolt-cutters",
+  "name": "Bolt Cutters",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": true
+   }
+  ],
+  "img": "assets/items/bolt-cutters.jpg",
+  "copies": 4,
+  "text": "Move between buildings in the same block",
+  "boltCutters": true
+ },
+ {
+  "id": "kevlar-vest",
+  "name": "Kevlar Vest",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": true
+   }
+  ],
+  "img": "assets/items/kevlar-vest.jpg",
+  "copies": 4,
+  "text": "Blocks all damage. Add a Hit & Run token per use; when full (4) shuffle into deck",
+  "kevlar": true,
+  "tokens": 4
+ },
+ {
+  "id": "shopping-cart",
+  "name": "Shopping Cart",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": true
+   }
+  ],
+  "img": "assets/items/shopping-cart.jpg",
+  "copies": 4,
+  "text": "Carry 10 additional resources",
+  "carry": 10
+ },
+ {
+  "id": "town-map",
+  "name": "Town Map",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   }
+  ],
+  "img": "assets/items/town-map.jpg",
+  "copies": 4,
+  "text": "+2 MOVES",
+  "moves": 2
+ },
+ {
+  "id": "camping-stove",
+  "name": "Camping Stove",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/camping-stove.jpg",
+  "copies": 4,
+  "text": "Gain 1 FOOD when passing through the park (once per turn)",
+  "stove": true
+ },
+ {
+  "id": "hazmat-suit",
+  "name": "Hazmat Suit",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/hazmat-suit.jpg",
+  "copies": 4,
+  "text": "Immune to pandemic virus effects (post-APOC)",
+  "needsBunker": true,
+  "tokens": 3
+ },
+ {
+  "id": "moonshine",
+  "name": "Moonshine",
+  "recipe": [
+   {
+    "r": "meds",
+    "x": true
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/moonshine.jpg",
+  "copies": 4,
+  "text": "Ignore all health loss for one turn. Single use",
+  "moonshine": true
+ },
+ {
+  "id": "med-lab",
+  "name": "Med Lab",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "meds",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/med-lab.jpg",
+  "copies": 4,
+  "text": "Make 1 MEDS per turn",
+  "needsBunker": true,
+  "mustOwn": [
+   "solar-panel",
+   "hydroponics-lab"
+  ]
+ },
+ {
+  "id": "flashlight",
+  "name": "Flashlight",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/flashlight.jpg",
+  "copies": 4,
+  "text": "Re-roll Night dice once per turn. +1 SCAVENGE / BURGLE / RAID at night",
+  "flashlight": true
+ },
+ {
+  "id": "drone",
+  "name": "Drone",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   }
+  ],
+  "img": "assets/items/drone.jpg",
+  "copies": 4,
+  "text": "Take 1 resource from any location (action)",
+  "needsBunker": true,
+  "drone": true
+ },
+ {
+  "id": "boat",
+  "name": "Boat",
+  "recipe": [
+   {
+    "r": "knowhow",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": true
+   }
+  ],
+  "img": "assets/items/boat.jpg",
+  "copies": 4,
+  "text": "Move between adjacent bridges for 1 move (needs bridges on the board)",
+  "boat": true
+ },
+ {
+  "id": "solar-panel",
+  "name": "Solar Panel",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/solar-panel.jpg",
+  "copies": 4,
+  "text": "Hydroponics Lab component",
+  "needsBunker": true
+ },
+ {
+  "id": "hydroponics-lab",
+  "name": "Hydroponics Lab",
+  "recipe": [
+   {
+    "r": "hardware",
+    "x": false
+   },
+   {
+    "r": "tech",
+    "x": false
+   },
+   {
+    "r": "chem",
+    "x": false
+   }
+  ],
+  "img": "assets/items/hydroponics-lab.jpg",
+  "copies": 4,
+  "text": "Produces 2 FOOD per turn",
+  "needsBunker": true,
+  "mustOwn": [
+   "solar-panel"
+  ]
+ }
+]

@@ -1,0 +1,2442 @@
+{
+ "width": 2576,
+ "height": 1717,
+ "mmWidth": 800,
+ "mmHeight": 600,
+ "image": "assets/board/board.jpg",
+ "nodes": [
+  {
+   "id": "I00",
+   "kind": "intersection",
+   "x": 340,
+   "y": 195,
+   "name": "Church Road / Monks Lane",
+   "subway": true,
+   "sector": "NW"
+  },
+  {
+   "id": "I01",
+   "kind": "intersection",
+   "x": 832,
+   "y": 195,
+   "name": "Diesel Drive / Red Pole Hill",
+   "sector": "NW"
+  },
+  {
+   "id": "I02",
+   "kind": "intersection",
+   "x": 1333,
+   "y": 195,
+   "name": "Ladder Boulevard / Drill Street",
+   "sector": "N"
+  },
+  {
+   "id": "I03",
+   "kind": "intersection",
+   "x": 1850,
+   "y": 195,
+   "name": "Needle Street / Gasoline Grove",
+   "sector": "NE"
+  },
+  {
+   "id": "I04",
+   "kind": "intersection",
+   "x": 2316,
+   "y": 195,
+   "name": "Bullet Drive / Stage Door Drive",
+   "subway": true,
+   "sector": "NE"
+  },
+  {
+   "id": "I10",
+   "kind": "intersection",
+   "x": 340,
+   "y": 590,
+   "name": "Left Field / Signal Street",
+   "sector": "WC"
+  },
+  {
+   "id": "I11",
+   "kind": "intersection",
+   "x": 832,
+   "y": 590,
+   "name": "Commercial Way / Booker Avenue",
+   "sector": "WC"
+  },
+  {
+   "id": "I12",
+   "kind": "intersection",
+   "x": 1333,
+   "y": 590,
+   "name": "Green Park Avenue",
+   "subway": true,
+   "sector": "C"
+  },
+  {
+   "id": "I13",
+   "kind": "intersection",
+   "x": 1850,
+   "y": 590,
+   "name": "Oak Tree Drive / Hill Street",
+   "sector": "EC"
+  },
+  {
+   "id": "I14",
+   "kind": "intersection",
+   "x": 2316,
+   "y": 590,
+   "name": "Law Street / Green Gate Grove",
+   "sector": "EC"
+  },
+  {
+   "id": "I20",
+   "kind": "intersection",
+   "x": 340,
+   "y": 1068,
+   "name": "West Street / Rust Road",
+   "sector": "WC"
+  },
+  {
+   "id": "I21",
+   "kind": "intersection",
+   "x": 832,
+   "y": 1068,
+   "name": "Justice Way / Fisher Street",
+   "sector": "WC"
+  },
+  {
+   "id": "I22",
+   "kind": "intersection",
+   "x": 1333,
+   "y": 1068,
+   "name": "Retail Road / South Bridge Ave",
+   "sector": "C"
+  },
+  {
+   "id": "I23",
+   "kind": "intersection",
+   "x": 1850,
+   "y": 1068,
+   "name": "Park View / Bourbon Street",
+   "sector": "EC"
+  },
+  {
+   "id": "I24",
+   "kind": "intersection",
+   "x": 2316,
+   "y": 1068,
+   "name": "Coin Street / Hoop Lane",
+   "subway": true,
+   "sector": "EC"
+  },
+  {
+   "id": "I30",
+   "kind": "intersection",
+   "x": 340,
+   "y": 1521,
+   "name": "Turbine Drive / Rust Road",
+   "sector": "SW"
+  },
+  {
+   "id": "I31",
+   "kind": "intersection",
+   "x": 832,
+   "y": 1521,
+   "name": "Turbine Drive / Fisher Street",
+   "sector": "SW"
+  },
+  {
+   "id": "I32",
+   "kind": "intersection",
+   "x": 1333,
+   "y": 1544,
+   "name": "Riverside View / South Bridge Ave",
+   "subway": true,
+   "sector": "S"
+  },
+  {
+   "id": "I33",
+   "kind": "intersection",
+   "x": 1850,
+   "y": 1588,
+   "name": "Fairbrass Exchange / Bourbon Street",
+   "sector": "SE"
+  },
+  {
+   "id": "I34",
+   "kind": "intersection",
+   "x": 2316,
+   "y": 1588,
+   "name": "Fairbrass Exchange / Hoop Lane",
+   "sector": "SE"
+  },
+  {
+   "id": "H0_0",
+   "kind": "street",
+   "x": 170,
+   "y": 195,
+   "name": "Church Road",
+   "seg": [
+    0,
+    195,
+    340,
+    195
+   ],
+   "sector": "NW"
+  },
+  {
+   "id": "H0_1",
+   "kind": "street",
+   "x": 586,
+   "y": 195,
+   "name": "Diesel Drive",
+   "seg": [
+    340,
+    195,
+    832,
+    195
+   ],
+   "sector": "NW"
+  },
+  {
+   "id": "H0_2",
+   "kind": "street",
+   "x": 1082,
+   "y": 195,
+   "name": "Ladder Boulevard",
+   "seg": [
+    832,
+    195,
+    1333,
+    195
+   ],
+   "sector": "N"
+  },
+  {
+   "id": "H0_3",
+   "kind": "street",
+   "x": 1592,
+   "y": 195,
+   "name": "Needle Street",
+   "seg": [
+    1333,
+    195,
+    1850,
+    195
+   ],
+   "sector": "N"
+  },
+  {
+   "id": "H0_4",
+   "kind": "street",
+   "x": 2083,
+   "y": 195,
+   "name": "Bullet Drive",
+   "seg": [
+    1850,
+    195,
+    2316,
+    195
+   ],
+   "sector": "NE"
+  },
+  {
+   "id": "H0_5",
+   "kind": "street",
+   "x": 2446,
+   "y": 195,
+   "name": "Bullet Drive (east end)",
+   "seg": [
+    2316,
+    195,
+    2576,
+    195
+   ],
+   "sector": "NE"
+  },
+  {
+   "id": "H1_0",
+   "kind": "street",
+   "x": 170,
+   "y": 590,
+   "name": "Left Field",
+   "seg": [
+    0,
+    590,
+    340,
+    590
+   ],
+   "sector": "WC"
+  },
+  {
+   "id": "H1_1",
+   "kind": "street",
+   "x": 586,
+   "y": 590,
+   "name": "Commercial Way",
+   "seg": [
+    340,
+    590,
+    832,
+    590
+   ],
+   "sector": "WC"
+  },
+  {
+   "id": "H1_2",
+   "kind": "street",
+   "x": 1082,
+   "y": 590,
+   "name": "Green Park Avenue",
+   "seg": [
+    832,
+    590,
+    1333,
+    590
+   ],
+   "sector": "C"
+  },
+  {
+   "id": "H1_3",
+   "kind": "street",
+   "x": 1592,
+   "y": 590,
+   "name": "Oak Tree Drive",
+   "seg": [
+    1333,
+    590,
+    1850,
+    590
+   ],
+   "sector": "C"
+  },
+  {
+   "id": "H1_4",
+   "kind": "street",
+   "x": 2083,
+   "y": 590,
+   "name": "Law Street",
+   "seg": [
+    1850,
+    590,
+    2316,
+    590
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "H1_5",
+   "kind": "street",
+   "x": 2446,
+   "y": 590,
+   "name": "Park St",
+   "seg": [
+    2316,
+    590,
+    2576,
+    590
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "H2_0",
+   "kind": "street",
+   "x": 170,
+   "y": 1068,
+   "name": "West Street",
+   "seg": [
+    0,
+    1068,
+    340,
+    1068
+   ],
+   "subway": true,
+   "sector": "WC"
+  },
+  {
+   "id": "H2_1",
+   "kind": "street",
+   "x": 586,
+   "y": 1068,
+   "name": "Justice Way",
+   "seg": [
+    340,
+    1068,
+    832,
+    1068
+   ],
+   "sector": "WC"
+  },
+  {
+   "id": "H2_2",
+   "kind": "street",
+   "x": 1082,
+   "y": 1068,
+   "name": "Retail Road",
+   "seg": [
+    832,
+    1068,
+    1333,
+    1068
+   ],
+   "sector": "C"
+  },
+  {
+   "id": "H2_3",
+   "kind": "street",
+   "x": 1592,
+   "y": 1068,
+   "name": "Park View",
+   "seg": [
+    1333,
+    1068,
+    1850,
+    1068
+   ],
+   "sector": "C"
+  },
+  {
+   "id": "H2_4",
+   "kind": "street",
+   "x": 2083,
+   "y": 1068,
+   "name": "Coin Street",
+   "seg": [
+    1850,
+    1068,
+    2316,
+    1068
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "H2_5",
+   "kind": "street",
+   "x": 2446,
+   "y": 1068,
+   "name": "Casper Rd",
+   "seg": [
+    2316,
+    1068,
+    2576,
+    1068
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "H3_0",
+   "kind": "street",
+   "x": 170,
+   "y": 1521,
+   "name": "Turbine Drive",
+   "seg": [
+    0,
+    1521,
+    340,
+    1521
+   ],
+   "sector": "SW"
+  },
+  {
+   "id": "H3_1",
+   "kind": "street",
+   "x": 586,
+   "y": 1521,
+   "name": "Turbine Drive",
+   "seg": [
+    340,
+    1521,
+    832,
+    1521
+   ],
+   "sector": "SW"
+  },
+  {
+   "id": "H3_2",
+   "kind": "street",
+   "x": 1082,
+   "y": 1532,
+   "name": "Riverside View",
+   "seg": [
+    832,
+    1521,
+    1333,
+    1544
+   ],
+   "sector": "S"
+  },
+  {
+   "id": "H3_3",
+   "kind": "street",
+   "x": 1592,
+   "y": 1566,
+   "name": "Fairbrass Exchange",
+   "seg": [
+    1333,
+    1544,
+    1850,
+    1588
+   ],
+   "sector": "S"
+  },
+  {
+   "id": "H3_4",
+   "kind": "street",
+   "x": 2083,
+   "y": 1588,
+   "name": "Fairbrass Exchange",
+   "seg": [
+    1850,
+    1588,
+    2316,
+    1588
+   ],
+   "sector": "SE"
+  },
+  {
+   "id": "H3_5",
+   "kind": "street",
+   "x": 2446,
+   "y": 1588,
+   "name": "Fairbrass Exchange (east end)",
+   "seg": [
+    2316,
+    1588,
+    2576,
+    1588
+   ],
+   "sector": "SE"
+  },
+  {
+   "id": "V0_0",
+   "kind": "street",
+   "x": 340,
+   "y": 392,
+   "name": "Monks Lane",
+   "seg": [
+    340,
+    195,
+    340,
+    590
+   ],
+   "sector": "NW"
+  },
+  {
+   "id": "V0_1",
+   "kind": "street",
+   "x": 340,
+   "y": 829,
+   "name": "Signal Street",
+   "seg": [
+    340,
+    590,
+    340,
+    1068
+   ],
+   "sector": "WC"
+  },
+  {
+   "id": "V0_2",
+   "kind": "street",
+   "x": 340,
+   "y": 1294,
+   "name": "Rust Road",
+   "seg": [
+    340,
+    1068,
+    340,
+    1521
+   ],
+   "sector": "SW"
+  },
+  {
+   "id": "V1_0",
+   "kind": "street",
+   "x": 832,
+   "y": 392,
+   "name": "Red Pole Hill",
+   "seg": [
+    832,
+    195,
+    832,
+    590
+   ],
+   "sector": "NW"
+  },
+  {
+   "id": "V1_1",
+   "kind": "street",
+   "x": 832,
+   "y": 829,
+   "name": "Booker Avenue",
+   "seg": [
+    832,
+    590,
+    832,
+    1068
+   ],
+   "sector": "WC"
+  },
+  {
+   "id": "V1_2",
+   "kind": "street",
+   "x": 832,
+   "y": 1294,
+   "name": "Fisher Street",
+   "seg": [
+    832,
+    1068,
+    832,
+    1521
+   ],
+   "sector": "SW"
+  },
+  {
+   "id": "V2_0",
+   "kind": "street",
+   "x": 1333,
+   "y": 392,
+   "name": "Drill Street",
+   "seg": [
+    1333,
+    195,
+    1333,
+    590
+   ],
+   "sector": "N"
+  },
+  {
+   "id": "V2_2",
+   "kind": "street",
+   "x": 1333,
+   "y": 1306,
+   "name": "South Bridge Ave",
+   "seg": [
+    1333,
+    1068,
+    1333,
+    1544
+   ],
+   "sector": "S"
+  },
+  {
+   "id": "V3_0",
+   "kind": "street",
+   "x": 1850,
+   "y": 392,
+   "name": "Gasoline Grove",
+   "seg": [
+    1850,
+    195,
+    1850,
+    590
+   ],
+   "sector": "NE"
+  },
+  {
+   "id": "V3_1",
+   "kind": "street",
+   "x": 1850,
+   "y": 829,
+   "name": "Hill Street",
+   "seg": [
+    1850,
+    590,
+    1850,
+    1068
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "V3_2",
+   "kind": "street",
+   "x": 1850,
+   "y": 1328,
+   "name": "Bourbon Street",
+   "seg": [
+    1850,
+    1068,
+    1850,
+    1588
+   ],
+   "sector": "SE"
+  },
+  {
+   "id": "V4_0",
+   "kind": "street",
+   "x": 2316,
+   "y": 392,
+   "name": "Stage Door Drive",
+   "seg": [
+    2316,
+    195,
+    2316,
+    590
+   ],
+   "sector": "NE"
+  },
+  {
+   "id": "V4_1",
+   "kind": "street",
+   "x": 2316,
+   "y": 829,
+   "name": "Green Gate Grove",
+   "seg": [
+    2316,
+    590,
+    2316,
+    1068
+   ],
+   "sector": "EC"
+  },
+  {
+   "id": "V4_2",
+   "kind": "street",
+   "x": 2316,
+   "y": 1328,
+   "name": "Hoop Lane",
+   "seg": [
+    2316,
+    1068,
+    2316,
+    1588
+   ],
+   "sector": "SE"
+  },
+  {
+   "id": "church",
+   "kind": "building",
+   "x": 150,
+   "y": 330,
+   "name": "Church",
+   "setup": {},
+   "acts": [
+    "free"
+   ],
+   "entrances": [
+    "V0_0"
+   ],
+   "entArrows": [
+    [
+     312,
+     340
+    ]
+   ],
+   "note": "",
+   "sector": "NW"
+  },
+  {
+   "id": "house1",
+   "kind": "building",
+   "x": 113,
+   "y": 457,
+   "name": "Residence (NW-1)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H1_0"
+   ],
+   "entArrows": [
+    [
+     125,
+     545
+    ]
+   ],
+   "note": "",
+   "sector": "NW"
+  },
+  {
+   "id": "house2",
+   "kind": "building",
+   "x": 195,
+   "y": 437,
+   "name": "Residence (NW-2)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H1_0"
+   ],
+   "entArrows": [
+    [
+     243,
+     545
+    ]
+   ],
+   "note": "",
+   "sector": "NW"
+  },
+  {
+   "id": "steel",
+   "kind": "building",
+   "x": 520,
+   "y": 400,
+   "name": "Steel Plant",
+   "setup": {
+    "hardware": 2,
+    "tech": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H0_1"
+   ],
+   "entArrows": [
+    [
+     540,
+     245
+    ]
+   ],
+   "note": "",
+   "sector": "NW"
+  },
+  {
+   "id": "truckstop",
+   "kind": "building",
+   "x": 680,
+   "y": 360,
+   "name": "Truck Stop",
+   "setup": {
+    "knowhow": 3,
+    "hardware": 1,
+    "chem": 2
+   },
+   "acts": [
+    "sell"
+   ],
+   "entrances": [
+    "H1_1"
+   ],
+   "entArrows": [
+    [
+     700,
+     553
+    ]
+   ],
+   "note": "orange outline on board",
+   "sector": "NW"
+  },
+  {
+   "id": "firestation",
+   "kind": "building",
+   "x": 1010,
+   "y": 340,
+   "name": "Fire Station",
+   "setup": {
+    "chem": 3
+   },
+   "acts": [],
+   "entrances": [
+    "H0_2"
+   ],
+   "entArrows": [
+    [
+     1015,
+     245
+    ]
+   ],
+   "note": "",
+   "sector": "N"
+  },
+  {
+   "id": "autoshop",
+   "kind": "building",
+   "x": 1198,
+   "y": 335,
+   "name": "Auto Shop",
+   "setup": {
+    "hardware": 1,
+    "chem": 1
+   },
+   "acts": [],
+   "entrances": [
+    "H0_2"
+   ],
+   "entArrows": [
+    [
+     1198,
+     245
+    ]
+   ],
+   "note": "",
+   "sector": "N"
+  },
+  {
+   "id": "library",
+   "kind": "building",
+   "x": 1000,
+   "y": 470,
+   "name": "Library",
+   "setup": {
+    "knowhow": 3
+   },
+   "acts": [],
+   "entrances": [
+    "H1_2"
+   ],
+   "entArrows": [
+    [
+     1068,
+     553
+    ]
+   ],
+   "note": "",
+   "sector": "N"
+  },
+  {
+   "id": "dental",
+   "kind": "building",
+   "x": 1185,
+   "y": 465,
+   "name": "Dental Clinic",
+   "setup": {
+    "meds": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H1_2"
+   ],
+   "entArrows": [
+    [
+     1227,
+     553
+    ]
+   ],
+   "note": "",
+   "sector": "N"
+  },
+  {
+   "id": "hospital",
+   "kind": "building",
+   "x": 1560,
+   "y": 380,
+   "name": "Hospital",
+   "setup": {
+    "meds": 5
+   },
+   "acts": [
+    "hospital"
+   ],
+   "entrances": [
+    "H1_3"
+   ],
+   "entArrows": [
+    [
+     1465,
+     553
+    ]
+   ],
+   "note": "",
+   "sector": "N"
+  },
+  {
+   "id": "gunshop",
+   "kind": "building",
+   "x": 1990,
+   "y": 330,
+   "name": "Gun Shop",
+   "setup": {},
+   "acts": [
+    "buy"
+   ],
+   "entrances": [
+    "V3_0"
+   ],
+   "entArrows": [
+    [
+     1894,
+     317
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "salvage",
+   "kind": "building",
+   "x": 2150,
+   "y": 330,
+   "name": "Salvage Yard",
+   "setup": {
+    "hardware": 2,
+    "tech": 2,
+    "knowhow": 3
+   },
+   "acts": [
+    "sell"
+   ],
+   "entrances": [
+    "H0_4"
+   ],
+   "entArrows": [
+    [
+     2201,
+     245
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "gas",
+   "kind": "building",
+   "x": 2040,
+   "y": 440,
+   "name": "Gas Station",
+   "setup": {
+    "chem": 3
+   },
+   "acts": [],
+   "entrances": [
+    "V3_0"
+   ],
+   "entArrows": [
+    [
+     1894,
+     477
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "theater",
+   "kind": "building",
+   "x": 2200,
+   "y": 450,
+   "name": "Theater",
+   "setup": {
+    "ducttape": 1
+   },
+   "acts": [],
+   "entrances": [
+    "H1_4",
+    "V4_0"
+   ],
+   "entArrows": [
+    [
+     2278,
+     478
+    ],
+    [
+     2101,
+     553
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "house3",
+   "kind": "building",
+   "x": 2419,
+   "y": 348,
+   "name": "Residence (NE-1)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "V4_0"
+   ],
+   "entArrows": [
+    [
+     2338,
+     317
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "house4",
+   "kind": "building",
+   "x": 2455,
+   "y": 447,
+   "name": "Residence (NE-2)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "V4_0"
+   ],
+   "entArrows": [
+    [
+     2338,
+     470
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "dumpsterNE",
+   "kind": "building",
+   "x": 2506,
+   "y": 192,
+   "name": "Dumpster (NE)",
+   "setup": {},
+   "acts": [
+    "dive"
+   ],
+   "entrances": [
+    "H0_5"
+   ],
+   "entArrows": [
+    [
+     2438,
+     185
+    ]
+   ],
+   "note": "",
+   "sector": "NE"
+  },
+  {
+   "id": "police",
+   "kind": "building",
+   "x": 2050,
+   "y": 770,
+   "name": "Police Station",
+   "setup": {},
+   "acts": [
+    "police"
+   ],
+   "entrances": [
+    "V3_1"
+   ],
+   "entArrows": [
+    [
+     1894,
+     768
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "grocery",
+   "kind": "building",
+   "x": 2260,
+   "y": 760,
+   "name": "Grocery Store",
+   "setup": {
+    "food": 2
+   },
+   "acts": [],
+   "entrances": [
+    "V4_1"
+   ],
+   "entArrows": [
+    [
+     2288,
+     747
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "music",
+   "kind": "building",
+   "x": 2200,
+   "y": 940,
+   "name": "Music Store",
+   "setup": {
+    "tech": 1
+   },
+   "acts": [],
+   "entrances": [
+    "H2_4"
+   ],
+   "entArrows": [
+    [
+     2173,
+     1000
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "drugs",
+   "kind": "building",
+   "x": 2285,
+   "y": 900,
+   "name": "Drugs",
+   "setup": {
+    "meds": 1,
+    "chem": 1
+   },
+   "acts": [],
+   "entrances": [
+    "V4_1"
+   ],
+   "entArrows": [
+    [
+     2288,
+     960
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "pet",
+   "kind": "building",
+   "x": 1990,
+   "y": 930,
+   "name": "Pet Store",
+   "setup": {
+    "food": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H2_4"
+   ],
+   "entArrows": [
+    [
+     2173,
+     1000
+    ]
+   ],
+   "note": "orange outline on board",
+   "sector": "EC"
+  },
+  {
+   "id": "house5",
+   "kind": "building",
+   "x": 2419,
+   "y": 708,
+   "name": "Residence (E-1)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H1_5"
+   ],
+   "entArrows": [
+    [
+     2433,
+     643
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "house6",
+   "kind": "building",
+   "x": 2468,
+   "y": 830,
+   "name": "Residence (E-2)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "V4_1"
+   ],
+   "entArrows": [
+    [
+     2366,
+     830
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "house7",
+   "kind": "building",
+   "x": 2488,
+   "y": 963,
+   "name": "Residence (E-3)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "V4_1"
+   ],
+   "entArrows": [
+    [
+     2366,
+     955
+    ]
+   ],
+   "note": "",
+   "sector": "EC"
+  },
+  {
+   "id": "park",
+   "kind": "building",
+   "x": 1350,
+   "y": 820,
+   "name": "Central Park",
+   "setup": {},
+   "acts": [
+    "park"
+   ],
+   "entrances": [
+    "H1_2",
+    "H1_3",
+    "H2_2",
+    "H2_3",
+    "V1_1",
+    "V3_1"
+   ],
+   "entArrows": [
+    [
+     1110,
+     662
+    ],
+    [
+     1562,
+     662
+    ],
+    [
+     866,
+     840
+    ],
+    [
+     1803,
+     840
+    ],
+    [
+     1110,
+     1025
+    ],
+    [
+     1562,
+     1025
+    ]
+   ],
+   "note": "",
+   "sector": "C"
+  },
+  {
+   "id": "trainstation",
+   "kind": "building",
+   "x": 180,
+   "y": 790,
+   "name": "Train Station",
+   "setup": {},
+   "acts": [],
+   "entrances": [
+    "V0_1"
+   ],
+   "entArrows": [
+    [
+     307,
+     933
+    ]
+   ],
+   "note": "",
+   "sector": "WC"
+  },
+  {
+   "id": "hardwarestore",
+   "kind": "building",
+   "x": 420,
+   "y": 770,
+   "name": "Hardware Store",
+   "setup": {
+    "hardware": 1,
+    "chem": 1,
+    "tech": 1
+   },
+   "acts": [
+    "buy"
+   ],
+   "entrances": [
+    "V0_1"
+   ],
+   "entArrows": [
+    [
+     370,
+     742
+    ]
+   ],
+   "note": "",
+   "sector": "WC"
+  },
+  {
+   "id": "school",
+   "kind": "building",
+   "x": 560,
+   "y": 850,
+   "name": "School",
+   "setup": {
+    "chem": 2,
+    "knowhow": 2
+   },
+   "acts": [],
+   "entrances": [
+    "V1_1"
+   ],
+   "entArrows": [
+    [
+     790,
+     793
+    ]
+   ],
+   "note": "yellow outline on board",
+   "sector": "WC"
+  },
+  {
+   "id": "cafe",
+   "kind": "building",
+   "x": 385,
+   "y": 920,
+   "name": "Cafe",
+   "setup": {
+    "food": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H2_1"
+   ],
+   "entArrows": [
+    [
+     455,
+     1026
+    ]
+   ],
+   "note": "yellow outline on board",
+   "sector": "WC"
+  },
+  {
+   "id": "powerplant",
+   "kind": "building",
+   "x": 200,
+   "y": 1300,
+   "name": "Power Plant",
+   "setup": {},
+   "acts": [],
+   "entrances": [
+    "H2_0"
+   ],
+   "entArrows": [
+    [
+     203,
+     1116
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "prison",
+   "kind": "building",
+   "x": 500,
+   "y": 1215,
+   "name": "Prison",
+   "setup": {},
+   "acts": [
+    "trade",
+    "sell"
+   ],
+   "entrances": [
+    "H2_1"
+   ],
+   "entArrows": [
+    [
+     505,
+     1116
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "gym",
+   "kind": "building",
+   "x": 700,
+   "y": 1195,
+   "name": "Gym",
+   "setup": {
+    "meds": 1,
+    "food": 1
+   },
+   "acts": [],
+   "entrances": [
+    "H2_1"
+   ],
+   "entArrows": [
+    [
+     702,
+     1133
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "boatyard",
+   "kind": "building",
+   "x": 700,
+   "y": 1330,
+   "name": "Boat Yard",
+   "setup": {
+    "hardware": 2,
+    "chem": 2
+   },
+   "acts": [],
+   "entrances": [
+    "V1_2"
+   ],
+   "entArrows": [
+    [
+     772,
+     1295
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "citydump",
+   "kind": "building",
+   "x": 520,
+   "y": 1420,
+   "name": "City Dump",
+   "setup": {
+    "hardware": 2,
+    "tech": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H3_1"
+   ],
+   "entArrows": [
+    [
+     510,
+     1490
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "dumpsterSW",
+   "kind": "building",
+   "x": 113,
+   "y": 1521,
+   "name": "Dumpster (SW)",
+   "setup": {},
+   "acts": [
+    "dive"
+   ],
+   "entrances": [
+    "H3_0"
+   ],
+   "entArrows": [
+    [
+     203,
+     1518
+    ]
+   ],
+   "note": "",
+   "sector": "SW"
+  },
+  {
+   "id": "deptstore",
+   "kind": "building",
+   "x": 1090,
+   "y": 1230,
+   "name": "Department Store",
+   "setup": {
+    "hardware": 2,
+    "tech": 2,
+    "knowhow": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H2_2"
+   ],
+   "entArrows": [
+    [
+     1075,
+     1125
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "house8",
+   "kind": "building",
+   "x": 908,
+   "y": 1450,
+   "name": "Residence (S-1)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H3_2"
+   ],
+   "entArrows": [
+    [
+     947,
+     1518
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "house9",
+   "kind": "building",
+   "x": 1100,
+   "y": 1472,
+   "name": "Residence (S-2)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H3_2"
+   ],
+   "entArrows": [
+    [
+     1068,
+     1515
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "house10",
+   "kind": "building",
+   "x": 1227,
+   "y": 1430,
+   "name": "Residence (S-3)",
+   "setup": {},
+   "acts": [
+    "burgle"
+   ],
+   "entrances": [
+    "H3_2"
+   ],
+   "entArrows": [
+    [
+     1217,
+     1511
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "bigstorage",
+   "kind": "building",
+   "x": 1470,
+   "y": 1255,
+   "name": "Big Storage",
+   "setup": {
+    "meds": 1,
+    "food": 1,
+    "hardware": 1,
+    "ducttape": 1,
+    "tech": 1,
+    "knowhow": 1,
+    "chem": 1
+   },
+   "acts": [],
+   "entrances": [
+    "H2_3"
+   ],
+   "entArrows": [
+    [
+     1508,
+     1125
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "offices",
+   "kind": "building",
+   "x": 1700,
+   "y": 1290,
+   "name": "Offices",
+   "setup": {
+    "hardware": 2,
+    "tech": 2
+   },
+   "acts": [],
+   "entrances": [
+    "V3_2"
+   ],
+   "entArrows": [
+    [
+     1826,
+     1320
+    ]
+   ],
+   "note": "orange outline on board",
+   "sector": "S"
+  },
+  {
+   "id": "restaurant",
+   "kind": "building",
+   "x": 1530,
+   "y": 1430,
+   "name": "Restaurant",
+   "setup": {
+    "food": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H3_3"
+   ],
+   "entArrows": [
+    [
+     1536,
+     1511
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "bookstore",
+   "kind": "building",
+   "x": 1690,
+   "y": 1430,
+   "name": "Book Store",
+   "setup": {
+    "knowhow": 2
+   },
+   "acts": [],
+   "entrances": [
+    "V3_2"
+   ],
+   "entArrows": [
+    [
+     1783,
+     1441
+    ]
+   ],
+   "note": "",
+   "sector": "S"
+  },
+  {
+   "id": "casino",
+   "kind": "building",
+   "x": 1960,
+   "y": 1330,
+   "name": "Casino",
+   "setup": {},
+   "acts": [
+    "gamble"
+   ],
+   "entrances": [
+    "V3_2"
+   ],
+   "entArrows": [
+    [
+     1894,
+     1185
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  },
+  {
+   "id": "thrift",
+   "kind": "building",
+   "x": 2170,
+   "y": 1230,
+   "name": "Thrift Store",
+   "setup": {
+    "hardware": 1,
+    "chem": 1,
+    "tech": 1
+   },
+   "acts": [],
+   "entrances": [
+    "V4_2"
+   ],
+   "entArrows": [
+    [
+     2296,
+     1238
+    ]
+   ],
+   "note": "yellow outline on board",
+   "sector": "SE"
+  },
+  {
+   "id": "bar",
+   "kind": "building",
+   "x": 2020,
+   "y": 1470,
+   "name": "Bar",
+   "setup": {
+    "chem": 1
+   },
+   "acts": [],
+   "entrances": [
+    "V3_2"
+   ],
+   "entArrows": [
+    [
+     1894,
+     1463
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  },
+  {
+   "id": "pizza",
+   "kind": "building",
+   "x": 2150,
+   "y": 1480,
+   "name": "Pizza House",
+   "setup": {
+    "food": 2
+   },
+   "acts": [],
+   "entrances": [
+    "H3_4"
+   ],
+   "entArrows": [
+    [
+     2116,
+     1551
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  },
+  {
+   "id": "pawn",
+   "kind": "building",
+   "x": 2250,
+   "y": 1480,
+   "name": "Pawn Shop",
+   "setup": {
+    "hardware": 2
+   },
+   "acts": [
+    "sell"
+   ],
+   "entrances": [
+    "V4_2"
+   ],
+   "entArrows": [
+    [
+     2301,
+     1489
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  },
+  {
+   "id": "basketball",
+   "kind": "building",
+   "x": 2440,
+   "y": 1230,
+   "name": "Basketball Court",
+   "setup": {},
+   "acts": [
+    "trade"
+   ],
+   "entrances": [
+    "H2_5"
+   ],
+   "entArrows": [
+    [
+     2455,
+     1113
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  },
+  {
+   "id": "harbor",
+   "kind": "building",
+   "x": 2500,
+   "y": 1480,
+   "name": "Harbor Office",
+   "setup": {},
+   "acts": [],
+   "entrances": [
+    "V4_2"
+   ],
+   "entArrows": [
+    [
+     2346,
+     1463
+    ]
+   ],
+   "note": "",
+   "sector": "SE"
+  }
+ ],
+ "edges": [
+  [
+   "H0_0",
+   "I00"
+  ],
+  [
+   "H0_1",
+   "I00"
+  ],
+  [
+   "H0_1",
+   "I01"
+  ],
+  [
+   "H0_1",
+   "steel"
+  ],
+  [
+   "H0_2",
+   "I01"
+  ],
+  [
+   "H0_2",
+   "I02"
+  ],
+  [
+   "H0_2",
+   "autoshop"
+  ],
+  [
+   "H0_2",
+   "firestation"
+  ],
+  [
+   "H0_3",
+   "I02"
+  ],
+  [
+   "H0_3",
+   "I03"
+  ],
+  [
+   "H0_4",
+   "I03"
+  ],
+  [
+   "H0_4",
+   "I04"
+  ],
+  [
+   "H0_4",
+   "salvage"
+  ],
+  [
+   "H0_5",
+   "I04"
+  ],
+  [
+   "H0_5",
+   "dumpsterNE"
+  ],
+  [
+   "H1_0",
+   "I10"
+  ],
+  [
+   "H1_0",
+   "house1"
+  ],
+  [
+   "H1_0",
+   "house2"
+  ],
+  [
+   "H1_1",
+   "I10"
+  ],
+  [
+   "H1_1",
+   "I11"
+  ],
+  [
+   "H1_1",
+   "truckstop"
+  ],
+  [
+   "H1_2",
+   "I11"
+  ],
+  [
+   "H1_2",
+   "I12"
+  ],
+  [
+   "H1_2",
+   "dental"
+  ],
+  [
+   "H1_2",
+   "library"
+  ],
+  [
+   "H1_2",
+   "park"
+  ],
+  [
+   "H1_3",
+   "I12"
+  ],
+  [
+   "H1_3",
+   "I13"
+  ],
+  [
+   "H1_3",
+   "hospital"
+  ],
+  [
+   "H1_3",
+   "park"
+  ],
+  [
+   "H1_4",
+   "I13"
+  ],
+  [
+   "H1_4",
+   "I14"
+  ],
+  [
+   "H1_4",
+   "theater"
+  ],
+  [
+   "H1_5",
+   "I14"
+  ],
+  [
+   "H1_5",
+   "house5"
+  ],
+  [
+   "H2_0",
+   "I20"
+  ],
+  [
+   "H2_0",
+   "powerplant"
+  ],
+  [
+   "H2_1",
+   "I20"
+  ],
+  [
+   "H2_1",
+   "I21"
+  ],
+  [
+   "H2_1",
+   "cafe"
+  ],
+  [
+   "H2_1",
+   "gym"
+  ],
+  [
+   "H2_1",
+   "prison"
+  ],
+  [
+   "H2_2",
+   "I21"
+  ],
+  [
+   "H2_2",
+   "I22"
+  ],
+  [
+   "H2_2",
+   "deptstore"
+  ],
+  [
+   "H2_2",
+   "park"
+  ],
+  [
+   "H2_3",
+   "I22"
+  ],
+  [
+   "H2_3",
+   "I23"
+  ],
+  [
+   "H2_3",
+   "bigstorage"
+  ],
+  [
+   "H2_3",
+   "park"
+  ],
+  [
+   "H2_4",
+   "I23"
+  ],
+  [
+   "H2_4",
+   "I24"
+  ],
+  [
+   "H2_4",
+   "music"
+  ],
+  [
+   "H2_4",
+   "pet"
+  ],
+  [
+   "H2_5",
+   "I24"
+  ],
+  [
+   "H2_5",
+   "basketball"
+  ],
+  [
+   "H3_0",
+   "I30"
+  ],
+  [
+   "H3_0",
+   "dumpsterSW"
+  ],
+  [
+   "H3_1",
+   "I30"
+  ],
+  [
+   "H3_1",
+   "I31"
+  ],
+  [
+   "H3_1",
+   "citydump"
+  ],
+  [
+   "H3_2",
+   "I31"
+  ],
+  [
+   "H3_2",
+   "I32"
+  ],
+  [
+   "H3_2",
+   "house10"
+  ],
+  [
+   "H3_2",
+   "house8"
+  ],
+  [
+   "H3_2",
+   "house9"
+  ],
+  [
+   "H3_3",
+   "I32"
+  ],
+  [
+   "H3_3",
+   "I33"
+  ],
+  [
+   "H3_3",
+   "restaurant"
+  ],
+  [
+   "H3_4",
+   "I33"
+  ],
+  [
+   "H3_4",
+   "I34"
+  ],
+  [
+   "H3_4",
+   "pizza"
+  ],
+  [
+   "H3_5",
+   "I34"
+  ],
+  [
+   "I00",
+   "V0_0"
+  ],
+  [
+   "I01",
+   "V1_0"
+  ],
+  [
+   "I02",
+   "V2_0"
+  ],
+  [
+   "I03",
+   "V3_0"
+  ],
+  [
+   "I04",
+   "V4_0"
+  ],
+  [
+   "I10",
+   "V0_0"
+  ],
+  [
+   "I10",
+   "V0_1"
+  ],
+  [
+   "I11",
+   "V1_0"
+  ],
+  [
+   "I11",
+   "V1_1"
+  ],
+  [
+   "I12",
+   "V2_0"
+  ],
+  [
+   "I13",
+   "V3_0"
+  ],
+  [
+   "I13",
+   "V3_1"
+  ],
+  [
+   "I14",
+   "V4_0"
+  ],
+  [
+   "I14",
+   "V4_1"
+  ],
+  [
+   "I20",
+   "V0_1"
+  ],
+  [
+   "I20",
+   "V0_2"
+  ],
+  [
+   "I21",
+   "V1_1"
+  ],
+  [
+   "I21",
+   "V1_2"
+  ],
+  [
+   "I22",
+   "V2_2"
+  ],
+  [
+   "I23",
+   "V3_1"
+  ],
+  [
+   "I23",
+   "V3_2"
+  ],
+  [
+   "I24",
+   "V4_1"
+  ],
+  [
+   "I24",
+   "V4_2"
+  ],
+  [
+   "I30",
+   "V0_2"
+  ],
+  [
+   "I31",
+   "V1_2"
+  ],
+  [
+   "I32",
+   "V2_2"
+  ],
+  [
+   "I33",
+   "V3_2"
+  ],
+  [
+   "I34",
+   "V4_2"
+  ],
+  [
+   "V0_0",
+   "church"
+  ],
+  [
+   "V0_1",
+   "hardwarestore"
+  ],
+  [
+   "V0_1",
+   "trainstation"
+  ],
+  [
+   "V1_1",
+   "park"
+  ],
+  [
+   "V1_1",
+   "school"
+  ],
+  [
+   "V1_2",
+   "boatyard"
+  ],
+  [
+   "V3_0",
+   "gas"
+  ],
+  [
+   "V3_0",
+   "gunshop"
+  ],
+  [
+   "V3_1",
+   "park"
+  ],
+  [
+   "V3_1",
+   "police"
+  ],
+  [
+   "V3_2",
+   "bar"
+  ],
+  [
+   "V3_2",
+   "bookstore"
+  ],
+  [
+   "V3_2",
+   "casino"
+  ],
+  [
+   "V3_2",
+   "offices"
+  ],
+  [
+   "V4_0",
+   "house3"
+  ],
+  [
+   "V4_0",
+   "house4"
+  ],
+  [
+   "V4_0",
+   "theater"
+  ],
+  [
+   "V4_1",
+   "drugs"
+  ],
+  [
+   "V4_1",
+   "grocery"
+  ],
+  [
+   "V4_1",
+   "house6"
+  ],
+  [
+   "V4_1",
+   "house7"
+  ],
+  [
+   "V4_2",
+   "harbor"
+  ],
+  [
+   "V4_2",
+   "pawn"
+  ],
+  [
+   "V4_2",
+   "thrift"
+  ]
+ ],
+ "subway": [
+  "I00",
+  "I04",
+  "I12",
+  "H2_0",
+  "I24",
+  "I32"
+ ],
+ "startNode": "park",
+ "policeNode": "police",
+ "hospitalNode": "hospital",
+ "churchNode": "church",
+ "barNode": "bar",
+ "dischargeNode": "H1_3",
+ "casinoNode": "casino",
+ "gridX": [
+  340,
+  832,
+  1333,
+  1850,
+  2316
+ ],
+ "gridY": {
+  "0": [
+   195,
+   195,
+   195,
+   195,
+   195
+  ],
+  "1": [
+   590,
+   590,
+   590,
+   590,
+   590
+  ],
+  "2": [
+   1068,
+   1068,
+   1068,
+   1068,
+   1068
+  ],
+  "3": [
+   1521,
+   1521,
+   1544,
+   1588,
+   1588
+  ]
+ }
+}
