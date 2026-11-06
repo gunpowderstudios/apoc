@@ -267,7 +267,7 @@ export class View3D {
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
     // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
     const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
-    this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [x0 + 4 * gap + 0.01, tz] };
+    this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [this.chart.x, this.chart.z + this.chart.d / 2 + 0.05 + 0.066] };   // item deck: left side, under the DEFCON chart
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
