@@ -269,7 +269,11 @@ export class View3D {
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
     // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
     const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
+    // thin dotted white outlines mark where the news cards are (or will be) laid
+    { const cv = document.createElement('canvas'); cv.width = 270; cv.height = 382; const g = cv.getContext('2d'); g.strokeStyle = '#fff'; g.lineWidth = 3; g.setLineDash([4, 8]); g.lineCap = 'round'; g.strokeRect(6, 6, 258, 370);
+      const tx = new THREE.CanvasTexture(cv); tx.anisotropy = 8; this.slotTex = tx; }
     this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [this.chart.x, this.chart.z + this.chart.d / 2 + 0.05 + 0.066] };   // item deck: left side, under the DEFCON chart
+    for (const k of ['deck', 'ai', 'pandemic', 'nuclear']) { const [sx, sz] = this.newsPos[k]; const sl = new THREE.Mesh(new THREE.PlaneGeometry(0.1347 + 0.004, 0.191 + 0.004), new THREE.MeshBasicMaterial({ map: this.slotTex, transparent: true, opacity: 0.8, depthWrite: false })); sl.rotation.x = -Math.PI / 2; sl.position.set(sx, 0.0006, sz); sl.renderOrder = 1; this.furniture.add(sl); }
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
