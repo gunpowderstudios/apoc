@@ -287,7 +287,7 @@ export class View3D {
   syncTable(s) {
     const df = s.defcon, ys = [590, 440, 270, 78];   // pixel rows of the four DEFCON lights on the chart image (400x866)
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
-    this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.85, 1, 2.85); 
+    this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.0, 1, 2.0); 
     // news piles
     const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck, itemN = (s.itemDeck || []).length;
     const psig = JSON.stringify([deckN, s.stand, s.spent, itemN]);
