@@ -528,7 +528,7 @@ function newsPileModal() {
   const ids = S.stand[newsView.type]; if (!ids.length) return null;
   const i = Math.max(0, Math.min(ids.length - 1, newsView.i)), c = E.D.newsById[ids[ids.length - 1 - i]], nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
   return `<div style="display:flex;gap:14px;align-items:flex-start"><img src="${c.img}" style="height:min(70vh,560px);border-radius:8px">
-    <div style="max-width:300px"><div class="ev" style="display:flex;gap:8px;align-items:center"><img src="assets/ui/ev-${c.type}.png" style="width:48px;height:48px"><div style="font-weight:700;color:#ffd54f">${nm} EVENT</div></div>
+    <div class="t-${c.type} evbox" style="max-width:300px"><div class="ev" style="display:flex;gap:8px;align-items:center"><img src="assets/ui/ev-${c.type}.png" style="width:48px;height:48px"><div style="font-weight:700;color:#ffd54f">${nm} EVENT</div></div>
     <div style="font-size:18px;font-weight:600;margin:8px 0">${esc(c.text || 'Not yet designed')}</div>
     <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''} The rest of the article is just for fun.</div>
     <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
@@ -568,6 +568,7 @@ function renderNewsPanel() {
   const sym = nw.sym, fake = sym === 'fake', fired = nw.fired && E.D.newsById[nw.fired], hit = !!fired, used = sym && !fake && !fired && S.stand[sym] && S.stand[sym].length, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
   const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. A matching face (nuclear / pandemic / AI) triggers the newest card of that type on the table.</div>`
     : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? (fired.id === c.id ? 'MATCH! The event happens.' : `triggers the ${sym.toUpperCase()} card already out: <b>${esc(fired.text || '')}</b>`) : fake ? 'nothing happens.' : (used ? `the ${sym.toUpperCase()} paper on top is already turned over, nothing happens.` : `no ${sym.toUpperCase()} card is out, nothing happens.`)}</div>`;
+  box.className = 't-' + c.type;
   box.innerHTML = `<button class="x" title="Close">×</button>
     <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
     <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)} (the rest of the article is just for fun)</div>`;
