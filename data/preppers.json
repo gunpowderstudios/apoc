@@ -1,0 +1,106 @@
+[
+ {
+  "id": "jessica",
+  "name": "Jessica",
+  "role": "Gardener",
+  "art": [
+   "assets/preppers/p1.jpg",
+   "assets/preppers/p2.jpg"
+  ],
+  "color": "#43a047",
+  "skills": [
+   {
+    "id": "forager",
+    "text": "Once per turn, if Jessica visits the park she gains 1 FOOD. If she ends her turn there, she gains 2 FOOD."
+   },
+   {
+    "id": "homeTurf",
+    "text": "Can re-roll the DAY dice once per turn (must keep the new result)."
+   }
+  ],
+  "bunkerSkills": [
+   {
+    "id": "greenQueen",
+    "text": "No CHEM needed when crafting a HYDROPONICS LAB."
+   }
+  ]
+ },
+ {
+  "id": "sam",
+  "name": "Sam",
+  "role": "Student",
+  "art": [
+   "assets/preppers/p3.jpg",
+   "assets/preppers/p4.jpg"
+  ],
+  "color": "#1e88e5",
+  "skills": [
+   {
+    "id": "parkour",
+    "text": "Can move between buildings without bolt cutters."
+   },
+   {
+    "id": "fastLearner",
+    "text": "When Sam scraps an item he gains 1 KNOW-HOW."
+   }
+  ],
+  "bunkerSkills": [
+   {
+    "id": "alcoholFree",
+    "text": "Can replace each BOOBY TRAP item with 2 KNOW-HOW."
+   }
+  ]
+ },
+ {
+  "id": "frost",
+  "name": "Frost",
+  "role": "Survivalist",
+  "art": [
+   "assets/preppers/p5.jpg",
+   "assets/preppers/p6.jpg"
+  ],
+  "color": "#e53935",
+  "skills": [
+   {
+    "id": "marksman",
+    "text": "+1 to combat rolls when using a gun."
+   },
+   {
+    "id": "salvager",
+    "text": "+1 when BURGLING or DUMPSTER DIVING."
+   }
+  ],
+  "bunkerSkills": [
+   {
+    "id": "gunsmith",
+    "text": "KNOW-HOW not needed when crafting a RIFLE."
+   }
+  ]
+ },
+ {
+  "id": "naomi",
+  "name": "Naomi",
+  "role": "Teacher",
+  "art": [
+   "assets/preppers/p7.jpg",
+   "assets/preppers/p8.jpg"
+  ],
+  "color": "#fb8c00",
+  "skills": [
+   {
+    "id": "schoolRun",
+    "text": "Naomi gets 5 moves per turn."
+   },
+   {
+    "id": "chem101",
+    "text": "Once per turn, may craft an item without needing the CHEM resource."
+   }
+  ],
+  "bunkerSkills": [
+   {
+    "id": "detention",
+    "text": "Once per fight, when a prepper wounds Naomi, they lose a resource."
+   }
+  ]
+ }
+]

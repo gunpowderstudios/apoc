@@ -1,0 +1,404 @@
+[
+ {
+  "id": "n01",
+  "n": 1,
+  "paper": "Daily Post",
+  "type": "nuclear",
+  "title": "West Side Panic!",
+  "text": "Preppers in the area: combat roll 4+ or lose 2 HEALTH",
+  "effect": "westCombat",
+  "img": "assets/news/n01.jpg"
+ },
+ {
+  "id": "n02",
+  "n": 2,
+  "paper": "Daily Post",
+  "type": "ai",
+  "title": "Stray dog sniffing around",
+  "text": "Roll RISK DICE. 1-2: Bitten, lose 1 HEALTH; 3-6: spend 1 FOOD to tame and keep the dog",
+  "effect": "strayDog",
+  "img": "assets/news/n02.jpg"
+ },
+ {
+  "id": "n03",
+  "n": 3,
+  "paper": "Daily Post",
+  "type": "pandemic",
+  "title": "Hospital worker offers contraband meds",
+  "text": "You may swap any 2 resources for 3 MEDS",
+  "effect": "contrabandMeds",
+  "img": "assets/news/n03.jpg"
+ },
+ {
+  "id": "n04",
+  "n": 4,
+  "paper": "The Patriot Times",
+  "type": "nuclear",
+  "title": "Stab vest at pawn shop!",
+  "text": "First to get there pays 1 PREPCOIN or 1 TECH to acquire",
+  "effect": "offerStabVest",
+  "img": "assets/news/n04.jpg"
+ },
+ {
+  "id": "n05",
+  "n": 5,
+  "paper": "The Patriot Times",
+  "type": "ai",
+  "title": "Crypto price soars!",
+  "text": "Any prepper with TECH may exchange each for 2 PREPCOIN",
+  "effect": "cryptoSoars",
+  "img": "assets/news/n05.jpg"
+ },
+ {
+  "id": "n06",
+  "n": 6,
+  "paper": "The Patriot Times",
+  "type": "pandemic",
+  "title": "Med centers packed with panicking patients!",
+  "text": "Hospital closed until this card is covered",
+  "effect": "hospitalClosed",
+  "img": "assets/news/n06.jpg"
+ },
+ {
+  "id": "n07",
+  "n": 7,
+  "paper": "The Tribune",
+  "type": "nuclear",
+  "title": "Have hazmat suit - need food",
+  "text": "First prepper to reach the bar may acquire for 1 FOOD",
+  "effect": "offerHazmat",
+  "img": "assets/news/n07.jpg"
+ },
+ {
+  "id": "n08",
+  "n": 8,
+  "paper": "The Tribune",
+  "type": "ai",
+  "title": "Anti-tech rioters hit East Side!",
+  "text": "Any prepper in the east area loses 1 TECH",
+  "effect": "eastTech",
+  "img": "assets/news/n08.jpg"
+ },
+ {
+  "id": "n09",
+  "n": 9,
+  "paper": "The Tribune",
+  "type": "pandemic",
+  "title": "Airborne outbreak!",
+  "text": "All preppers pay 1 MED or lose 2 HEALTH",
+  "effect": "outbreak",
+  "img": "assets/news/n09.jpg"
+ },
+ {
+  "id": "n10",
+  "n": 10,
+  "paper": "The Inquirer",
+  "type": "nuclear",
+  "title": "Emergency curfew imposed!",
+  "text": "No night-time movement until this card is covered",
+  "effect": "curfew",
+  "img": "assets/news/n10.jpg"
+ },
+ {
+  "id": "n11",
+  "n": 11,
+  "paper": "The Inquirer",
+  "type": "ai",
+  "title": "Rogue AI devalues all crypto!",
+  "text": "All players lose 2 PREPCOIN",
+  "effect": "devalue",
+  "img": "assets/news/n11.jpg"
+ },
+ {
+  "id": "n12",
+  "n": 12,
+  "paper": "The Inquirer",
+  "type": "pandemic",
+  "title": "Bent building manager",
+  "text": "First to reach steel plant may swap 2 TECH for solar panel",
+  "effect": "offerSolar",
+  "img": "assets/news/n12.jpg"
+ },
+ {
+  "id": "n13",
+  "n": 13,
+  "paper": "The Courier",
+  "type": "nuclear",
+  "title": "Powerplant pollution!",
+  "text": "Preppers on or adjacent to river lose 1 MED or 1 HEALTH",
+  "effect": "riverPollution",
+  "img": "assets/news/n13.jpg"
+ },
+ {
+  "id": "n14",
+  "n": 14,
+  "paper": "The Courier",
+  "type": "ai",
+  "title": "You brew \"Ale-pocalypse\" beer - it's good stuff!",
+  "text": "Gain 2 FOOD and 2 KNOW-HOW",
+  "effect": "brewBeer",
+  "img": "assets/news/n14.jpg"
+ },
+ {
+  "id": "n15",
+  "n": 15,
+  "paper": "The Courier",
+  "type": "pandemic",
+  "title": "Bug-out test simulation",
+  "text": "Roll a dice. 1-2: lose 1 KNOW-HOW; 3-6: lose 1 KNOW-HOW (as printed - check)",
+  "effect": "bugOut",
+  "img": "assets/news/n15.jpg"
+ },
+ {
+  "id": "n16",
+  "n": 16,
+  "paper": "The Chronicle",
+  "type": "nuclear",
+  "title": "Panic-buyers' bags burst!",
+  "text": "Place 2 MEDS on West Street and 3 FOOD on Law Street",
+  "effect": "bagsBurst",
+  "img": "assets/news/n16.jpg"
+ },
+ {
+  "id": "n17",
+  "n": 17,
+  "paper": "The Chronicle",
+  "type": "ai",
+  "title": "Turn all tech off and on again",
+  "text": "Lose 1 TECH unless you have 2 or more KNOW-HOW",
+  "effect": "techOffOn",
+  "img": "assets/news/n17.jpg"
+ },
+ {
+  "id": "n18",
+  "n": 18,
+  "paper": "The Chronicle",
+  "type": "pandemic",
+  "title": "City-wide blackout!",
+  "text": "Any prepper without a flashlight loses 1 resource",
+  "effect": "blackout",
+  "img": "assets/news/n18.jpg"
+ },
+ {
+  "id": "n19",
+  "n": 19,
+  "paper": "The Daily News",
+  "type": "nuclear",
+  "title": "Citizens trade old hard drives to buy canned food",
+  "text": "Place 3 TECH in pawn shop",
+  "effect": "hardDrives",
+  "img": "assets/news/n19.jpg"
+ },
+ {
+  "id": "n20",
+  "n": 20,
+  "paper": "The Daily News",
+  "type": "ai",
+  "title": "Crypto-geek's hideout found!",
+  "text": "Place 3 PREPCOIN and 3 TECH in the boat yard",
+  "effect": "cryptoGeek",
+  "img": "assets/news/n20.jpg"
+ },
+ {
+  "id": "n21",
+  "n": 21,
+  "paper": "The Daily News",
+  "type": "pandemic",
+  "title": "Train drops vital aid package",
+  "text": "Place 1 of each resource at the train station",
+  "effect": "aidPackage",
+  "img": "assets/news/n21.jpg"
+ },
+ {
+  "id": "n22",
+  "n": 22,
+  "paper": "The Gazette",
+  "type": "nuclear",
+  "title": "Red-hot briefcase on subway!",
+  "text": "Subway stations are closed until this card is covered",
+  "effect": "subwayClosed",
+  "img": "assets/news/n22.jpg"
+ },
+ {
+  "id": "n23",
+  "n": 23,
+  "paper": "The Gazette",
+  "type": "ai",
+  "title": "You get drunk and throw up on your short-wave radio",
+  "text": "Lose 1 TECH and 1 HEALTH",
+  "effect": "drunk",
+  "img": "assets/news/n23.jpg"
+ },
+ {
+  "id": "n24",
+  "n": 24,
+  "paper": "The Gazette",
+  "type": "pandemic",
+  "title": "Thugs asleep on the job!",
+  "text": "All preppers lose 1 resource for each thug they employ",
+  "effect": "thugsAsleep",
+  "img": "assets/news/n24.jpg"
+ },
+ {
+  "id": "n25",
+  "n": 25,
+  "paper": "The Herald",
+  "type": "nuclear",
+  "title": "Truck dumps chemical waste",
+  "text": "Any prepper in central area loses 2 HEALTH",
+  "effect": "chemWaste",
+  "img": "assets/news/n25.jpg"
+ },
+ {
+  "id": "n26",
+  "n": 26,
+  "paper": "The Herald",
+  "type": "ai",
+  "title": "Brain boil or boffin boost?",
+  "text": "Each roll a dice: 1-2 lose 2 HEALTH; 3-6 gain 1 KNOW-HOW",
+  "effect": "brainBoil",
+  "img": "assets/news/n26.jpg"
+ },
+ {
+  "id": "n27",
+  "n": 27,
+  "paper": "The Herald",
+  "type": "pandemic",
+  "title": "Daring dumpster dive",
+  "text": "First prepper to reach a dumpster takes top ITEM card",
+  "effect": "offerDive",
+  "img": "assets/news/n27.jpg"
+ },
+ {
+  "id": "n28",
+  "n": 28,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n28.jpg"
+ },
+ {
+  "id": "n29",
+  "n": 29,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n29.jpg"
+ },
+ {
+  "id": "n30",
+  "n": 30,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n30.jpg"
+ },
+ {
+  "id": "n31",
+  "n": 31,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n31.jpg"
+ },
+ {
+  "id": "n32",
+  "n": 32,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n32.jpg"
+ },
+ {
+  "id": "n33",
+  "n": 33,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n33.jpg"
+ },
+ {
+  "id": "n34",
+  "n": 34,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n34.jpg"
+ },
+ {
+  "id": "n35",
+  "n": 35,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n35.jpg"
+ },
+ {
+  "id": "n36",
+  "n": 36,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n36.jpg"
+ },
+ {
+  "id": "n37",
+  "n": 37,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n37.jpg"
+ },
+ {
+  "id": "n38",
+  "n": 38,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n38.jpg"
+ },
+ {
+  "id": "n39",
+  "n": 39,
+  "paper": "The End Times",
+  "type": "ai",
+  "title": "End Times (placeholder)",
+  "text": "No event yet (lorem ipsum on the printed card)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n39.jpg"
+ }
+]
