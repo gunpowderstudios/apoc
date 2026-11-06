@@ -118,14 +118,28 @@ export class View3D {
     const key = tgt ? tgt.type + tgt.id : ''; if (key === this.dropKey) return; this.dropKey = key;
     if (!tgt) return this.setDrop(null);
     const ok = this.onHeldHover ? this.onHeldHover(tgt) : true;
-    let w = 0.09, d = 0.09, x = 0, z = 0;
-    if (tgt.type === 'mat') { const n = this.nPlayers || 1; x = this.matX(tgt.id, n); z = this.H / 2 + 0.03 + 0.0745; w = 0.22; d = 0.16; }
-    else {
-      const nd = this.board.nodes.find(q => q.id === tgt.id); if (!nd) return this.setDrop(null);
-      if (nd.seg) { const [x0, y0, x1, y1] = nd.seg; [x, z] = this.w({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 }); const horiz = Math.abs(x1 - x0) >= Math.abs(y1 - y0); w = (horiz ? Math.abs(x1 - x0) : 64) * this.k; d = (horiz ? 64 : Math.abs(y1 - y0)) * this.k; }
-      else { [x, z] = this.w(nd); const s = (nd.kind === 'building' ? 130 : 64) * this.k; w = d = s; if (nd.kind === 'building') z += 0.01; }
-    }
+    let r;
+    if (tgt.type === 'mat') { const n = this.nPlayers || 1; r = { x: this.matX(tgt.id, n), z: this.H / 2 + 0.03 + 0.0745, w: 0.22, d: 0.16 }; } else r = this.nodeRect(tgt.id);
+    if (!r) return this.setDrop(null);
+    const { x, z, w, d } = r;
     this.setDrop({ x, z, w, d, ok });
+  }
+  // the covered area of a board space (street strip, junction square, building square), in table metres
+  nodeRect(id) {
+    const nd = this.board.nodes.find(q => q.id === id); if (!nd) return null; let x, z, w, d;
+    if (nd.seg) { const [x0, y0, x1, y1] = nd.seg; [x, z] = this.w({ x: (x0 + x1) / 2, y: (y0 + y1) / 2 }); const horiz = Math.abs(x1 - x0) >= Math.abs(y1 - y0); w = (horiz ? Math.abs(x1 - x0) : 64) * this.k; d = (horiz ? 64 : Math.abs(y1 - y0)) * this.k; }
+    else { [x, z] = this.w(nd); const s = (nd.kind === 'building' ? 130 : 64) * this.k; w = d = s; if (nd.kind === 'building') z += 0.01; }
+    return { x, z, w, d };
+  }
+  // glowing event area: pulses until the next turn
+  setGlow(ids, color) {
+    const key = (ids || []).join(',') + color; if (key === this.glowKey) return; this.glowKey = key;
+    if (!this.glowG) { this.glowG = new THREE.Group(); this.scene.add(this.glowG); } this.glowG.clear(); this.glowMats = [];
+    for (const id of ids || []) {
+      const r = this.nodeRect(id); if (!r) continue;
+      const m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }), mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), m);
+      mesh.rotation.x = -Math.PI / 2; mesh.scale.set(r.w, r.d, 1); mesh.position.set(r.x, 0.005, r.z); mesh.renderOrder = 4; this.glowG.add(mesh); this.glowMats.push(m);
+    }
   }
   setDrop(f) {
     if (!this.dropFx) { this.dropFx = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.38, depthWrite: false, side: THREE.DoubleSide })); this.dropFx.rotation.x = -Math.PI / 2; this.dropFx.renderOrder = 5; this.scene.add(this.dropFx); }
@@ -171,6 +185,7 @@ export class View3D {
   }
   sync(s, ui) {
     this.syncTable(s);
+    this.setGlow(s.glow ? s.glow.nodes : [], { nuclear: 0xffc107, pandemic: 0xff3b30, ai: 0x2e8bff }[s.glow && s.glow.type] || 0xffffff);
     // resource tokens
     const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null]);
     if (sig !== this.sig) {
@@ -343,6 +358,7 @@ export class View3D {
   frame(t) {
     this.stepDice();
     for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target && !m.userData.free) { m.position.lerp(m.userData.target, 0.18); } }
+    if (this.glowMats) { const o = 0.5 + 0.28 * Math.sin(t / 260); for (const m of this.glowMats) m.opacity = o; }
     this.marks.children.forEach((m, i) => { m.scale.setScalar(1 + 0.12 * Math.sin(t / 220 + i)); });
     if (this.fly) {
       const f = this.fly, k = Math.min(1, (performance.now() - f.start) / f.ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;

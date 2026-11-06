@@ -518,6 +518,19 @@ const EVT = {
   offerDive(s) { s.offers.push({ nodes: D.dumpsters, kind: 'free', cost: {}, text: 'First to a dumpster takes the top ITEM card.' }); },
   none() { },
 };
+// which places an event card affects (for the map glow)
+export function glowNodes(card) {
+  const ids = f => D.board.nodes.filter(f).map(n => n.id), sect = L => ids(n => L.includes(n.sector));
+  switch (card.effect) {
+    case 'westCombat': return sect(WEST); case 'eastTech': return sect(EAST); case 'chemWaste': return sect(['C']);
+    case 'riverPollution': return [...D.river];
+    case 'offerStabVest': case 'hardDrives': return ['pawn']; case 'offerHazmat': return ['bar']; case 'offerSolar': return ['steel'];
+    case 'offerDive': return D.dumpsters; case 'hospitalClosed': return ['hospital']; case 'bagsBurst': return ['H2_0', 'H1_4'];
+    case 'cryptoGeek': return ['boatyard']; case 'aidPackage': return ['trainstation'];
+    case 'subwayClosed': return (D.board.subway || []).flat().filter(x => typeof x === 'string' && D.node[x]);
+    default: return [];
+  }
+}
 function place(s, node, r, n) { const a = Math.min(n, s.supply[r]); s.supply[r] -= a; s.loc[node].res[r] = (s.loc[node].res[r] || 0) + a; logm(s, `${a} ${RES_LABEL[r]} placed at ${D.node[node].name}.`); }
 function placeOnStreet(s, node, r, n) { place(s, node, r, n); }
 function loseOneRes(s, q) {
@@ -563,7 +576,7 @@ function rollNews(s, p) {
   s.spent = s.spent || [];
   if (top && s.spent.includes(top.id)) logm(s, `The ${sym.toUpperCase()} paper on top has already been used (turned over): nothing happens.`, p.id);
   else if (top) {
-    ts.news.fired = top.id; s.spent.push(top.id);   // the paper is turned over on its pile; it still counts towards the five
+    ts.news.fired = top.id; s.spent.push(top.id); s.glow = { card: top.id, type: top.type, nodes: glowNodes(top) };   // the paper is turned over on its pile; it still counts towards the five
     if (top.effect !== 'none') { logm(s, `EVENT! ${top.title} - ${top.text}`, p.id); EVT[top.effect](s, p, top); }
     else logm(s, 'Event: (not yet designed).');
   }
@@ -586,6 +599,7 @@ function escalate(s, type) {
 function beginTurn(s) {
   const p = cur(s);
   s.stage = 'turn';
+  s.glow = null;   // an event's map glow lasts until the next turn starts
   s.ts = { step: 'begin', moves: 0, actions: 1, moveState: 'none', dayKind: null, usedHeal: false, looted: [], blocked: {}, escalate: null, forceEnd: false, skipPrep: false, fought: false, raided: false, forager: false, stove: false, hunted: false, thiefUsed: false, droneUsed: false, crafted: false, shop: null, chemFree: false, rerolled: false, startNode: p.node };
   p.moonNext = false;
 }

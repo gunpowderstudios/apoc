@@ -522,7 +522,7 @@ function renderHand() {
   el.innerHTML = `<div class="note" style="flex:none">${esc(p.name)}'s items${p.itemCount !== undefined ? '' : ''}:</div>` + (items.length ? items.map(i => `<div class="itm ${i.broken ? 'broken' : ''}" data-i="${H.push(() => { modalFn = () => itemModal(p.id, i.uid); render(); }) - 1}" title="${i.id === 'hidden' ? 'hidden' : esc(E.D.item[i.id].name)}"><img src="${itemImg(i.id)}">${i.tokens !== undefined && i.tokens !== null ? `<span class="tk">${i.tokens}</span>` : ''}</div>`).join('') : '<span class="note">none</span>');
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
-const newsSnd = new Audio('assets/sfx/breaking-news.mp3'); let newsShown = null, newsClosed = null;
+const newsSnd = new Audio('assets/sfx/breaking-news.mp3'), eventSnd = new Audio('assets/sfx/event.mp3'); let firedShown = null; let newsShown = null, newsClosed = null;
 let newsView = null;
 function newsPileModal() {
   const ids = S.stand[newsView.type]; if (!ids.length) return null;
@@ -530,7 +530,7 @@ function newsPileModal() {
   return `<div style="display:flex;gap:14px;align-items:flex-start"><img src="${c.img}" style="height:min(70vh,560px);border-radius:8px">
     <div class="t-${c.type} evbox" style="max-width:300px"><div class="ev" style="display:flex;gap:8px;align-items:center"><img src="assets/ui/ev-${c.type}.png" style="width:48px;height:48px"><div style="font-weight:700;color:#ffd54f">${nm} EVENT</div></div>
     <div style="font-size:18px;font-weight:600;margin:8px 0">${esc(c.text || 'Not yet designed')}</div>
-    <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''} The rest of the article is just for fun.</div>
+    <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''}</div>
     <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
 }
 const TURN_STEPS = ['Eat & Thugs', 'Draw News', 'Roll News Dice', 'Roll Day / Night', 'Move & Actions', 'End Turn'];
@@ -564,6 +564,7 @@ function renderNewsPanel() {
   if (!c) { box.hidden = true; return; }
   const key = nw.id + ':' + S.round + ':' + S.cur;
   if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; }
+  if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
   if (newsClosed === key) { box.hidden = true; return; }
   const sym = nw.sym, fake = sym === 'fake', fired = nw.fired && E.D.newsById[nw.fired], hit = !!fired, used = sym && !fake && !fired && S.stand[sym] && S.stand[sym].length, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
   const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. A matching face (nuclear / pandemic / AI) triggers the newest card of that type on the table.</div>`
@@ -571,7 +572,7 @@ function renderNewsPanel() {
   box.className = 't-' + c.type;
   box.innerHTML = `<button class="x" title="Close">×</button>
     <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
-    <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)} (the rest of the article is just for fun)</div>`;
+    <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)}</div>`;
   box.hidden = false; box.querySelector('.x').onclick = () => { newsClosed = key; box.hidden = true; };
 }
 function renderBanner() {
