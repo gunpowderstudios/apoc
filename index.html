@@ -8,7 +8,8 @@
 <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
-<div id="lobby" class="screen">
+<div id="gate" class="screen" hidden><div class="card" style="max-width:340px"><h1>APOC</h1><p class="note">Private test build. Enter the password.</p><form id="gateForm" class="row"><input id="gatePw" type="password" autocomplete="current-password" autofocus><button class="primary">Enter</button></form><div id="gateMsg" class="note"></div></div></div>
+<div id="lobby" class="screen" hidden>
   <div class="card">
     <h1>APOC <span class="note" id="verL"></span> <small>pre-APOC test table · Gunpowder Studios</small></h1>
     <div class="tabs" id="modeTabs">

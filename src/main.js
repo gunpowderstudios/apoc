@@ -18,7 +18,25 @@ let S = null, mode = 'local', net = null, mySeat = null, peerSeat = new Map(), g
 let hist = [], sbxMove = false, sbxTarget = 0, busy = false, modalFn = null, H = [], targets = {}, lastSeq = 0, aiRejects = 0, lobbyMode = 'solo', appUp = false, lastLogSeq = -1;
 
 // ---------------------------------------------------------------- boot + lobby
+// ---------------------------------------------------------------- password gate (casual privacy only: this is a static site)
+const PW_HASH = 'd070e8c23b0d02da5198dae4c8b83c3670210edf6f42d9c846fafcaca2bea832';
+const sha = async s => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join('');
+async function gate() {
+  try { if (localStorage.getItem('apoc-ok') === PW_HASH) return; } catch (e) {}
+  $('#gate').hidden = false;
+  await new Promise(ok => {
+    $('#gateForm').onsubmit = async e => {
+      e.preventDefault();
+      if (await sha('apoc-gunpowder:' + $('#gatePw').value.trim()) === PW_HASH) { try { localStorage.setItem('apoc-ok', PW_HASH); } catch (e2) {} ok(); }
+      else { $('#gateMsg').textContent = 'Wrong password.'; $('#gatePw').select(); }
+    };
+    $('#gatePw').focus();
+  });
+  $('#gate').hidden = true;
+}
+
 async function boot() {
+  await gate(); $('#lobby').hidden = false;
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config] = await Promise.all(['board', 'items', 'news', 'preppers', 'config'].map(rd));
   D = E.init({ board, items, news, preppers, config });
