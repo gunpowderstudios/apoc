@@ -265,7 +265,38 @@ export class View3D {
     this.flyTo(new THREE.Vector3(tx, 1.0, tz + 0.42), new THREE.Vector3(tx, 0, tz), 1400);
   }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
+  // ---- physical dice: thrown from the player's mat, tumble and bounce across the table, land showing the rolled face
+  // spec: [{set:'day'|'night'|'news'|'num', face:0..5}]
+  rollDice(specs, seat, n) {
+    const base = { day: 1, night: 7, news: 13, num: 25 };
+    if (!this.dice) { this.dice = new THREE.Group(); this.scene.add(this.dice); }
+    this.dice.clear(); this.rolling = [];
+    const SZ = 0.028, zc = this.H / 2 + 0.03 + 0.0745, x0 = this.matX(Math.min(seat, n - 1), n);
+    const nrm = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+    specs.forEach((sp, k) => {
+      const mats = [0, 1, 2, 3, 4, 5].map(i => { const m = new THREE.MeshStandardMaterial({ roughness: 0.45 }); const u = `assets/dice/f${String(base[sp.set] + i).padStart(2, '0')}.webp`; m.map = this.texs['d' + u] || (this.texs['d' + u] = this.tl.load(u)); m.map.colorSpace = THREE.SRGBColorSpace; return m; });
+      const geo = new THREE.BoxGeometry(SZ, SZ, SZ), mesh = new THREE.Mesh(geo, mats); mesh.castShadow = true; mesh.receiveShadow = true; this.dice.add(mesh);
+      // final orientation: slot `face` normal -> +Y, then a random spin about Y
+      const fq = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(...nrm[sp.face]), new THREE.Vector3(0, 1, 0)).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * 6.28));
+      const p0 = new THREE.Vector3(x0 + (k - (specs.length - 1) / 2) * 0.03, 0.05, zc - 0.05), p1 = new THREE.Vector3((Math.random() - 0.5) * 0.3 + (k - (specs.length - 1) / 2) * 0.04, SZ / 2, (Math.random() - 0.5) * 0.12 + 0.04);
+      const axis = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
+      this.rolling.push({ mesh, fq, p0, p1, axis, spin: (7 + Math.random() * 4) * (Math.random() < .5 ? 1 : -1), t0: performance.now() + k * 90, ms: 1500 });
+      mesh.position.copy(p0); mesh.visible = false;
+    });
+  }
+  stepDice() {
+    if (!this.rolling) return; const now = performance.now(), q = new THREE.Quaternion(), tmp = new THREE.Quaternion();
+    for (const d of this.rolling) {
+      const k = Math.max(0, Math.min(1, (now - d.t0) / d.ms)); d.mesh.visible = now >= d.t0; if (d.done) continue;
+      const e = 1 - Math.pow(1 - k, 2.2), h = Math.abs(Math.sin(k * Math.PI * 2.6)) * 0.07 * Math.pow(1 - k, 1.5);
+      d.mesh.position.lerpVectors(d.p0, d.p1, e); d.mesh.position.y = d.p1.y + h * (k < 1 ? 1 : 0);
+      // spin decays to zero, finishing exactly on the target orientation
+      tmp.setFromAxisAngle(d.axis, d.spin * Math.pow(1 - k, 2) * Math.PI); q.copy(d.fq).premultiply(tmp); d.mesh.quaternion.copy(q);
+      if (k >= 1) { d.done = true; d.mesh.position.copy(d.p1); d.mesh.quaternion.copy(d.fq); }
+    }
+  }
   frame(t) {
+    this.stepDice();
     for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target && !m.userData.free) { m.position.lerp(m.userData.target, 0.18); } }
     this.marks.children.forEach((m, i) => { m.scale.setScalar(1 + 0.12 * Math.sin(t / 220 + i)); });
     if (this.fly) {

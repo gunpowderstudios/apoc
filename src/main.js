@@ -161,7 +161,7 @@ function enterApp() {
   $('#bUndo').hidden = mode === 'guest';
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && modalFn) { modalFn = null; render(); } });
   setView('3d');   // open in the 3D view by default
-  window.apoc = { get S() { return S; }, get targets() { return targets; }, click: onBoardClick, E, AI };   // handy for console debugging
+  window.apoc = { get S() { return S; }, get V3() { return V3; }, get targets() { return targets; }, click: onBoardClick, E, AI };   // handy for console debugging
 }
 function setView(v) {
   view = v; $('#c2').hidden = v !== '2d'; $('#c3').hidden = v !== '3d'; $('#v2d').classList.toggle('on', v === '2d'); $('#v3d').classList.toggle('on', v === '3d');
@@ -347,9 +347,17 @@ const chips = res => E.ALLRES.filter(r => res[r] > 0).map(r => chip(r, res[r])).
 const itemImg = id => id === 'DUCT' ? 'assets/counters/duct-tape.webp' : id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${id}.jpg`;
 
 const diceSnd = new Audio('assets/sfx/dice.mp3'); let lastRollKey = null, rollInit = false;
+function throwDice(r) {
+  let sp = null;
+  if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
+  else if (r.kind === 'risk') sp = [{ set: 'num', face: Math.max(0, Math.min(5, (r.value || 1) - 1)) }];
+  else if (r.kind === 'fight') sp = [r.a, r.d].map(x => ({ set: 'num', face: Math.max(0, Math.min(5, ((x && x.r) || 1) - 1)) }));
+  if (sp) V3.rollDice(sp, r.pl, S.players.length);
+}
 function rollSound() {
   const k = S.lastRoll ? JSON.stringify(S.lastRoll) + S.log.length : null;
   if (rollInit && k && k !== lastRollKey) { try { diceSnd.currentTime = 0; diceSnd.play().catch(() => {}); } catch (e) {} }
+  if (rollInit && k && k !== lastRollKey && V3) throwDice(S.lastRoll);
   lastRollKey = k; rollInit = true;
 }
 function render() {
