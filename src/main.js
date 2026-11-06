@@ -175,7 +175,7 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -515,6 +515,16 @@ function renderHand() {
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
 const newsSnd = new Audio('assets/sfx/breaking-news.mp3'); let newsShown = null, newsClosed = null;
+let newsView = null;
+function newsPileModal() {
+  const ids = S.stand[newsView.type]; if (!ids.length) return null;
+  const i = Math.max(0, Math.min(ids.length - 1, newsView.i)), c = E.D.newsById[ids[ids.length - 1 - i]], nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
+  return `<div style="display:flex;gap:14px;align-items:flex-start"><img src="${c.img}" style="height:min(70vh,560px);border-radius:8px">
+    <div style="max-width:300px"><div class="ev" style="display:flex;gap:8px;align-items:center"><img src="assets/ui/ev-${c.type}.png" style="width:48px;height:48px"><div style="font-weight:700;color:#ffd54f">${nm} EVENT</div></div>
+    <div style="font-size:18px;font-weight:600;margin:8px 0">${esc(c.text || 'Not yet designed')}</div>
+    <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first). The rest of the article is just for fun.</div>
+    <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
+}
 function renderNewsPanel() {
   const box = $('#newscard'); if (setupHold) { box.hidden = true; return; }
   const nw = S && !S.over && S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];

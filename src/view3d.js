@@ -101,6 +101,7 @@ export class View3D {
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'token') { if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId); return; }
       const id = h ? (h.type === 'board' ? h.id : h.type === 'pawn' ? this.pawnNode(h.pid) : null) : null;
       if (this.onClick) { const bp = this.boardPoint(e); this.onClick(id, bp ? { x: bp.bx, y: bp.by } : null); }
@@ -128,6 +129,7 @@ export class View3D {
     this.ndc(e);
     const cand = [];
     const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
+    const nh = this.ray.intersectObjects(this.piles.children, false).find(h => h.object.userData.news); if (nh) cand.push({ d: nh.distance, type: 'news', key: nh.object.userData.news });
     const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId });
     const ph = this.ray.intersectObjects(this.pawns.children, true)[0];
     if (ph) { let o = ph.object; while (o && o.userData.pid === undefined) o = o.parent; if (o) cand.push({ d: ph.distance, type: 'pawn', pid: o.userData.pid }); }
@@ -240,7 +242,7 @@ export class View3D {
         if (n <= 0) return;
         const [x, z] = this.newsPos[key], h = Math.max(0.001, n * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 });
         const top = new THREE.MeshStandardMaterial({ map: this.tex(topUrl), roughness: 0.8 });
-        const m = new THREE.Mesh(new THREE.BoxGeometry(0.1347, h, 0.191), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.1347, h, 0.191), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = key; this.piles.add(m);
         const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.11); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
