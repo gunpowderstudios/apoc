@@ -270,7 +270,10 @@ export class View3D {
   rollDice(specs, seat, n) {
     const base = { day: 1, night: 7, news: 13, num: 25 };
     if (!this.dice) { this.dice = new THREE.Group(); this.scene.add(this.dice); }
-    this.dice.clear(); this.rolling = [];
+    // dice from the same turn stay on the table side by side: news clears the table, day/night replace only the previous day/night die, anything else clears all
+    const kind = specs[0].set;
+    if (kind === 'news' || kind === 'num' || !this.rolling) { this.dice.clear(); this.rolling = []; }
+    else { for (const d of this.rolling.filter(d => d.set === 'day' || d.set === 'night')) this.dice.remove(d.mesh); this.rolling = this.rolling.filter(d => d.set !== 'day' && d.set !== 'night'); }
     const SZ = 0.028, zc = this.H / 2 + 0.03 + 0.0745, x0 = this.matX(Math.min(seat, n - 1), n);
     const nrm = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
     specs.forEach((sp, k) => {
@@ -278,9 +281,9 @@ export class View3D {
       const geo = new THREE.BoxGeometry(SZ, SZ, SZ), mesh = new THREE.Mesh(geo, mats); mesh.castShadow = true; mesh.receiveShadow = true; this.dice.add(mesh);
       // final orientation: slot `face` normal -> +Y, then a random spin about Y
       const fq = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(...nrm[sp.face]), new THREE.Vector3(0, 1, 0)).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * 6.28));
-      const p0 = new THREE.Vector3(x0 + (k - (specs.length - 1) / 2) * 0.03, 0.05, zc - 0.05), p1 = new THREE.Vector3((Math.random() - 0.5) * 0.3 + (k - (specs.length - 1) / 2) * 0.04, SZ / 2, (Math.random() - 0.5) * 0.12 + 0.04);
+      const p0 = new THREE.Vector3(x0 + (k - (specs.length - 1) / 2) * 0.03, 0.05, zc - 0.05), p1 = new THREE.Vector3((kind === 'news' ? -0.04 : kind === 'num' ? 0.04 + k * 0.045 : 0.01) + (Math.random() - 0.5) * 0.01, SZ / 2, 0.04 + (Math.random() - 0.5) * 0.02);
       const axis = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
-      this.rolling.push({ mesh, fq, p0, p1, axis, spin: (7 + Math.random() * 4) * (Math.random() < .5 ? 1 : -1), t0: performance.now() + k * 90, ms: 1500 });
+      this.rolling.push({ set: sp.set, mesh, fq, p0, p1, axis, spin: (7 + Math.random() * 4) * (Math.random() < .5 ? 1 : -1), t0: performance.now() + k * 90, ms: 1500 });
       mesh.position.copy(p0); mesh.visible = false;
     });
   }
