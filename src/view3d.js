@@ -265,7 +265,7 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
-    this.newsPos = { deck: [W + 0.03 + 0.068, -hb + 0.0955], ai: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955], pandemic: [W + 0.03 + 0.068, -hb + 0.0955 + 0.22], nuclear: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955 + 0.22] };
+    this.newsPos = { deck: [W + 0.03 + 0.068, -hb + 0.0955], ai: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955], pandemic: [W + 0.03 + 0.068, -hb + 0.0955 + 0.22], nuclear: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955 + 0.22], items: [W + 0.03 + 0.068, -hb + 0.0955 + 0.44] };
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
@@ -273,8 +273,8 @@ export class View3D {
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
     this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.85, 1, 2.85); 
     // news piles
-    const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck;
-    const psig = JSON.stringify([deckN, s.stand, s.spent]);
+    const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck, itemN = (s.itemDeck || []).length;
+    const psig = JSON.stringify([deckN, s.stand, s.spent, itemN]);
     if (psig !== this.psig) {
       this.psig = psig; this.piles.clear();
       const make = (key, n, topUrl, name) => {
@@ -285,6 +285,11 @@ export class View3D {
         const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.11); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
+      if (itemN > 0) {   // face-down shuffled ITEM deck (portrait cards 63x88 mm, drawn bigger so it reads like the news piles)
+        const [x, z] = this.newsPos.items, h = Math.max(0.001, itemN * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 }), top = new THREE.MeshStandardMaterial({ map: this.tex('assets/items/back.jpg'), roughness: 0.8 });
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.0945, h, 0.132), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = 'items'; this.piles.add(m);
+        const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.085); this.piles.add(lb);
+      }
       for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? ((s.spent || []).includes(a[a.length - 1]) ? 'assets/news/back.jpg' : `assets/news/${a[a.length - 1]}.jpg`) : '', ty.toUpperCase()); }
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }

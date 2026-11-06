@@ -175,7 +175,7 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'items') { modalFn = itemDeckModal; render(); return; } if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
@@ -524,6 +524,13 @@ function renderHand() {
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
 const newsSnd = new Audio('assets/sfx/breaking-news.mp3'), eventSnd = new Audio('assets/sfx/event.mp3'); let firedShown = null; let newsShown = null, newsClosed = null;
 let newsView = null;
+function itemDeckModal() {
+  const cnt = {}; for (const c of S.itemDeck) cnt[c.id] = (cnt[c.id] || 0) + 1;
+  const rows = E.D.items.map(it => `<div style="width:92px;text-align:center;opacity:${cnt[it.id] ? 1 : .35}"><img src="${it.img}" style="width:92px;border-radius:5px"><div style="font-size:12px">${esc(it.name)}</div><b>x${cnt[it.id] || 0}</b></div>`).join('');
+  return `<div style="max-width:760px"><div style="font-weight:700;font-size:18px;margin-bottom:6px">ITEM DECK: ${S.itemDeck.length} cards, shuffled face down</div>
+    <div class="note" style="margin-bottom:8px">Craft an item (pay its recipe) or buy one at a shop to take that card from the deck. Dumpsters and events take the top card.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;max-height:60vh;overflow:auto">${rows}</div><div class="btns" style="margin-top:10px">${closeBtn()}</div></div>`;
+}
 function newsPileModal() {
   const ids = S.stand[newsView.type]; if (!ids.length) return null;
   const i = Math.max(0, Math.min(ids.length - 1, newsView.i)), c = E.D.newsById[ids[ids.length - 1 - i]], nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
