@@ -27,7 +27,7 @@
       <label>Your name <input id="joinName" value="Guest"></label>
     </div>
     <div id="hostInfo" class="note" hidden></div>
-    <div class="row"><button id="startBtn" class="primary">Start game</button><span id="lobbyMsg" class="note"></span></div>
+    <div class="row"><button id="startBtn" class="primary">Start game</button><button id="contBtn" hidden></button><button id="loadBtn">Load game file…</button><input type="file" id="loadFile" accept=".json,application/json" hidden><span id="lobbyMsg" class="note"></span></div>
     <p class="note">Pre-APOC game only: when the DEFCON/SHTF trigger fires, the game ends with the Panic Grab and says which Mission Pack to open.</p>
   </div>
 </div>
@@ -42,6 +42,7 @@
     <button id="bReset" title="Reset camera">⌖ Reset</button>
     <button id="bGraph" title="Show the movement graph over the board">Graph</button>
     <button id="bUndo" title="Undo your last command (host/solo)">↶ Undo</button>
+    <button id="bSave" title="Download this game as a save file (JSON)">💾 Save</button>
     <button id="bLog" title="Download full game state + log (JSON) for bug reports">⇩ Export</button>
     <button id="bRules" title="Assumptions list">Assumptions</button>
   </header>

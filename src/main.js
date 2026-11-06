@@ -66,6 +66,10 @@ function bindLobby() {
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
+  const sv = readAutosave();
+  if (sv) { $('#contBtn').hidden = false; $('#contBtn').textContent = `Continue saved game (round ${sv.S.round}, ${new Date(sv.savedAt).toLocaleString()})`; $('#contBtn').onclick = () => loadGame(sv); }
+  $('#loadBtn').onclick = () => $('#loadFile').click();
+  $('#loadFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { loadGame(JSON.parse(await f.text())); } catch (err) { lobbyMsg('Could not read that save file.'); } };
 }
 const lobbyMsg = t => { $('#lobbyMsg').textContent = t; };
 function readSeats() {
@@ -119,6 +123,21 @@ function onGuestMsg(m) {
   if (m.state) { mySeat = m.seat; S = m.state; if (!appUp) enterApp(); render(); }
 }
 
+// ---------------------------------------------------------------- save / load
+const savePayload = () => ({ game: 'apoc', version: VERSION, savedAt: Date.now(), S });
+function readAutosave() { try { const o = JSON.parse(localStorage.getItem('apoc-save')); return o && o.game === 'apoc' && o.S && o.S.players ? o : null; } catch (e) { return null; } }
+function autosave() { if (mode !== 'local' || !S) return; try { localStorage.setItem('apoc-save', JSON.stringify(savePayload())); } catch (e) {} }
+function saveFile() {
+  if (mode === 'guest') return toast('Only the host can save the game');
+  download(`apoc-save-r${S.round}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.json`, JSON.stringify(savePayload()));
+}
+function loadGame(o) {
+  if (!o || o.game !== 'apoc' || !o.S || !o.S.players) return lobbyMsg('That is not an APOC save file.');
+  mode = 'local'; remoteSeats = new Set(); peerSeat = new Map(); S = o.S; hist = []; lastLogSeq = -1; lastSeq = 0; rollInit = false;
+  if (o.version && o.version !== VERSION) toast(`Save was made in ${o.version}; you are on ${VERSION}. Rules may differ.`);
+  enterApp(); afterChange();
+}
+
 // ---------------------------------------------------------------- app shell
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
@@ -131,7 +150,7 @@ function enterApp() {
   $('#bRot').onclick = () => V2.rotate();
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
-  $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog;
+  $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('header').insertBefore(ex, $('#bGraph'));
   document.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b && H[+b.dataset.i]) H[+b.dataset.i](e); });
@@ -186,7 +205,7 @@ function doCmd(cmd) {
   const r = runCmd(actor(), cmd); if (!r.ok) toast(r.error || 'Not allowed'); return r;
 }
 function afterChange() {
-  render(); broadcast(); aiRejects = aiRejects; schedule();
+  render(); broadcast(); autosave(); schedule();
 }
 function broadcast() { if (mode !== 'host' || !net) return; for (const [pid, seat] of peerSeat) net.send(pid, { state: E.publicView(S, seat), seat }); }
 function schedule() {
