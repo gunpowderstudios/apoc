@@ -16,19 +16,19 @@ export class View3D {
     this.k = BOARD_W / board.width; this.H = board.height * this.k;
     this.nodes = Object.fromEntries(board.nodes.map(n => [n.id, n]));
     const r = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFShadowMap;
     r.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(r.domElement); this.r = r;
     this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0x15171a);
     this.cam = new THREE.PerspectiveCamera(40, 1, 0.01, 6);
-    this.cam.position.set(0, 0.62, 0.62); this.cam.lookAt(0, 0, 0);
+    this.cam.position.set(0, 1.15, 1.0); this.cam.lookAt(0, 0, 0.15);
     this.ctl = new OrbitControls(this.cam, r.domElement);
-    this.ctl.target.set(0, 0, 0); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.12; this.ctl.maxDistance = 1.8;
+    this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.12; this.ctl.maxDistance = 2.6;
     this.ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     this.ctl.update();
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 1.5));
-    const sun = new THREE.DirectionalLight(0xfff2dd, 2.2); sun.position.set(-0.4, 0.9, 0.5); sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = -0.6; sc.right = 0.6; sc.top = 0.5; sc.bottom = -0.5; sc.near = 0.1; sc.far = 3; this.scene.add(sun);
+    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 0.85));
+    const sun = new THREE.DirectionalLight(0xfff2dd, 3.4); sun.position.set(-0.4, 0.9, 0.5); sun.castShadow = true;
+    sun.shadow.mapSize.set(4096, 4096); sun.shadow.radius = 1; sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.0005; const sc = sun.shadow.camera; sc.left = -0.9; sc.right = 0.9; sc.top = 0.9; sc.bottom = -0.5; sc.near = 0.1; sc.far = 4; this.scene.add(sun);
     // table
     const table = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshStandardMaterial({ color: 0x3b2e24, roughness: 0.9 }));
     table.rotation.x = -Math.PI / 2; table.position.y = -0.013; table.receiveShadow = true; this.scene.add(table);
@@ -44,6 +44,9 @@ export class View3D {
     this.pawnMeshes = {}; this.sig = ''; this.markSig = '';
     this.ray = new THREE.Raycaster(); this.mouse = new THREE.Vector2();
     this.texCache = {};
+    this.tl = new THREE.TextureLoader(); this.texs = {}; this.labels = {}; this.furniture = new THREE.Group(); this.scene.add(this.furniture); this.mats = new THREE.Group(); this.scene.add(this.mats); this.piles = new THREE.Group(); this.scene.add(this.piles);
+    this.buildFurniture();
+    this.ctl.addEventListener('start', () => { this.fly = null; });
     this.bind(); this.resize();
     new ResizeObserver(() => this.resize()).observe(container);
     this.active = false;
@@ -81,13 +84,14 @@ export class View3D {
   }
   tokenMat(r) {
     if (this.texCache[r]) return this.texCache[r];
-    const im = this.icons[r]; let top;
+    const im = this.icons[r]; let top; if (!RCOL[r]) RCOL[r] = 0xe8b100;   // 'coin'
     if (im) { const t = new THREE.CanvasTexture(im); t.colorSpace = THREE.SRGBColorSpace; top = new THREE.MeshStandardMaterial({ map: t, roughness: 0.5 }); }
     else top = new THREE.MeshStandardMaterial({ color: RCOL[r] });
     const side = new THREE.MeshStandardMaterial({ color: RCOL[r], roughness: 0.6 });
     return this.texCache[r] = [side, top, side];
   }
   sync(s, ui) {
+    this.syncTable(s);
     // resource tokens
     const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin])]);
     if (sig !== this.sig) {
@@ -141,11 +145,94 @@ export class View3D {
       }
     }
   }
+  tex(url) {
+    if (!this.texs[url]) { const x = this.tl.load(url); x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; this.texs[url] = x; }
+    return this.texs[url];
+  }
+  flat(w, d, url, x, y, z, extra = {}) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ map: this.tex(url), roughness: 0.7, ...extra }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.receiveShadow = true; m.castShadow = true; return m;
+  }
+  label(text, color = '#fff') {
+    const k = text + color; if (this.labels[k]) return this.labels[k].clone();
+    const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d');
+    g.font = 'bold 54px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 10; g.strokeStyle = '#000'; g.strokeText(text, 256, 50); g.fillStyle = color; g.fillText(text, 256, 50);
+    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true })); sp.scale.set(0.16, 0.03, 1); sp.renderOrder = 10;
+    this.labels[k] = sp; return sp.clone();
+  }
+  // Table furniture: DEFCON countdown chart left of the board; news piles right of it.
+  buildFurniture() {
+    const hb = this.H / 2, W = BOARD_W / 2;
+    this.chart = { w: 0.1, d: 0.1 * 866 / 400, x: -(W + 0.03 + 0.05), z: -hb + 0.1 * 866 / 400 / 2 };
+    const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); this.furniture.add(c);
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
+    this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.004, 28), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x555555, roughness: 0.3 })); this.defMark.castShadow = true; this.furniture.add(this.defMark);
+    const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
+    this.newsPos = { deck: [W + 0.03 + 0.037, -hb + 0.0525], ai: [W + 0.03 + 0.037 + 0.087, -hb + 0.0525], pandemic: [W + 0.03 + 0.037, -hb + 0.0525 + 0.135], nuclear: [W + 0.03 + 0.037 + 0.087, -hb + 0.0525 + 0.135] };
+  }
+  matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
+  syncTable(s) {
+    const df = s.defcon, ys = [590, 440, 270, 78];   // pixel rows of the four DEFCON lights on the chart image (400x866)
+    const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
+    this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(1.9, 1, 1.9); this.defMark.material.opacity = 1;
+    // news piles
+    const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck;
+    const psig = JSON.stringify([deckN, s.stand]);
+    if (psig !== this.psig) {
+      this.psig = psig; this.piles.clear();
+      const make = (key, n, topUrl, name) => {
+        if (n <= 0) return;
+        const [x, z] = this.newsPos[key], h = Math.max(0.001, n * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 });
+        const top = new THREE.MeshStandardMaterial({ map: this.tex(topUrl), roughness: 0.8 });
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.074, h, 0.105), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
+        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.072, 0.0135, 1); lb.position.set(x, h + 0.012, z + 0.062); this.piles.add(lb);
+      };
+      make('deck', deckN, 'assets/news/back.jpg', 'DECK');
+      for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? `assets/news/${a[a.length - 1]}.jpg` : '', ty.toUpperCase()); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.072, 0.0135, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
+    }
+    // player mats: character card (backpack side until bunker), resource piles and item cards
+    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
+    if (msig !== this.matSig) {
+      this.matSig = msig; this.mats.clear();
+      const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.0185;
+      s.players.forEach((p, i) => {
+        const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[p.bunker ? 1 : 0] || art[0];
+        const active = s.cur === p.id && s.stage === 'turn';
+        const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1 }));
+        frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);
+        if (url) this.mats.add(this.flat(0.21, 0.149, url, x, 0.0026, zc));
+        const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
+        // resource piles
+        const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
+        const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), pz = zc + 0.0745 + 0.02;
+        piles.forEach((pl, k) => { for (let j = 0; j < pl.c; j++) { const m = new THREE.Mesh(geo, this.tokenMat(pl.r)); m.position.set(x + (k - (piles.length - 1) / 2) * SP, 0.0015 + j * 0.003, pz); m.castShadow = true; this.mats.add(m); } });
+        // item cards, fanned out under the tokens
+        const cw = 0.063, cd = 0.088, iz = pz + 0.016 + cd / 2, k = p.items.length, step = k > 1 ? Math.min(cw + 0.004, (0.21 - cw) / (k - 1)) : 0;
+        p.items.forEach((it, j) => {
+          const m = this.flat(cw, cd, it.id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${it.id}.jpg`, x + (j - (k - 1) / 2) * step, 0.0012 + j * 0.0004, iz, it.broken ? { color: 0x777777 } : {});
+          this.mats.add(m);
+        });
+      });
+    }
+  }
+  // glide the camera to look down at a player's mat with the board still in shot
+  follow(i, n) {
+    const x = this.matX(i, n), tx = x * 0.8, tz = 0.2;
+    this.flyTo(new THREE.Vector3(tx, 1.0, tz + 0.42), new THREE.Vector3(tx, 0, tz), 1400);
+  }
+  flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   frame(t) {
     for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target) { m.position.lerp(m.userData.target, 0.18); } }
     this.marks.children.forEach((m, i) => { m.scale.setScalar(1 + 0.12 * Math.sin(t / 220 + i)); });
+    if (this.fly) {
+      const f = this.fly, k = Math.min(1, (performance.now() - f.start) / f.ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      this.cam.position.lerpVectors(f.p0, f.p1, e); this.ctl.target.lerpVectors(f.t0, f.t1, e); if (k >= 1) this.fly = null;
+    }
     this.ctl.update(); this.r.render(this.scene, this.cam);
   }
-  reset() { this.cam.position.set(0, 0.62, 0.62); this.ctl.target.set(0, 0, 0); this.ctl.update(); }
+  reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
   topDown() { this.cam.position.set(0, 0.95, 0.001); this.ctl.target.set(0, 0, 0); this.ctl.update(); }
 }

@@ -15,6 +15,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 let D, boardImg, icons = {}, V2, V3, view = '2d';
 let S = null, mode = 'local', net = null, mySeat = null, peerSeat = new Map(), guestNames = new Map(), remoteSeats = new Set();
+let paused = false, stepOnce = false, speed = 'normal', follow = true, lastActorKey = null;
 let hist = [], sbxMove = false, sbxTarget = 0, busy = false, modalFn = null, H = [], targets = {}, lastSeq = 0, aiRejects = 0, lobbyMode = 'solo', appUp = false, lastLogSeq = -1;
 
 // ---------------------------------------------------------------- boot + lobby
@@ -40,7 +41,7 @@ async function boot() {
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config] = await Promise.all(['board', 'items', 'news', 'preppers', 'config'].map(rd));
   D = E.init({ board, items, news, preppers, config });
-  boardImg = await img('assets/board/board.jpg');
+  boardImg = await img('assets/board/board.jpg'); icons.coin = await img('assets/counters/prepcoin.webp');
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
@@ -150,6 +151,8 @@ function enterApp() {
   $('#bRot').onclick = () => V2.rotate();
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
+  $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
+  $('#bFollow').onclick = () => { follow = !follow; $('#bFollow').classList.toggle('on', follow); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('header').insertBefore(ex, $('#bGraph'));
@@ -163,7 +166,7 @@ function enterApp() {
 function setView(v) {
   view = v; $('#c2').hidden = v !== '2d'; $('#c3').hidden = v !== '3d'; $('#v2d').classList.toggle('on', v === '2d'); $('#v3d').classList.toggle('on', v === '3d');
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.onClick = id => onBoardClick(id); V3.pickBoard = (x, y) => V2.pick(x, y);
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => onBoardClick(id); V3.pickBoard = (x, y) => V2.pick(x, y);
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -208,18 +211,26 @@ function afterChange() {
   render(); broadcast(); autosave(); schedule();
 }
 function broadcast() { if (mode !== 'host' || !net) return; for (const [pid, seat] of peerSeat) net.send(pid, { state: E.publicView(S, seat), seat }); }
+const DELAY = { slow: 2400, normal: 1100, fast: 350 };
+function togglePause() {
+  paused = !paused; $('#bPause').textContent = paused ? '▶ Resume' : '⏸ Pause'; $('#bPause').classList.toggle('on', paused); $('#bStep').hidden = !paused;
+  $('#pausedTag').hidden = !paused; if (!paused) schedule();
+}
 function schedule() {
   if (mode === 'guest' || busy || !S || S.over) return;
+  if (paused && !stepOnce) return;
   if (!AI.next(S)) return;
   busy = true;
-  const fast = !S.players.some((p, i) => mine(i));
+  const humanHere = S.players.some((p, i) => mine(i));
   setTimeout(() => {
     busy = false; if (!S || S.over) return;
+    if (paused && !stepOnce) return;
+    stepOnce = false;
     const a = AI.next(S); if (!a) return;
     const r = E.dispatch(S, a.pl, a.cmd);
     if (!r.ok) { if (++aiRejects > 60) { toast('AI is stuck (' + r.error + '). Use Export to send a log.'); return; } } else aiRejects = 0;
     afterChange();
-  }, fast ? 120 : 520);
+  }, stepOnce ? 50 : DELAY[speed] * (humanHere ? 0.5 : 1));
 }
 
 // ---------------------------------------------------------------- board interaction
@@ -273,7 +284,12 @@ function render() {
   H = []; updateTargets();
   renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
-  if (V3 && view === '3d') V3.sync(S, { targets });
+  if (V3 && view === '3d') {
+    V3.sync(S, { targets });
+    const key = S.over ? 'over' : S.stage + ':' + actor();
+    if (follow && key !== lastActorKey && !S.over) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length);
+    lastActorKey = key;
+  }
 }
 function renderStatus() {
   const df = E.defc(S);
