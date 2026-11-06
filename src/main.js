@@ -144,7 +144,7 @@ function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
-  V2.onClick = onBoardClick; V2.onHover = onHover;
+  V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;
   V2.loop(() => S, () => ({}));
   $('#roomTag').textContent = net && net.code ? 'Room ' + net.code : '';
   $('#v2d').onclick = () => setView('2d'); $('#v3d').onclick = () => setView('3d');
@@ -166,7 +166,7 @@ function enterApp() {
 function setView(v) {
   view = v; $('#c2').hidden = v !== '2d'; $('#c3').hidden = v !== '3d'; $('#v2d').classList.toggle('on', v === '2d'); $('#v3d').classList.toggle('on', v === '3d');
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => onBoardClick(id); V3.pickBoard = (x, y) => V2.pick(x, y);
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => { closePop(); onBoardClick(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y);
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -258,6 +258,80 @@ function onBoardClick(id) {
   const t = targets[id]; if (!t) return;
   doCmd(t.steps.length === 1 ? { t: 'move', to: id } : { t: 'path', steps: t.steps });
 }
+// ---- drag a pawn to move (works in 2D and 3D): the drop spot is snapped to a board space and checked against the rules
+function canDragPawn(pid) { return !!S && !S.over && iAct() && !S.pending && pid === actor() && Object.keys(targets).length > 0; }
+function canDrag2D(wx, wy) {
+  if (!S || !canDragPawn(actor())) return null;
+  const p = S.players[actor()], n = E.D.node[p.node]; V2.ghostColor = pcol(p);
+  return Math.hypot(n.x - wx, (n.y - 22) - wy) < 48 ? p.id : null;
+}
+function onDragHover(id) {
+  const tip = $('#tip'); if (!id) { tip.textContent = 'Drop on a space to move there'; return; }
+  const t = targets[id], nm = E.D.node[id].name || id;
+  tip.textContent = t ? `${nm}: ${t.steps.length} move${t.steps.length > 1 ? 's' : ''}${t.kind === 'subway' ? ' (subway, 1 coin)' : ''}` : `${nm}: can't reach`;
+  if (V2) { V2.hover = id; V2.dirty = true; }
+}
+function onDrop(pid, id) {
+  closePop();
+  if (!id || !targets[id]) {
+    const left = S.stage === 'grab' ? S.grab.moves : S.ts && S.ts.moves;
+    toast(!id ? 'Dropped off the map: the piece goes back' : left > 0 ? `You can't reach ${E.D.node[id].name || id} (you have ${left} moves; only roads, junctions and doors connect)` : 'No moves left');
+    render(); return;
+  }
+  onBoardClick(id);
+}
+
+// ---- click a token pile: choose how many, then move them to/from your player area
+function closePop() { const p = $('#pop'); if (p) p.hidden = true; }
+function onToken(info) {
+  if (!S || S.over) return; closePop();
+  if (!iAct() || S.pending) return toast(S.pending ? 'Make the pending decision first' : 'It is not your turn');
+  const p = S.players[actor()], label = E.RES_LABEL[info.r] || (info.r === 'coin' ? 'PrepCoin' : info.r);
+  const ic = info.r === 'coin' ? 'assets/counters/prepcoin.webp' : `assets/counters/${ICON[info.r]}.webp`;
+  const room = E.holdLimit(p) - E.resTotal(p), done = () => { closePop(); };
+  const pop = $('#pop'); let html = '', acts = [];
+  const qtySel = (max, id = 'popQty') => `<select id="${id}">${Array.from({ length: Math.max(1, max) }, (_, i) => `<option>${i + 1}</option>`).join('')}</select>`;
+  const spot = (info.mat !== undefined) ? null : E.D.node[info.node], mineMat = info.mat === p.id;
+  if (info.mat !== undefined) {   // one of your own piles: sell
+    const have = info.r === 'coin' ? p.coin : p.res[info.r], A = E.actionsAt(S, p), canSell = E.D.cfg.sellNodes.includes(p.node) && A.some(a => a.a === 'market');
+    if (info.mat !== p.id) return toast(`That is ${S.players[info.mat].name}'s pile`);
+    if (info.r === 'coin') return toast(`You have ${p.coin} PrepCoin`);
+    html = `<h4><img src="${ic}">${esc(label)} <span class="note">you have ${have}</span></h4>`;
+    if (canSell) { html += `<div class="row">Sell ${qtySel(have)} for ${E.defc(S).sell} PrepCoin each</div><div class="row"><button class="primary" id="popGo">Sell</button></div>`; acts = [() => { const n = +$('#popQty').value; doCmd({ t: 'market', sell: { [info.r]: n } }); done(); }]; }
+    else html += `<div class="note">You can only sell at a place with a sell icon (e.g. the Pawn Shop), and you need an action.</div>`;
+  } else {
+    if (p.node !== info.node) return toast(`Move to ${spot.name || info.node} first, then take the tokens`);
+    const L = S.loc[info.node], count = info.r === 'coin' ? L.coin : L.res[info.r];
+    const freeSpot = spot.kind !== 'building' || info.node === E.D.board.churchNode;
+    html = `<h4><img src="${ic}">${esc(label)} <span class="note">${count} at ${esc(spot.name || info.node)}</span></h4>`;
+    if (info.r === 'coin') {
+      if (freeSpot) { html += `<div class="row"><button class="primary" id="popGo">Take all ${count} coin</button></div>`; acts = [() => { doCmd({ t: 'pickupCoin' }); done(); }]; }
+      else html += '<div class="note">Not available to take here.</div>';
+    } else if (freeSpot) {
+      const max = Math.min(count, room);
+      if (max < 1) html += `<div class="note">Your backpack is full (${E.resTotal(p)}/${E.holdLimit(p)}).</div>`;
+      else { html += `<div class="row">Pick up ${qtySel(max)} <span class="note">of ${count}</span></div><div class="row"><button class="primary" id="popGo">Pick up</button></div>`; acts = [() => { const n = +$('#popQty').value; for (let i = 0; i < n; i++) doCmd({ t: 'pickup', r: info.r }); done(); }]; }
+    } else {
+      const A = E.actionsAt(S, p), price = E.marketPrice(S), canBuy = A.some(a => a.a === 'market');
+      if (canBuy) {
+        const max = Math.min(count, room, Math.floor(p.coin / price));
+        html += `<div class="note">Belongs to the location: buy at ${price} PrepCoin each (uses an action), or take it by crime.</div>`;
+        if (max >= 1) { html += `<div class="row">Buy ${qtySel(max)} <span class="note">of ${count}</span></div><div class="row"><button class="primary" id="popGo">Buy</button></div>`; acts.push(() => { const n = +$('#popQty').value; doCmd({ t: 'market', buy: { [info.r]: n } }); done(); }); }
+        else html += `<div class="note">You can't afford or carry any (${p.coin} coin, room ${room}).</div>`;
+        for (const a of A.filter(x => ['steal', 'loot'].includes(x.a))) { html += `<div class="row"><button id="popA${acts.length}">${esc(a.label)}</button></div>`; const k = a.a; acts.push(() => { doCmd({ t: k }); done(); }); }
+      } else html += `<div class="note">${S.ts && S.ts.actions <= 0 ? 'No actions left this turn.' : 'Nothing to do with these right now.'}</div>`;
+    }
+  }
+  html += `<div class="row"><button id="popX">Cancel</button></div>`;
+  pop.innerHTML = html; pop.hidden = false;
+  const go = $('#popGo'); if (go) go.onclick = acts[0];
+  acts.forEach((f, i) => { const b = $('#popA' + i); if (b) b.onclick = f; });
+  $('#popX').onclick = closePop;
+  const w = pop.offsetWidth, h = pop.offsetHeight;
+  pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, info.cx + 12)) + 'px'; pop.style.top = Math.max(8, Math.min(innerHeight - h - 8, info.cy - 20)) + 'px';
+}
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closePop(); });
+
 function onHover(id) {
   const tip = $('#tip'); if (!id || !S) { tip.textContent = 'Drag = pan · wheel = zoom'; return; }
   const n = E.D.node[id], L = S.loc[id], parts = [n.name || id];

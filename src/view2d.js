@@ -44,17 +44,30 @@ export class View2D {
       this.z = Math.max(0.6, Math.min(6, this.z * f));
       const [nx, ny] = this.toScreen(wx, wy); this.ox += sx - nx; this.oy += sy - ny; this.dirty = true;
     }, { passive: false });
-    c.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, ox: this.ox, oy: this.oy }; moved = false; c.setPointerCapture(e.pointerId); if (this.edit) { const r = c.getBoundingClientRect(); const [wx, wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr); this.sel = this.pick(wx, wy); this.dirty = true; } });
+    c.addEventListener('pointerdown', e => {
+      if (!this.edit && this.canDrag) { const r0 = c.getBoundingClientRect(); const [qx, qy] = this.toWorld((e.clientX - r0.left) * this.dpr, (e.clientY - r0.top) * this.dpr); const pid = this.canDrag(qx, qy); if (pid != null) { this.dragP = { pid, wx: qx, wy: qy, x: e.clientX, y: e.clientY, moved: false }; c.setPointerCapture(e.pointerId); return; } }
+      drag = { x: e.clientX, y: e.clientY, ox: this.ox, oy: this.oy }; moved = false; c.setPointerCapture(e.pointerId); if (this.edit) { const r = c.getBoundingClientRect(); const [wx, wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr); this.sel = this.pick(wx, wy); this.dirty = true; } });
     c.addEventListener('pointermove', e => {
       const r = c.getBoundingClientRect();
+      if (this.dragP) {
+        const d = this.dragP; if (Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) > 5) d.moved = true;
+        if (d.moved) { [d.wx, d.wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr); const h = this.pick(d.wx, d.wy); if (h !== d.node) { d.node = h; if (this.onDragHover) this.onDragHover(h); } c.style.cursor = 'grabbing'; this.dirty = true; }
+        return;
+      }
       if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) moved = true; if (moved && !(this.edit && this.sel)) { this.ox = drag.ox + dx * this.dpr; this.oy = drag.oy + dy * this.dpr; this.dirty = true; } }
       const [wx, wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr);
       const h = this.pick(wx, wy); if (h !== this.hover) { this.hover = h; this.dirty = true; c.style.cursor = h && (this.targets[h] || this.edit) ? 'pointer' : 'grab'; if (this.onHover) this.onHover(h); }
       if (this.edit === 'move' && drag && this.sel && moved) { const n = this.nodes[this.sel]; n.x = Math.round(wx); n.y = Math.round(wy); this.dirty = true; }
     });
     c.addEventListener('pointerup', e => {
+      if (this.dragP) {
+        const d = this.dragP; this.dragP = null; this.dirty = true;
+        if (d.moved) { if (this.onDrop) this.onDrop(d.pid, d.node); return; }
+        const r1 = c.getBoundingClientRect(); const [qx, qy] = this.toWorld((e.clientX - r1.left) * this.dpr, (e.clientY - r1.top) * this.dpr);
+        if (this.onClick) this.onClick(this.pick(qx, qy), qx, qy); return;
+      }
       const was = drag; drag = null;
-      if (!moved && was) { const r = c.getBoundingClientRect(); const [wx, wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr); const id = this.pick(wx, wy); if (this.onClick) this.onClick(id, wx, wy); }
+      if (!moved && was) { const r = c.getBoundingClientRect(); const [wx, wy] = this.toWorld((e.clientX - r.left) * this.dpr, (e.clientY - r.top) * this.dpr); const hk = (this.hits || []).find(h => Math.hypot(h.x - wx, h.y - wy) < h.rad); if (hk && this.onToken) { this.onToken({ node: hk.node, r: hk.r, cx: e.clientX, cy: e.clientY }); return; } const id = this.pick(wx, wy); if (this.onClick) this.onClick(id, wx, wy); }
     });
   }
   pick(wx, wy) {
@@ -84,6 +97,7 @@ export class View2D {
     }
     if (this.hover && this.nodes[this.hover]) { ctx.save(); ctx.lineWidth = 5; ctx.strokeStyle = '#fff'; ctx.globalAlpha = 0.9; this.shape(ctx, this.nodes[this.hover], false); ctx.stroke(); ctx.restore(); }
     if (s) { this.drawTokens(ctx, s, ui); }
+    if (this.dragP && this.dragP.moved) { const d = this.dragP; ctx.save(); ctx.globalAlpha = 0.9; ctx.translate(d.wx, d.wy); ctx.fillStyle = this.ghostColor || '#fff'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.shadowColor = '#000'; ctx.shadowBlur = 20; ctx.beginPath(); ctx.arc(0, -34, 22, 0, 7); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-26, 12); ctx.quadraticCurveTo(0, -40, 26, 12); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
     ctx.restore();
   }
   shape(ctx, n, fill) {
@@ -103,6 +117,7 @@ export class View2D {
     ctx.restore();
   }
   drawTokens(ctx, s, ui) {
+    this.hits = [];
     // resource tokens at locations
     for (const n of this.board.nodes) {
       const L = s.loc[n.id]; if (!L) continue;
@@ -110,8 +125,8 @@ export class View2D {
       const extra = n.kind === 'building' ? 0 : 0;
       if (!list.length && !L.coin && !(L.items && L.items.length)) continue;
       const per = 6, sz = 17; let bx = n.x - Math.min(list.length, per) * sz * 0.5 + sz * 0.5, by = n.y + (n.kind === 'building' ? 52 : 24);
-      list.forEach((r, i) => { const x = bx + (i % per) * sz, y = by + Math.floor(i / per) * (sz - 2); this.token(ctx, r, x, y, sz * 0.52, n.kind === 'building'); });
-      if (L.coin) { ctx.fillStyle = '#e8b100'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(n.x - 30, n.y - 38, 14, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(L.coin, n.x - 30, n.y - 32); }
+      list.forEach((r, i) => { const x = bx + (i % per) * sz, y = by + Math.floor(i / per) * (sz - 2); this.token(ctx, r, x, y, sz * 0.52, n.kind === 'building'); this.hits.push({ x, y, node: n.id, r, rad: sz * 0.62 }); });
+      if (L.coin) { ctx.fillStyle = '#e8b100'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(n.x - 30, n.y - 38, 14, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(L.coin, n.x - 30, n.y - 32); this.hits.push({ x: n.x - 30, y: n.y - 38, node: n.id, r: 'coin', rad: 16 }); }
     }
     // bouncers
     for (const p of s.players) if (p.thug && p.thug.post && this.nodes[p.thug.post]) { const n = this.nodes[p.thug.post]; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = pcol(p); ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('\u{1F6E1}', n.x + 40, n.y - 20); ctx.fillText('\u{1F6E1}', n.x + 40, n.y - 20); }

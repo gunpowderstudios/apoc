@@ -45,6 +45,7 @@ export class View3D {
     this.ray = new THREE.Raycaster(); this.mouse = new THREE.Vector2();
     this.texCache = {};
     this.tl = new THREE.TextureLoader(); this.texs = {}; this.labels = {}; this.furniture = new THREE.Group(); this.scene.add(this.furniture); this.mats = new THREE.Group(); this.scene.add(this.mats); this.piles = new THREE.Group(); this.scene.add(this.piles);
+    this.furniture.position.y = this.mats.position.y = this.piles.position.y = -0.013;   // off-board things sit on the table top, not on the board's height
     this.buildFurniture();
     this.ctl.addEventListener('start', () => { this.fly = null; });
     this.bind(); this.resize();
@@ -66,21 +67,61 @@ export class View3D {
   resize() { const rc = this.el.getBoundingClientRect(); this.r.setSize(rc.width, rc.height, false); this.r.domElement.style.width = '100%'; this.r.domElement.style.height = '100%'; this.cam.aspect = rc.width / Math.max(1, rc.height); this.cam.updateProjectionMatrix(); }
   bind() {
     const el = this.r.domElement; let down = null;
-    el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
-    el.addEventListener('pointerup', e => {
-      if (!down) return; const moved = Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5; down = null;
-      if (moved || e.button !== 0) return;
-      const id = this.pickAt(e); if (this.onClick) this.onClick(id);
+    // capture phase: decide about pawn dragging BEFORE OrbitControls sees the press
+    el.addEventListener('pointerdown', e => {
+      down = { x: e.clientX, y: e.clientY, moved: false };
+      if (e.button !== 0) return;
+      const h = this.hit(e);
+      if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
+    }, true);
+    el.addEventListener('pointermove', e => {
+      if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
+      if (this.drag) {
+        if (!down || !down.moved) return;
+        const pt = this.boardPoint(e); if (!pt) return;
+        this.drag.mesh.userData.free = true; this.drag.mesh.position.set(pt.x, 0.022, pt.z);
+        const id = this.pickBoard ? this.pickBoard(pt.bx, pt.by) : null;
+        if (id !== this.drag.node) { this.drag.node = id; if (this.onDragHover) this.onDragHover(id); }
+        el.style.cursor = 'grabbing'; return;
+      }
+      if (e.buttons) return;
+      const h = this.hit(e), key = h ? h.type + (h.id || h.pid || (h.info && (h.info.node || h.info.mat) + h.info.r)) : '';
+      if (key !== this.hoverKey) {
+        this.hoverKey = key;
+        el.style.cursor = !h ? 'grab' : h.type === 'token' ? 'pointer' : h.type === 'pawn' ? (this.canDrag && this.canDrag(h.pid) ? 'grab' : 'default') : (h.id && this.targets && this.targets[h.id] ? 'pointer' : 'grab');
+      }
     });
-    el.addEventListener('pointermove', e => { if (e.buttons) return; const id = this.pickAt(e); if (id !== this.hover) { this.hover = id; el.style.cursor = id && this.targets && this.targets[id] ? 'pointer' : 'grab'; } });
+    const up = e => {
+      if (this.drag) {
+        const d = this.drag; this.drag = null; this.ctl.enabled = true; d.mesh.userData.free = false;
+        if (down && down.moved) { down = null; if (this.onDrop) this.onDrop(d.pid, d.node); return; }
+      }
+      if (!down) return; const moved = down.moved; down = null;
+      if (moved || e.button !== 0) return;
+      const h = this.hit(e);
+      if (h && h.type === 'token') { if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      const id = h ? (h.type === 'board' ? h.id : h.type === 'pawn' ? this.pawnNode(h.pid) : null) : null;
+      if (this.onClick) this.onClick(id);
+    };
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', () => { if (this.drag) { this.drag.mesh.userData.free = false; this.drag = null; this.ctl.enabled = true; } down = null; });
   }
-  pickAt(e) {
-    const rc = this.r.domElement.getBoundingClientRect();
-    this.mouse.set(((e.clientX - rc.left) / rc.width) * 2 - 1, -((e.clientY - rc.top) / rc.height) * 2 + 1);
-    this.ray.setFromCamera(this.mouse, this.cam);
-    const hit = this.ray.intersectObject(this.top)[0]; if (!hit) return null;
-    const bx = hit.point.x / this.k + this.board.width / 2, by = hit.point.z / this.k + this.board.height / 2;
-    return this.pickBoard ? this.pickBoard(bx, by) : null;
+  pawnNode(pid) { const m = this.pawnMeshes[pid]; return m && m.userData.node; }
+  ndc(e) { const rc = this.r.domElement.getBoundingClientRect(); this.mouse.set(((e.clientX - rc.left) / rc.width) * 2 - 1, -((e.clientY - rc.top) / rc.height) * 2 + 1); this.ray.setFromCamera(this.mouse, this.cam); }
+  boardPoint(e) {
+    this.ndc(e); const hit = this.ray.intersectObject(this.top)[0]; if (!hit) return null;
+    return { x: hit.point.x, z: hit.point.z, bx: hit.point.x / this.k + this.board.width / 2, by: hit.point.z / this.k + this.board.height / 2 };
+  }
+  // what is under the pointer: a token pile, a player pawn, or the board
+  hit(e) {
+    this.ndc(e);
+    const cand = [];
+    const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
+    const ph = this.ray.intersectObjects(this.pawns.children, true)[0];
+    if (ph) { let o = ph.object; while (o && o.userData.pid === undefined) o = o.parent; if (o) cand.push({ d: ph.distance, type: 'pawn', pid: o.userData.pid }); }
+    const bh = this.ray.intersectObject(this.top)[0];
+    if (bh) { const bx = bh.point.x / this.k + this.board.width / 2, by = bh.point.z / this.k + this.board.height / 2; cand.push({ d: bh.distance + 1e-6, type: 'board', id: this.pickBoard ? this.pickBoard(bx, by) : null }); }
+    cand.sort((a, b) => a.d - b.d); return cand[0] || null;
   }
   tokenMat(r) {
     if (this.texCache[r]) return this.texCache[r];
@@ -110,7 +151,7 @@ export class View3D {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
           for (let k = 0; k < pl.c; k++) {
             const m = new THREE.Mesh(geo, pl.coin ? coinMat : this.tokenMat(pl.r));
-            m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; this.tokens.add(m);
+            m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
           }
         });
       }
@@ -124,11 +165,11 @@ export class View3D {
         const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(PREP_COL[p.prepper] || '#888'), roughness: 0.4 });
         const ph = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.03, 20), mat); ph.position.y = 0.015; m.add(ph);   // placeholder until the model loads
         this.piece(p.prepper).then(proto => { if (proto) { m.clear(); m.add(proto.clone()); } });
-        this.pawns.add(m); this.pawnMeshes[p.id] = m; m.userData.cur = new THREE.Vector3(); m.userData.first = true;
+        this.pawns.add(m); this.pawnMeshes[p.id] = m; m.userData.cur = new THREE.Vector3(); m.userData.first = true; m.userData.pid = p.id;
       }
       const list = at[p.node], i = list.indexOf(p), n = this.nodes[p.node], [cx, cz] = this.w(n);
       const a = (i / list.length) * Math.PI * 2, rr = list.length > 1 ? 0.012 : 0;
-      m.userData.target = new THREE.Vector3(cx + Math.cos(a) * rr, 0, cz + Math.sin(a) * rr - 0.004);
+      m.userData.target = new THREE.Vector3(cx + Math.cos(a) * rr, 0, cz + Math.sin(a) * rr - 0.004); m.userData.node = p.node;
       if (m.userData.first) { m.position.copy(m.userData.target); m.userData.first = false; }
       m.scale.setScalar(s.cur === p.id && s.stage === 'turn' ? 1.25 : 1);
     }
@@ -169,7 +210,7 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.004, 28), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x555555, roughness: 0.3 })); this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
-    this.newsPos = { deck: [W + 0.03 + 0.037, -hb + 0.0525], ai: [W + 0.03 + 0.037 + 0.087, -hb + 0.0525], pandemic: [W + 0.03 + 0.037, -hb + 0.0525 + 0.135], nuclear: [W + 0.03 + 0.037 + 0.087, -hb + 0.0525 + 0.135] };
+    this.newsPos = { deck: [W + 0.03 + 0.052, -hb + 0.0735], ai: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735], pandemic: [W + 0.03 + 0.052, -hb + 0.0735 + 0.17], nuclear: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735 + 0.17] };
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
@@ -185,12 +226,12 @@ export class View3D {
         if (n <= 0) return;
         const [x, z] = this.newsPos[key], h = Math.max(0.001, n * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 });
         const top = new THREE.MeshStandardMaterial({ map: this.tex(topUrl), roughness: 0.8 });
-        const m = new THREE.Mesh(new THREE.BoxGeometry(0.074, h, 0.105), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
-        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.072, 0.0135, 1); lb.position.set(x, h + 0.012, z + 0.062); this.piles.add(lb);
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.1036, h, 0.147), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; this.piles.add(m);
+        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.1, 0.019, 1); lb.position.set(x, h + 0.012, z + 0.085); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
       for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? `assets/news/${a[a.length - 1]}.jpg` : '', ty.toUpperCase()); }
-      for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.072, 0.0135, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.1, 0.019, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
     const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
@@ -208,7 +249,7 @@ export class View3D {
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
         const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), pz = zc + 0.0745 + 0.02;
-        piles.forEach((pl, k) => { for (let j = 0; j < pl.c; j++) { const m = new THREE.Mesh(geo, this.tokenMat(pl.r)); m.position.set(x + (k - (piles.length - 1) / 2) * SP, 0.0015 + j * 0.003, pz); m.castShadow = true; this.mats.add(m); } });
+        piles.forEach((pl, k) => { for (let j = 0; j < pl.c; j++) { const m = new THREE.Mesh(geo, this.tokenMat(pl.r)); m.position.set(x + (k - (piles.length - 1) / 2) * SP, 0.0015 + j * 0.003, pz); m.castShadow = true; m.userData.tok = { mat: p.id, r: pl.r }; this.mats.add(m); } });
         // item cards, fanned out under the tokens
         const cw = 0.063, cd = 0.088, iz = pz + 0.016 + cd / 2, k = p.items.length, step = k > 1 ? Math.min(cw + 0.004, (0.21 - cw) / (k - 1)) : 0;
         p.items.forEach((it, j) => {
@@ -225,7 +266,7 @@ export class View3D {
   }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   frame(t) {
-    for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target) { m.position.lerp(m.userData.target, 0.18); } }
+    for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target && !m.userData.free) { m.position.lerp(m.userData.target, 0.18); } }
     this.marks.children.forEach((m, i) => { m.scale.setScalar(1 + 0.12 * Math.sin(t / 220 + i)); });
     if (this.fly) {
       const f = this.fly, k = Math.min(1, (performance.now() - f.start) / f.ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
