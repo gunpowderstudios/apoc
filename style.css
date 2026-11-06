@@ -126,3 +126,4 @@ img.zm{cursor:zoom-in}
 .evp.used{opacity:.55;filter:saturate(.5)}
 .evp.flash{animation:evpflash 1s ease-in-out infinite}
 @keyframes evpflash{0%,100%{box-shadow:0 0 0 #fff0}50%{box-shadow:0 0 22px 4px #fff}}
+#bGraph,#bExp{display:none!important}
