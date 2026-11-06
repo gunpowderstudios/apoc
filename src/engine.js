@@ -513,7 +513,7 @@ const EVT = {
   aidPackage(s) { for (const r of ALLRES) place(s, 'trainstation', r, 1); },
   drunk(s, p) { if (p.res.tech > 0) spend(s, p, 'tech', 1); hurt(s, p, 1, 'drunk'); },
   thugsAsleep(s) { for (const q of s.players) if (q.thug && resTotal(q) > 0) loseOneRes(s, q); },
-  chemWaste(s) { for (const q of s.players) if (sectorOf(q.node) === 'C') hurt(s, q, 2, 'chemical waste'); },
+  chemWaste(s) { for (const q of s.players) if (['N', 'C', 'S'].includes(sectorOf(q.node))) hurt(s, q, 2, 'chemical waste'); },
   brainBoil(s) { for (const q of s.players) { const r = d6(s); logm(s, `${q.name} rolls ${r}.`); if (r <= 2) hurt(s, q, 2, 'brain boil'); else gain(s, q, 'knowhow', 1); } },
   offerDive(s) { s.offers.push({ nodes: D.dumpsters, kind: 'free', cost: {}, text: 'First to a dumpster takes the top ITEM card.' }); },
   none() { },
@@ -522,7 +522,7 @@ const EVT = {
 export function glowNodes(card) {
   const ids = f => D.board.nodes.filter(f).map(n => n.id), sect = L => ids(n => L.includes(n.sector));
   switch (card.effect) {
-    case 'westCombat': return sect(WEST); case 'eastTech': return sect(EAST); case 'chemWaste': return sect(['C']);
+    case 'westCombat': return sect(WEST); case 'eastTech': return sect(EAST); case 'chemWaste': return sect(['N', 'C', 'S']);
     case 'riverPollution': return [...D.river];
     case 'offerStabVest': case 'hardDrives': return ['pawn']; case 'offerHazmat': return ['bar']; case 'offerSolar': return ['steel'];
     case 'offerDive': return D.dumpsters; case 'hospitalClosed': return ['hospital']; case 'bagsBurst': return ['H2_0', 'H1_4'];

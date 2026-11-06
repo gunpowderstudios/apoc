@@ -91,3 +91,7 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #newscard[class*=t-] .res{background:#00000040;color:#fff}#newscard[class*=t-] .res.hit{background:#fff;color:#111}
 #newscard[class*=t-] .x{color:#fff}
 .evbox{background:var(--ec);color:#fff;border-radius:10px;padding:12px}.evbox .evt,.evbox .note,.evbox div{color:#fff}.evbox .note{opacity:.85}
+
+#evbanner{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:16;max-width:70vw;padding:10px 38px 10px 16px;border-radius:10px;border:2px solid #fff;background:var(--ec);color:#fff;font-size:16px;font-weight:600;animation:evglow 1.4s ease-in-out infinite}
+#evbanner .x{position:absolute;right:8px;top:4px;background:none;border:0;color:#fff;font-size:20px;cursor:pointer}
+@keyframes evglow{0%,100%{box-shadow:0 0 10px var(--ec),0 0 0 #fff0}50%{box-shadow:0 0 34px var(--ec),0 0 14px #fff8}}

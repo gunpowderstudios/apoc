@@ -421,7 +421,7 @@ function render() {
   if (!S) return;
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderTurnBar(); renderModal();
+  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
@@ -574,6 +574,15 @@ function renderNewsPanel() {
     <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
     <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)}</div>`;
   box.hidden = false; box.querySelector('.x').onclick = () => { newsClosed = key; box.hidden = true; };
+}
+let evbClosed = null;
+function renderEventBanner() {
+  let b = $('#evbanner'); if (!b) { b = document.createElement('div'); b.id = 'evbanner'; document.body.appendChild(b); }
+  const g = S && !S.over && S.glow, c = g && E.D.newsById[g.card], key = g && g.card + ':' + S.round;
+  if (!c || (g.nodes && g.nodes.length) || evbClosed === key) { b.hidden = true; return; }
+  b.className = 't-' + c.type; b.hidden = false;
+  b.innerHTML = `<b>EVENT</b> ${esc(c.text || '')}<button class="x" title="Dismiss">×</button>`;
+  b.querySelector('.x').onclick = () => { evbClosed = key; b.hidden = true; };
 }
 function renderBanner() {
   const nl = S.log.filter(l => l.n > lastSeq); if (lastSeq === 0) { lastSeq = S.log.length ? S.log[S.log.length - 1].n : 0; } else if (nl.length) {
