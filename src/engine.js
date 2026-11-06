@@ -600,7 +600,7 @@ function beginTurn(s) {
   const p = cur(s);
   s.stage = 'turn';
   s.glow = null;   // an event's map glow lasts until the next turn starts
-  s.ts = { step: 'begin', moves: 0, actions: 1, moveState: 'none', dayKind: null, usedHeal: false, looted: [], blocked: {}, escalate: null, forceEnd: false, skipPrep: false, fought: false, raided: false, forager: false, stove: false, hunted: false, thiefUsed: false, droneUsed: false, crafted: false, shop: null, chemFree: false, rerolled: false, startNode: p.node };
+  s.ts = { step: 'begin', moves: 0, actions: 1, moveState: 'none', dayKind: null, usedHeal: false, looted: [], blocked: {}, escalate: null, forceEnd: false, skipPrep: false, fought: false, raided: false, forager: false, stove: false, hunted: false, thiefUsed: false, droneUsed: false, crafted: false, scrapped: false, shop: null, chemFree: false, rerolled: false, startNode: p.node };
   p.moonNext = false;
 }
 export function advance(s) {
@@ -776,7 +776,7 @@ export function canBuild(p) {
   return need.length === 1 && p.res.ducttape >= 1;
 }
 export function craftable(s, p) {
-  const out = [];
+  const out = []; if (s.ts && s.ts.crafted) return out;
   for (const it of D.items) {
     if (stockOf(s, it.id) === 0) continue;
     if (it.needsBunker && !p.bunker) continue;
@@ -909,6 +909,7 @@ function grabCmd(s, pl, cmd) {
 function turnCmd(s, p, cmd) {
   const ts = s.ts;
   const df = defc(s);
+  if ((cmd.t === 'craft' || cmd.t === 'scrap') && ['eat', 'news', 'newsroll', 'roll', 'prep'].includes(ts.step)) return cmd.t === 'craft' ? doCraft(s, p, cmd.id) : doScrap(s, p, cmd.uid);   // crafting and breaking down are allowed at any point of your own turn
   if (ts.step === 'eat') { if (cmd.t === 'eat') { doEat(s, p); return OK; } return err('Press Eat first'); }
   if (ts.step === 'news') { if (cmd.t === 'drawNews') { doNews(s, p); return OK; } return err('Draw the news first'); }
   if (ts.step === 'newsroll') {
@@ -1143,6 +1144,7 @@ function doBuyItem(s, p, id) {
 }
 function doCraft(s, p, id) {
   const it = D.item[id]; if (!it) return err('Unknown item');
+  if (s.ts.crafted) return err('You have already crafted an item this turn');
   if (stockOf(s, id) === 0) return err('That item is out of stock (all copies in play)');
   if (it.needsBunker && !p.bunker) return err('Requires a bunker');
   if (it.mustOwn && !it.mustOwn.every(m => ownsItem(p, m))) return err('You must own: ' + it.mustOwn.map(m => D.item[m].name).join(', '));
@@ -1150,16 +1152,17 @@ function doCraft(s, p, id) {
   if (!afford(p, cost)) return err('Missing resources');
   for (const [r, n] of Object.entries(cost)) spend(s, p, r, n);
   if (note === 'Chemistry 101') s.ts.chemFree = true;
-  const c = takeCard(s, id); giveCard(s, p, c);
+  const c = takeCard(s, id); giveCard(s, p, c); s.ts.crafted = true;
   logm(s, `${p.name} crafts a ${it.name}${note ? ' (' + note + ')' : ''}.`, p.id);
   return OK;
 }
 function doScrap(s, p, uid) {
+  if (s.ts.scrapped) return err('You have already broken down an item this turn');
   const i = p.items.findIndex(x => x.uid === uid); if (i < 0) return err('No such item');
   const it = D.item[p.items[i].id];
   const back = {}; for (const r of it.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
   for (const [r, n] of Object.entries(back)) if (s.supply[r] < n) return err('Not enough ' + RES_LABEL[r] + ' in the supply yet');
-  const [c] = p.items.splice(i, 1);
+  const [c] = p.items.splice(i, 1); s.ts.scrapped = true;
   s.itemDeck.push({ uid: c.uid, id: c.id }); shuffle(s, s.itemDeck);
   for (const [r, n] of Object.entries(back)) gain(s, p, r, n);
   if (p.prepper === 'sam') gain(s, p, 'knowhow', 1);

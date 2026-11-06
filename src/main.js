@@ -421,7 +421,7 @@ function render() {
   if (!S) return;
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderTurnBar(); renderModal();
+  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
@@ -478,7 +478,7 @@ function renderTurn() {
   } else if (ts.step === 'prep') {
     h += `<div>Moves <b>${ts.moves}</b> · Actions <b>${ts.actions}</b> ${ts.moveState === 'done' ? '<span class="note">(movement finished)</span>' : ''}</div><div class="btns">`;
     for (const x of E.actionsAt(S, pa)) h += btn(esc(x.label), () => actionClick(x.a, pa));
-    h += btn('🔧 Craft / recipes', () => { modalFn = craftModal; render(); });
+    
     const L = S.loc[pa.node], freeSpot = E.D.node[pa.node].kind !== 'building' || pa.node === E.D.board.churchNode;
     if (freeSpot) for (const r of E.ALLRES) if (L.res[r] > 0) h += btn(`Pick up ${E.RES_LABEL[r]}`, () => doCmd({ t: 'pickup', r }));
     if (freeSpot && L.coin > 0) h += btn(`Pick up ${L.coin} coin`, () => doCmd({ t: 'pickupCoin' }));
@@ -638,12 +638,29 @@ function itemModal(pid, uid) {
   <p class="note">Recipe: ${d.recipe.map(r => esc(E.RES_LABEL[r.r]) + (r.x ? ' (used up)' : '')).join(', ')}</p><p class="note">Scrap returns: ${chips(back)}</p>${it.tokens != null ? `<p>Tokens: ${it.tokens}</p>` : ''}</div></div>
   <div class="btns">${btn('♻ Scrap', () => { modalFn = null; doCmd({ t: 'scrap', uid }); }, { dis: !can })}${it.broken ? btn('🩹 Fix with duct tape', () => { modalFn = null; doCmd({ t: 'fix', uid }); }, { dis: !can || p.res.ducttape < 1 }) : ''}${closeBtn()}</div>`;
 }
+let craftTab = 'craft';
+const craftOk = () => !!(S && !S.over && iAct() && !S.pending && S.stage === 'turn' && S.ts && ['eat', 'news', 'newsroll', 'roll', 'prep'].includes(S.ts.step));
 function craftModal() {
-  const p = S.players[actor()], can = new Map(E.craftable(S, p).map(c => [c.id, c])), ok = iAct() && !S.pending && S.stage === 'turn' && S.ts.step === 'prep';
-  return `<h2>Craft <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="grid">${E.D.items.map(it => {
-    const c = can.get(it.id), stock = E.stockOf(S, it.id), rc = {}; it.recipe.forEach(r => { rc[r.r] = (rc[r.r] || 0) + 1; });
-    return `<div class="tile ${c ? '' : 'dis'}"><img src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">×${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
-  }).join('')}</div><div class="btns">${closeBtn()}</div>`;
+  const p = S.players[actor()], ok = craftOk(), ts = S.ts, can = new Map(E.craftable(S, p).map(c => [c.id, c]));
+  const tab = (id, l) => btn(l, () => { craftTab = id; render(); }, { cls: craftTab === id ? 'primary' : '' });
+  let body;
+  if (craftTab === 'craft') {
+    body = `<div class="note" style="margin-bottom:6px">${ts && ts.crafted ? '<b>You have already crafted this turn.</b>' : 'You may craft ONE item this turn, at any point.'}</div><div class="grid">${E.D.items.map(it => {
+      const c = can.get(it.id), stock = E.stockOf(S, it.id), rc = {}; it.recipe.forEach(r => { rc[r.r] = (rc[r.r] || 0) + 1; });
+      return `<div class="tile ${c ? '' : 'dis'}"><img src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
+    }).join('')}</div>`;
+  } else {
+    body = `<div class="note" style="margin-bottom:6px">${ts && ts.scrapped ? '<b>You have already broken down an item this turn.</b>' : 'You may break down ONE item this turn, at any point. You get back its resources except the last one, which is lost.'}</div><div class="grid">${p.items.length ? p.items.map(i => {
+      const d = E.D.item[i.id], back = {}; for (const r of d.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
+      return `<div class="tile"><img src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Break down', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
+    }).join('') : '<div class="note">You have no items to break down.</div>'}</div>`;
+  }
+  return `<h2>Craft & Break down <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Break down')}</div>${body}<div class="btns">${closeBtn()}</div>`;
+}
+function renderCraftBtn() {
+  let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; document.body.appendChild(b); }
+  const show = !setupHold && craftOk() && !S.players[actor()].ai; b.hidden = !show; if (!show) return;
+  const ts = S.ts; b.innerHTML = `🔧 CRAFT / BREAK DOWN<small>${ts.crafted ? 'crafted ✓' : 'craft 1'} · ${ts.scrapped ? 'broken down ✓' : 'break down 1'}</small>`;
 }
 function shopModal() {
   const p = S.players[actor()];
