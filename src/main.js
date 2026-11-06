@@ -137,6 +137,7 @@ function enterApp() {
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && modalFn) { modalFn = null; render(); } });
   $('#bUndo').hidden = mode === 'guest';
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && modalFn) { modalFn = null; render(); } });
+  setView('3d');   // open in the 3D view by default
   window.apoc = { get S() { return S; }, get targets() { return targets; }, click: onBoardClick, E, AI };   // handy for console debugging
 }
 function setView(v) {
