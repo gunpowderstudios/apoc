@@ -572,7 +572,7 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if (e.key === 'Escape') closeNewsBig(); });
+window.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
 function renderNewsPanel() {
   let big = $('#newsbig'); if (!big) { big = document.createElement('div'); big.id = 'newsbig'; big.hidden = true; big.onclick = () => closeNewsBig(); $('#boardWrap').appendChild(big); }
   let bar = $('#evbar'); if (!bar) { bar = document.createElement('div'); bar.id = 'evbar'; $('#boardWrap').appendChild(bar); }
