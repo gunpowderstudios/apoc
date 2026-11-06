@@ -553,10 +553,13 @@ function rollNews(s, p) {
   ts.news.sym = sym;
   s.lastRoll = { pl: p.id, kind: 'news', face, sym, card: card.id };
   logm(s, `News dice: ${sym === 'fake' ? 'FAKE NEWS' : sym.toUpperCase()}.`, p.id);
-  if (sym === card.type && card.effect !== 'none') {
-    logm(s, `EVENT! ${card.title} - ${card.text}`, p.id);
-    EVT[card.effect](s, p, card);
-  } else if (sym === card.type) logm(s, 'Event: (not yet designed).');
+  // a matching face triggers the event of the newest card of that type that is out on the table (this turn's card or an earlier one)
+  const top = sym !== 'fake' && s.stand[sym].length ? D.newsById[s.stand[sym][s.stand[sym].length - 1]] : null;
+  if (top) {
+    ts.news.fired = top.id;
+    if (top.effect !== 'none') { logm(s, `EVENT! ${top.title} - ${top.text}`, p.id); EVT[top.effect](s, p, top); }
+    else logm(s, 'Event: (not yet designed).');
+  }
   ts.step = 'roll';
 }
 function escalate(s, type) {

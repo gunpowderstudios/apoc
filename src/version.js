@@ -1,2 +1,2 @@
 // Bump this on every change; shown next to the APOC title.
-export const VERSION = 'v1.29';
+export const VERSION = 'v1.30';

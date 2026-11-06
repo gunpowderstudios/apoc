@@ -532,9 +532,9 @@ function renderNewsPanel() {
   const key = nw.id + ':' + S.round + ':' + S.cur;
   if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; }
   if (newsClosed === key) { box.hidden = true; return; }
-  const sym = nw.sym, fake = sym === 'fake', hit = sym && sym === c.type, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
-  const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. Only a ${nm} face makes this event happen.</div>`
-    : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? 'MATCH! The event happens.' : fake ? 'nothing happens.' : `doesn't match ${nm}, nothing happens.`}</div>`;
+  const sym = nw.sym, fake = sym === 'fake', fired = nw.fired && E.D.newsById[nw.fired], hit = !!fired, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
+  const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. A matching face (nuclear / pandemic / AI) triggers the newest card of that type on the table.</div>`
+    : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? (fired.id === c.id ? 'MATCH! The event happens.' : `triggers the ${sym.toUpperCase()} card already out: <b>${esc(fired.text || '')}</b>`) : fake ? 'nothing happens.' : `no ${sym.toUpperCase()} card is out, nothing happens.`}</div>`;
   box.innerHTML = `<button class="x" title="Close">×</button>
     <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
     <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)} (the rest of the article is just for fun)</div>`;
