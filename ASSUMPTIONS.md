@@ -19,7 +19,7 @@ RULES I HAD TO GUESS
 - Bunkered preppers' resources can't be robbed in fights (only coin).
 - Kevlar vest: auto-used (4 tokens, then goes back to the deck). Hazmat suit: 3 charges.
 - Moonshine = ignore health loss until your next turn.
-- Steal that gets you busted keeps the stolen goods. A failed loot loses the looted items back to the location.
+- Steal that gets you busted: everything stolen that turn goes back to the place. A failed loot also loses the looted items back to the location. Busted with no coin: 2 resources go back to the pool (not the church).
 - Combat modifiers stack. Damage = difference of rolls capped at 3 (min 1 on a natural 1 / 6 rule as coded).
 - Night dice are blocked by the Curfew event. Tagged preppers must use the day dice.
 - Jessica: Forager = +1 food when visiting the park once per turn; ending the turn there brings the bonus to 2 total. Re-roll the day dice once (keep the new result).

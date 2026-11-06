@@ -267,6 +267,10 @@ function lootRoll(s, p, mode) {
     if (!avail.length) return;
     ask(s, { pl: p.id, kind: 'lootPick', title: `Success! ${mode === 'steal' ? 'Steal' : 'Loot'} which resource?`, options: avail.map(x => opt(x, `${RES_LABEL[x]} (${L.res[x]})`)), ctx: { mode } });
   } else if (mode === 'steal') {
+    const lost = s.ts.looted || [];   // caught: you pushed your luck, everything stolen this turn goes back where it came from
+    for (const x of lost) if (p.res[x] > 0) { p.res[x]--; L.res[x] = (L.res[x] || 0) + 1; }
+    if (lost.length) logm(s, `${p.name} is caught! The ${lost.length} stolen resource(s) go back to ${D.node[p.node].name}.`, p.id);
+    s.ts.looted = [];
     arrest(s, p);
   } else {
     // shot by the owner
@@ -299,9 +303,9 @@ function arrest(s, p) {
   else {
     const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
     let n = 0;
-    for (const r of have) { while (p.res[r] > 0 && n < 2) { p.res[r]--; s.loc[D.board.churchNode].res[r] = (s.loc[D.board.churchNode].res[r] || 0) + 1; n++; } }
+    for (const r of have) { while (p.res[r] > 0 && n < 2) { spend(s, p, r, 1); n++; } }
     if (n === 0) { p.coin += 2; logm(s, `The Police Chief gives ${p.name} 2 PREPCOIN gate money.`); }
-    else logm(s, `${p.name} does community service: ${n} resource(s) left at the church.`);
+    else logm(s, `${p.name} does community service: ${n} resource(s) go back to the pool.`);
   }
   if (s.bustedLeft > 0) { s.bustedLeft--; p.busted++; }
   if (p.busted >= 3) { p.tagged = true; s.bustedLeft += 2; p.busted = 0; logm(s, `${p.name} is TAGGED: day dice only, no stealing.`, p.id); }
