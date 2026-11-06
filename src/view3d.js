@@ -104,7 +104,8 @@ export class View3D {
       const h = this.hit(e);
       if (h && h.type === 'token') { if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
-      if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId); return; }
+      if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
+      if (h && h.type === 'card') { if (this.onCard) this.onCard(h.img); return; }
       const id = h ? (h.type === 'board' ? h.id : h.type === 'pawn' ? this.pawnNode(h.pid) : null) : null;
       if (this.onClick) { const bp = this.boardPoint(e); this.onClick(id, bp ? { x: bp.bx, y: bp.by } : null); }
     };
@@ -168,7 +169,8 @@ export class View3D {
     const cand = [];
     const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
     const nh = this.ray.intersectObjects(this.piles.children, false).find(h => h.object.userData.news); if (nh) cand.push({ d: nh.distance, type: 'news', key: nh.object.userData.news });
-    const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId });
+    const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId, cardImg: mh.object.userData.cardImg });
+    const fh = this.ray.intersectObjects(this.furniture.children, false).find(h => h.object.userData.cardImg); if (fh) cand.push({ d: fh.distance, type: 'card', img: fh.object.userData.cardImg });
     const ph = this.ray.intersectObjects(this.pawns.children, true)[0];
     if (ph) { let o = ph.object; while (o && o.userData.pid === undefined) o = o.parent; if (o) cand.push({ d: ph.distance, type: 'pawn', pid: o.userData.pid }); }
     const bh = this.ray.intersectObject(this.top)[0];
@@ -261,7 +263,7 @@ export class View3D {
   buildFurniture() {
     const hb = this.H / 2, W = BOARD_W / 2;
     this.chart = { w: 0.15, d: 0.15 * 866 / 400, x: -(W + 0.03 + 0.075), z: -hb + 0.15 * 866 / 400 / 2 };
-    const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); this.furniture.add(c);
+    const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); c.userData.cardImg = 'assets/ui/countdown.jpg'; this.furniture.add(c);
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
@@ -307,7 +309,7 @@ export class View3D {
         const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
         const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1 }));
         frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);
-        if (url) this.mats.add(this.flat(0.21, 0.149, url, x, 0.0026, zc));
+        if (url) { const cm = this.flat(0.21, 0.149, url, x, 0.0026, zc); cm.userData.cardImg = url; this.mats.add(cm); }
         const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
@@ -317,6 +319,7 @@ export class View3D {
         const cw = 0.063, cd = 0.088, iz = pz + 0.016 + cd / 2, k = p.items.length, step = k > 1 ? Math.min(cw + 0.004, (0.21 - cw) / (k - 1)) : 0;
         p.items.forEach((it, j) => {
           const m = this.flat(cw, cd, it.id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${it.id}.jpg`, x + (j - (k - 1) / 2) * step, 0.0012 + j * 0.0004, iz, it.broken ? { color: 0x777777 } : {});
+          if (it.id !== 'hidden') m.userData.cardImg = `assets/items/${it.id}.jpg`;
           this.mats.add(m);
         });
         for (let c = c0; c < this.mats.children.length; c++) { const o = this.mats.children[c]; if (o.userData.matId === undefined) o.userData.matId = p.id; }

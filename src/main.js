@@ -155,7 +155,7 @@ function enterApp() {
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('header').insertBefore(ex, $('#bGraph'));
   document.addEventListener('click', e => {
-    const z = e.target.closest('img[data-zoom]'); if (z) { let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); } o.innerHTML = `<img src="${z.dataset.zoom}">`; o.hidden = false; return; }
+    const z = e.target.closest('img[data-zoom]'); if (z) zoomCard(z.dataset.zoom);
   }, true);
   document.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b && H[+b.dataset.i]) H[+b.dataset.i](e); });
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && modalFn) { modalFn = null; render(); } });
@@ -182,7 +182,7 @@ function setView(v) {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
-  }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+  }; V3.onMat = (id, img) => { if (moveSel) dropOnMat(id); else if (img) zoomCard(img); }; V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -660,6 +660,10 @@ function craftModal() {
     }).join('') : '<div class="note">You have no items to break down.</div>'}</div>`;
   }
   return `<h2>Craft & Break down <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Break down')}</div>${body}<div class="btns">${closeBtn()}</div>`;
+}
+function zoomCard(src) {   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
+  let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
+  o.innerHTML = `<img src="${src}">`; o.hidden = false;
 }
 function renderCraftBtn() {
   let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; document.body.appendChild(b); }
