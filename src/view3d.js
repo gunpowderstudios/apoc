@@ -208,7 +208,7 @@ export class View3D {
     this.chart = { w: 0.1, d: 0.1 * 866 / 400, x: -(W + 0.03 + 0.05), z: -hb + 0.1 * 866 / 400 / 2 };
     const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); this.furniture.add(c);
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
-    this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.004, 28), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x555555, roughness: 0.3 })); this.defMark.castShadow = true; this.furniture.add(this.defMark);
+    const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
     this.newsPos = { deck: [W + 0.03 + 0.052, -hb + 0.0735], ai: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735], pandemic: [W + 0.03 + 0.052, -hb + 0.0735 + 0.17], nuclear: [W + 0.03 + 0.052 + 0.115, -hb + 0.0735 + 0.17] };
   }
@@ -216,7 +216,7 @@ export class View3D {
   syncTable(s) {
     const df = s.defcon, ys = [590, 440, 270, 78];   // pixel rows of the four DEFCON lights on the chart image (400x866)
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
-    this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(1.9, 1, 1.9); this.defMark.material.opacity = 1;
+    this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(1.9, 1, 1.9); 
     // news piles
     const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck;
     const psig = JSON.stringify([deckN, s.stand]);
