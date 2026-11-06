@@ -164,12 +164,40 @@ def parse_res(s):
     return out
 
 
+# True door positions come from the board PDF (each entrance is a placed grey box with a double arrow):
+# tools/doors.json = [{x, y, orient}] in board-image pixels. orient 'H' = left/right arrow (door opens onto a vertical road),
+# 'V' = up/down arrow (door opens onto a horizontal road).
+import json as _json, os as _os
+DOORS = _json.load(open(_os.path.join(_os.path.dirname(__file__), "doors.json")))
+DOORS = [d for d in DOORS if d["y"] < 1600]          # drop the legend sample ("Location entrance/exit") at the bottom of the board
+DOOR_USED = set()
+
+
+def snap_door(ex, ey):
+    k = min(range(len(DOORS)), key=lambda i: math.hypot(DOORS[i]["x"]-ex, DOORS[i]["y"]-ey))
+    d = DOORS[k]
+    if math.hypot(d["x"]-ex, d["y"]-ey) > 40:
+        return None, nearest_street(ex, ey), (ex, ey)
+    DOOR_USED.add(k)
+    want = "V" if d["orient"] == "H" else "H"
+    cands = [n for n in nodes.values() if n["kind"] == "street" and n["id"][0] == want]
+    best = min(cands, key=lambda n: seg_dist(d["x"], d["y"], n["seg"]))
+    if seg_dist(d["x"], d["y"], best["seg"]) > 100:     # corner dumpsters: door sits on the end of the road
+        best = nodes[nearest_street(d["x"], d["y"])]
+    return k, best["id"], (d["x"], d["y"])
+
+
 for bd in B:
     ents = []
+    arrows = []
     for (ex, ey) in bd["ent"]:
-        st = nearest_street(ex, ey)
+        k, st, pos = snap_door(ex, ey)
+        if k is None:
+            print("WARNING: no door marker near", bd["id"], (ex, ey))
         ents.append(st)
+        arrows.append(list(pos))
         link(bd["id"], st)
+    bd["ent"] = arrows
     nodes[bd["id"]] = dict(id=bd["id"], kind="building", x=bd["x"], y=bd["y"], name=bd["name"],
                            setup=parse_res(bd["res"]), acts=bd["acts"], entrances=sorted(set(ents)),
                            entArrows=bd["ent"], note=bd["note"])
@@ -194,6 +222,7 @@ out = dict(width=W, height=H, mmWidth=800, mmHeight=600, image="assets/board/boa
            gridX=VX, gridY=HY)
 json.dump(out, open("data/board.json", "w"), indent=1)
 print(len(nodes), "nodes", len(edges), "edges")
+print(f"doors used: {len(DOOR_USED)}/{len(DOORS)}; unused: {[i for i in range(len(DOORS)) if i not in DOOR_USED]}")
 bad = [n["id"] for n in nodes.values() if n["kind"] == "building" and not n["entrances"]]
 print("buildings w/o entrance:", bad)
 for n in nodes.values():
