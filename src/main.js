@@ -415,7 +415,7 @@ function throwDice(r) {
   if (sp) V3.rollDice(sp, r.pl, S.players.length);
 }
 function rollSound() {
-  const k = S.lastRoll ? JSON.stringify(S.lastRoll) + S.log.length : null;
+  const k = S.lastRoll ? (S.lastRoll.rn || JSON.stringify(S.lastRoll)) : null;   // one throw per roll: keyed on the roll itself, not on the log length
   if (rollInit && k && k !== lastRollKey) { try { diceSnd.currentTime = 0; diceSnd.play().catch(() => {}); } catch (e) {} }
   if (rollInit && k && k !== lastRollKey && V3) throwDice(S.lastRoll);
   lastRollKey = k; rollInit = true;

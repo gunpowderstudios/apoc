@@ -255,7 +255,7 @@ function lootRoll(s, p, mode) {
   const L = s.loc[p.node];
   const r = d6(s), m = mods(s, p, mode), total = r + m;
   logm(s, `${p.name} rolls ${r}${m ? ' +' + m : ''} to ${mode}.`, p.id);
-  s.lastRoll = { pl: p.id, kind: 'risk', value: r, mod: m, total, why: mode };
+  s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: m, total, why: mode };
   if (total >= 3) {
     const avail = RES.concat(['ducttape']).filter(x => L.res[x] > 0);
     if (!avail.length) return;
@@ -305,7 +305,7 @@ function arrest(s, p) {
 // ---- dumpster / burgle tables
 function doDive(s, p) {
   const r = d6(s), m = mods(s, p, 'dive'), t = Math.max(1, Math.min(6, r + m));
-  s.lastRoll = { pl: p.id, kind: 'risk', value: r, mod: m, total: t, why: 'dumpster dive' };
+  s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: m, total: t, why: 'dumpster dive' };
   logm(s, `${p.name} dives: rolled ${r}${m ? ' +' + m : ''}.`, p.id);
   if (t === 1) hurt(s, p, 2, 'rats');
   else if (t === 2) logm(s, 'The garbage truck already came. Nothing.');
@@ -319,7 +319,7 @@ function doDive(s, p) {
 }
 function doBurgle(s, p) {
   const r = d6(s), m = mods(s, p, 'burgle'), t = Math.max(1, Math.min(6, r + m));
-  s.lastRoll = { pl: p.id, kind: 'risk', value: r, mod: m, total: t, why: 'burgle' };
+  s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: m, total: t, why: 'burgle' };
   logm(s, `${p.name} burgles: rolled ${r}${m ? ' +' + m : ''}.`, p.id);
   if (t === 1) hurt(s, p, 2, 'shot by the owner');
   else if (t === 2) { logm(s, 'Alarm triggered! No loot; back to the street.'); p.node = D.node[p.node].entrances[0]; }
@@ -339,7 +339,7 @@ function gambleThrow(s, p) {
   const g = s.ts.gamble; g.n++;
   const need = [2, 3, 4, 4, 6][g.n - 1];
   const win = [1, 1, 2, 3, 4][g.n - 1], church = [0, 0, 1, 1, 2][g.n - 1];
-  const r = d6(s); s.lastRoll = { pl: p.id, kind: 'risk', value: r, mod: 0, total: r, why: 'gamble' };
+  const r = d6(s); s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: 0, total: r, why: 'gamble' };
   if (r >= need) {
     g.pot += win; s.loc[D.board.churchNode].coin += church;
     logm(s, `${p.name} throws ${r} (needed ${need}+): pot ${g.pot}${church ? `, ${church} to the church` : ''}.`, p.id);
@@ -364,7 +364,7 @@ function combatRoll(s, p, tag) {
 function resolveCombat(s, a, d, { forced = true, raid = false } = {}) {
   const ra = combatRoll(s, a), rd = combatRoll(s, d);
   logm(s, `FIGHT! ${a.name} ${ra.r}${ra.m ? '+' + ra.m : ''} vs ${d.name} ${rd.r}${rd.m ? '+' + rd.m : ''}.`);
-  s.lastRoll = { pl: a.id, kind: 'fight', a: ra, d: rd };
+  s.lastRoll = { rn: ++s.seq, pl: a.id, kind: 'fight', a: ra, d: rd };
   if (ra.nat1 && rd.nat1) { hurt(s, a, 1, 'fumble'); hurt(s, d, 1, 'fumble'); return { winner: null }; }
   let win = null;
   if (ra.nat1) win = d; else if (rd.nat1) win = a;
@@ -569,7 +569,7 @@ function rollNews(s, p) {
   const ts = s.ts, card = D.newsById[ts.news.id];
   const face = Math.floor(rnd(s) * 6), sym = D.cfg.newsDie[face];
   ts.news.sym = sym;
-  s.lastRoll = { pl: p.id, kind: 'news', face, sym, card: card.id };
+  s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'news', face, sym, card: card.id };
   logm(s, `News dice: ${sym === 'fake' ? 'FAKE NEWS' : sym.toUpperCase()}.`, p.id);
   // a matching face triggers the event of the newest card of that type that is out on the table (this turn's card or an earlier one)
   const top = sym !== 'fake' && s.stand[sym].length ? D.newsById[s.stand[sym][s.stand[sym].length - 1]] : null;
@@ -1026,7 +1026,7 @@ function rollPhase3(s, p, kind) {
   ts.baseMoves = base;
   const face = Math.floor(rnd(s) * 6);
   ts.dice = { kind, face };
-  s.lastRoll = { pl: p.id, kind, face };
+  s.lastRoll = { rn: ++s.seq, pl: p.id, kind, face };
   const canReroll = (kind === 'night' && hasItem(p, 'flashlight')) || (kind === 'day' && p.prepper === 'jessica');
   if (canReroll) ask(s, { pl: p.id, kind: 'reroll', title: `${kind === 'day' ? 'Day' : 'Night'} dice: ${diceText(kind, face)}. Re-roll?`, options: [opt('keep', 'Keep it'), opt('reroll', 'Re-roll' + (kind === 'day' ? ' (must keep the new result)' : ''))] });
   ask(s, { pl: p.id, kind: 'applyDice', title: 'dice', options: [opt('ok', 'ok')], ctx: {}, auto: true });
@@ -1037,7 +1037,7 @@ export function diceText(kind, face) {
   return m[f[0]](f[1]);
 }
 RESOLVE.reroll = (s, pd, o) => {
-  if (o === 'reroll') { s.ts.dice.face = Math.floor(rnd(s) * 6); s.ts.rerolled = true; logm(s, `Re-rolled: ${diceText(s.ts.dice.kind, s.ts.dice.face)}.`); s.lastRoll = { pl: pd.pl, kind: s.ts.dice.kind, face: s.ts.dice.face }; }
+  if (o === 'reroll') { s.ts.dice.face = Math.floor(rnd(s) * 6); s.ts.rerolled = true; logm(s, `Re-rolled: ${diceText(s.ts.dice.kind, s.ts.dice.face)}.`); s.lastRoll = { rn: ++s.seq, pl: pd.pl, kind: s.ts.dice.kind, face: s.ts.dice.face }; }
 };
 RESOLVE.applyDice = (s, pd) => {
   const p = cur(s), ts = s.ts, { kind, face } = ts.dice;
@@ -1098,7 +1098,7 @@ function doAction(s, p, cmd) {
   }
   if (a === 'raid') {
     ts.raided = true;
-    const r = d6(s), m = mods(s, p, 'raid'); s.lastRoll = { pl: p.id, kind: 'risk', value: r, mod: m, total: r + m, why: 'raid' };
+    const r = d6(s), m = mods(s, p, 'raid'); s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: m, total: r + m, why: 'raid' };
     logm(s, `${p.name} searches for ${target.name}'s bunker: rolled ${r}${m ? ' +' + m : ''}.`, p.id);
     if (r + m >= 5) {
       logm(s, `${p.name} FINDS the bunker!`);
