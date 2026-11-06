@@ -52,6 +52,7 @@ Format: **rule**, then (version it went in). Items marked "ASK" are guesses that
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
 - **Everything spent, crafted away, sold, lost, robbed or paid goes back to the pool.** (v1.68)
+- The pool also holds **30 PrepCoin** (a row at the bottom of the pool). The count shown is 30 minus the coin players hold or have left on the board, so coin earned and spent moves in and out of it. The rules still treat PrepCoin as unlimited if the pool runs out. (v1.71)
 - Busted and can't pay the 2-coin fine: 2 resources go back to the pool (not the church). (v1.69)
 - Taken from another player (fight / Black Friday): goes to the winner, not the pool.
 

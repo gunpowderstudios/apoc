@@ -8,6 +8,7 @@ import { PREP_COL } from './view2d.js';
 const PIECE_H = { frost: 0.040, jessica: 0.040, naomi: 0.040, sam: 0.040 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
+const POOL_COINS = 30;   // PrepCoin that start in the pool
 const RCOL = { food: 0x2eae4e, knowhow: 0x4f6d7a, chem: 0xf2d300, hardware: 0xf4f4f4, tech: 0xb3202a, meds: 0x1e9be0, ducttape: 0x9aa0a6 };
 
 export class View3D {
@@ -289,12 +290,13 @@ export class View3D {
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
     this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.0, 1, 2.0); 
     // the POOL: resources on the table that are not in play (crafted-away, sold and lost resources come back here), in stacks of 5 on the right of the board
-    const sup = s.supply || {}, ssig = JSON.stringify(sup);
+    const held = s.players.reduce((a, q) => a + (q.coin || 0), 0) + Object.values(s.loc || {}).reduce((a, L) => a + (L.coin || 0), 0);
+    const sup = { ...(s.supply || {}), coin: Math.max(0, POOL_COINS - held) }, ssig = JSON.stringify(sup);   // PrepCoin pool: 30 on the table minus the coin players hold or have left on the board
     if (ssig !== this.ssig) {
       this.ssig = ssig; if (!this.pool) { this.pool = new THREE.Group(); this.pool.position.y = -0.013; this.scene.add(this.pool); } this.pool.clear();
       const W2 = BOARD_W / 2, hb2 = this.H / 2, x0 = W2 + 0.045, z0 = -hb2 + 0.09, geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
       const hd = this.label('POOL', '#fff'); hd.scale.set(0.1, 0.019, 1); hd.position.set(x0 + 0.05, 0.012, z0 - 0.05); this.pool.add(hd);
-      Object.keys(RCOL).forEach((r, row) => {
+      [...Object.keys(RCOL).filter(k => k !== 'coin'), 'coin'].forEach((r, row) => {
         const n = sup[r] || 0, z = z0 + row * 0.042; const ns = this.numSprite(n); ns.position.set(x0, 0.012, z); this.pool.add(ns);
         for (let i = 0; i < n; i++) { const st = Math.floor(i / 5), h = i % 5; const m = new THREE.Mesh(geo, this.tokenMat(r)); m.position.set(x0 + 0.025 + st * 0.018, 0.0015 + h * 0.003, z); m.castShadow = true; this.pool.add(m); }
       });
