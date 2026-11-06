@@ -1,7 +1,11 @@
 // Moveable 3D table view (Three.js). The board is modelled at true scale (metres).
 import * as THREE from 'three';
 import { OrbitControls } from '../vendor/OrbitControls.js';
-import { PCOL } from './view2d.js';
+import { GLTFLoader } from '../vendor/GLTFLoader.js';
+import { PREP_COL } from './view2d.js';
+
+// Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
+const PIECE_H = { frost: 0.040, jessica: 0.040, naomi: 0.038, sam: 0.038 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const RCOL = { food: 0x2eae4e, knowhow: 0x4f6d7a, chem: 0xf2d300, hardware: 0xf4f4f4, tech: 0xb3202a, meds: 0x1e9be0, ducttape: 0x9aa0a6 };
@@ -43,6 +47,17 @@ export class View3D {
     this.bind(); this.resize();
     new ResizeObserver(() => this.resize()).observe(container);
     this.active = false;
+  }
+  piece(id) {
+    this.pieces = this.pieces || {};
+    return this.pieces[id] || (this.pieces[id] = new Promise(ok => {
+      new GLTFLoader().load(`assets/models/${id}.glb`, g => {
+        const root = g.scene, box = new THREE.Box3().setFromObject(root), sz = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+        const k = PIECE_H[id] / sz.y, hold = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(PREP_COL[id]), roughness: 0.45, metalness: 0.05 });
+        root.traverse(o => { if (o.isMesh) { o.material = mat; o.castShadow = true; o.receiveShadow = true; } });
+        root.position.set(-c.x, -box.min.y, -c.z); hold.add(root); hold.scale.setScalar(k); const out = new THREE.Group(); out.add(hold); ok(out);
+      }, undefined, () => ok(null));
+    }));
   }
   w(n) { return [(n.x - this.board.width / 2) * this.k, (n.y - this.board.height / 2) * this.k]; }
   resize() { const rc = this.el.getBoundingClientRect(); this.r.setSize(rc.width, rc.height, false); this.r.domElement.style.width = '100%'; this.r.domElement.style.height = '100%'; this.cam.aspect = rc.width / Math.max(1, rc.height); this.cam.updateProjectionMatrix(); }
@@ -102,11 +117,9 @@ export class View3D {
       let m = this.pawnMeshes[p.id];
       if (!m) {
         m = new THREE.Group();
-        const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(PCOL[p.id % 4]), roughness: 0.4 });
-        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.011, 0.004, 24), mat); base.position.y = 0.002;
-        const body = new THREE.Mesh(new THREE.ConeGeometry(0.009, 0.03, 24), mat); body.position.y = 0.019;
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.0072, 20, 16), mat); head.position.y = 0.04;
-        [base, body, head].forEach(x => { x.castShadow = true; m.add(x); });
+        const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(PREP_COL[p.prepper] || '#888'), roughness: 0.4 });
+        const ph = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.03, 20), mat); ph.position.y = 0.015; m.add(ph);   // placeholder until the model loads
+        this.piece(p.prepper).then(proto => { if (proto) { m.clear(); m.add(proto.clone()); } });
         this.pawns.add(m); this.pawnMeshes[p.id] = m; m.userData.cur = new THREE.Vector3(); m.userData.first = true;
       }
       const list = at[p.node], i = list.indexOf(p), n = this.nodes[p.node], [cx, cz] = this.w(n);

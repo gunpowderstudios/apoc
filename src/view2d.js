@@ -1,6 +1,7 @@
 // Top-down 2D board: canvas with pan/zoom, node picking and token drawing.
 const RC = { food: '#2eae4e', knowhow: '#4f6d7a', chem: '#f2d300', hardware: '#f4f4f4', tech: '#b3202a', meds: '#1e9be0', ducttape: '#9aa0a6' };
-export const PCOL = ['#e53935', '#1e88e5', '#43a047', '#fb8c00'];
+export const PREP_COL = { naomi: '#e53935', jessica: '#1e88e5', frost: '#43a047', sam: '#8e44ad' };   // red / blue / green / purple
+export const pcol = p => PREP_COL[p.prepper] || '#888';
 
 export class View2D {
   constructor(canvas, board, img, icons) {
@@ -113,7 +114,7 @@ export class View2D {
       if (L.coin) { ctx.fillStyle = '#e8b100'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(n.x - 30, n.y - 38, 14, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(L.coin, n.x - 30, n.y - 32); }
     }
     // bouncers
-    for (const p of s.players) if (p.thug && p.thug.post && this.nodes[p.thug.post]) { const n = this.nodes[p.thug.post]; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = PCOL[p.id % 4]; ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('\u{1F6E1}', n.x + 40, n.y - 20); ctx.fillText('\u{1F6E1}', n.x + 40, n.y - 20); }
+    for (const p of s.players) if (p.thug && p.thug.post && this.nodes[p.thug.post]) { const n = this.nodes[p.thug.post]; ctx.font = 'bold 30px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = pcol(p); ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('\u{1F6E1}', n.x + 40, n.y - 20); ctx.fillText('\u{1F6E1}', n.x + 40, n.y - 20); }
     // pawns
     const at = {}; for (const p of s.players) (at[p.node] = at[p.node] || []).push(p);
     for (const [nid, ps] of Object.entries(at)) {
@@ -124,7 +125,7 @@ export class View2D {
         const cur = s.cur === p.id && s.stage === 'turn';
         ctx.save(); ctx.translate(x, y);
         if (cur) { ctx.shadowColor = '#fff'; ctx.shadowBlur = 24; }
-        ctx.fillStyle = PCOL[p.id % 4]; ctx.strokeStyle = '#fff'; ctx.lineWidth = cur ? 6 : 4;
+        ctx.fillStyle = pcol(p); ctx.strokeStyle = '#fff'; ctx.lineWidth = cur ? 6 : 4;
         ctx.beginPath(); ctx.arc(0, -22, 17, 0, 7); ctx.fill(); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(-19, 18); ctx.quadraticCurveTo(0, -26, 19, 18); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.strokeStyle = '#000'; ctx.lineWidth = 3;

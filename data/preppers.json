@@ -7,7 +7,7 @@
    "assets/preppers/p1.jpg",
    "assets/preppers/p2.jpg"
   ],
-  "color": "#43a047",
+  "color": "#1e88e5",
   "skills": [
    {
     "id": "forager",
@@ -33,7 +33,7 @@
    "assets/preppers/p3.jpg",
    "assets/preppers/p4.jpg"
   ],
-  "color": "#1e88e5",
+  "color": "#8e44ad",
   "skills": [
    {
     "id": "parkour",
@@ -59,7 +59,7 @@
    "assets/preppers/p5.jpg",
    "assets/preppers/p6.jpg"
   ],
-  "color": "#e53935",
+  "color": "#43a047",
   "skills": [
    {
     "id": "marksman",
@@ -85,7 +85,7 @@
    "assets/preppers/p7.jpg",
    "assets/preppers/p8.jpg"
   ],
-  "color": "#fb8c00",
+  "color": "#e53935",
   "skills": [
    {
     "id": "schoolRun",

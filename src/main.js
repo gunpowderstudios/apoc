@@ -1,7 +1,7 @@
 // APOC test table: lobby, game controller, UI. The engine (engine.js) holds all rules; this file only renders and sends commands.
 import * as E from './engine.js';
 import * as AI from './ai.js';
-import { View2D, PCOL } from './view2d.js';
+import { View2D, PREP_COL, pcol } from './view2d.js';
 import { View3D } from './view3d.js';
 import { VERSION } from './version.js';
 import { HostNet, GuestNet } from './net.js';
@@ -47,12 +47,13 @@ async function boot() {
 function buildSeats() {
   const types = lobbyMode === 'host' ? [['human', 'Human (this device)'], ['remote', 'Remote player'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
   const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value } : null);
-  $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" style="background:${PCOL[i]}"></span><input id="sn${i}" value="${NAMES[i]}">
+  $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" id="sd${i}" style="background:${PREP_COL[PREPS[i]]}"></span><input id="sn${i}" value="${NAMES[i]}">
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
+    const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = dot; dot();
     $('#st' + i).value = o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : i === 1 ? 'ai' : 'off');
     if (o) $('#sn' + i).value = o.n;
   });
@@ -264,7 +265,7 @@ function renderStatus() {
 function renderPlayers() {
   $('#players').innerHTML = S.players.map(p => {
     const pr = E.D.prepper[p.prepper], cur = actor() === p.id && !S.over;
-    return `<div class="pl ${cur ? 'cur' : ''}" style="--c:${PCOL[p.id % 4]}">
+    return `<div class="pl ${cur ? 'cur' : ''}" style="--c:${pcol(p)}">
       <div class="av">${esc(p.name[0])}</div><div>
       <div>${btn(`<b>${esc(p.name)}</b> <span class="note">${pr.name} the ${pr.role}</span>`, () => { modalFn = () => prepperModal(p.id); render(); }, { cls: 'lnk' })}
       ${p.bunker ? ' 🏠' : ''}${p.tagged ? ' 🏷️' : ''}${p.busted ? ` 🚔×${p.busted}` : ''}${p.thug ? ` 🥊${p.thug.job || ''}` : ''}${p.node === E.D.board.hospitalNode && p.admitted ? ' 🏥' : ''}</div>
