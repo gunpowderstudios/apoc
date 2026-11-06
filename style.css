@@ -52,7 +52,7 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #pop h4{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}#pop h4 img{width:22px;height:22px}
 #pop .row{margin-top:6px}#pop select{min-width:56px}#pop .note{margin-top:4px}
 
-#newscard{position:fixed;left:12px;top:136px;z-index:15;width:300px;background:#1b1e22ee;border:2px solid #888;border-radius:10px;padding:10px;box-shadow:0 8px 30px #000a}
+#newscard{position:fixed;left:12px;top:136px;z-index:15;width:340px;background:#1b1e22ee;border:2px solid #888;border-radius:10px;padding:10px;box-shadow:0 8px 30px #000a}
 #newscard img.card{width:100%;border-radius:6px;display:block}
 #newscard .ev{display:flex;gap:8px;align-items:center;margin-top:8px}#newscard .ev img{width:44px;height:44px}
 #newscard .res{margin-top:8px;padding:6px 8px;border-radius:6px;font-weight:600}
@@ -95,3 +95,6 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #evbanner{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:16;max-width:70vw;padding:10px 38px 10px 16px;border-radius:10px;border:2px solid #fff;background:var(--ec);color:#fff;font-size:16px;font-weight:600;animation:evglow 1.4s ease-in-out infinite}
 #evbanner .x{position:absolute;right:8px;top:4px;background:none;border:0;color:#fff;font-size:20px;cursor:pointer}
 @keyframes evglow{0%,100%{box-shadow:0 0 10px var(--ec),0 0 0 #fff0}50%{box-shadow:0 0 34px var(--ec),0 0 14px #fff8}}
+
+#newscard .ev.flash{margin-top:8px;padding:8px 22px 8px 8px;border-radius:8px;background:#00000045;animation:evflash 1s ease-in-out infinite}
+@keyframes evflash{0%,100%{box-shadow:0 0 0 #fff0;background:#00000045}50%{box-shadow:0 0 18px #fffc;background:#ffffff33}}

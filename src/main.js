@@ -568,12 +568,11 @@ function renderNewsPanel() {
   if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
   if (newsClosed === key) { box.hidden = true; return; }
   const sym = nw.sym, fake = sym === 'fake', fired = nw.fired && E.D.newsById[nw.fired], hit = !!fired, used = sym && !fake && !fired && S.stand[sym] && S.stand[sym].length, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
-  const res = !sym ? `<div class="res miss">Read the card, then roll the NEWS dice. A matching face (nuclear / pandemic / AI) triggers the newest card of that type on the table.</div>`
-    : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? (fired.id === c.id ? 'MATCH! The event happens.' : `triggers the ${sym.toUpperCase()} card already out: <b>${esc(fired.text || '')}</b>`) : fake ? 'nothing happens.' : (used ? `the ${sym.toUpperCase()} paper on top is already turned over, nothing happens.` : `no ${sym.toUpperCase()} card is out, nothing happens.`)}</div>`;
+  const res = !sym ? '' : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? (fired.id === c.id ? 'MATCH! The event happens.' : `triggers the ${sym.toUpperCase()} card already out: <b>${esc(fired.text || '')}</b>`) : fake ? 'nothing happens.' : (used ? `the ${sym.toUpperCase()} paper on top is already turned over, nothing happens.` : `no ${sym.toUpperCase()} card is out, nothing happens.`)}</div>`;
   box.className = 't-' + c.type;
   box.innerHTML = `<button class="x" title="Close">×</button>
-    <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}
-    <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)}</div>`;
+    <img class="card" src="${c.img}">
+    <div class="ev flash"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}`;
   box.hidden = false; box.querySelector('.x').onclick = () => { newsClosed = key; box.hidden = true; };
 }
 let evbClosed = null;
