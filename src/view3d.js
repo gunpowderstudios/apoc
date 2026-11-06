@@ -251,6 +251,14 @@ export class View3D {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ map: this.tex(url), roughness: 0.7, ...extra }));
     m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); m.receiveShadow = true; m.castShadow = true; return m;
   }
+  numSprite(n) {   // small white count shown beside a token pile
+    this.nums = this.nums || {}; const k = String(n); if (!this.nums[k]) {
+      const c = document.createElement('canvas'); c.width = 96; c.height = 96; const g = c.getContext('2d');
+      g.font = 'bold 78px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.lineWidth = 12; g.strokeStyle = '#000'; g.strokeText(k, 48, 52); g.fillStyle = '#fff'; g.fillText(k, 48, 52);
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true })); sp.scale.set(0.016, 0.016, 1); sp.renderOrder = 11; this.nums[k] = sp;
+    } return this.nums[k].clone();
+  }
   label(text, color = '#fff') {
     const k = text + color; if (this.labels[k]) return this.labels[k].clone();
     const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d');
@@ -305,7 +313,7 @@ export class View3D {
     const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
       this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length;
-      const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.0185;
+      const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.03;
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;
         const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[p.bunker ? 1 : 0] || art[0];
@@ -318,7 +326,8 @@ export class View3D {
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
         const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), pz = zc + 0.0745 + 0.02;
-        piles.forEach((pl, k) => { for (let j = 0; j < pl.c; j++) { const m = new THREE.Mesh(geo, this.tokenMat(pl.r)); m.position.set(x + (k - (piles.length - 1) / 2) * SP, 0.0015 + j * 0.003, pz); m.castShadow = true; m.userData.tok = { mat: p.id, r: pl.r }; this.mats.add(m); } });
+        piles.forEach((pl, k) => { for (let j = 0; j < pl.c; j++) { const m = new THREE.Mesh(geo, this.tokenMat(pl.r)); m.position.set(x + (k - (piles.length - 1) / 2) * SP, 0.0015 + j * 0.003, pz); m.castShadow = true; m.userData.tok = { mat: p.id, r: pl.r }; this.mats.add(m); }
+          const nsp = this.numSprite(pl.c); nsp.position.set(x + (k - (piles.length - 1) / 2) * SP + 0.0125, 0.012, pz); this.mats.add(nsp); });
         // item cards, fanned out under the tokens
         const cw = 0.063, cd = 0.088, iz = pz + 0.016 + cd / 2, k = p.items.length, step = k > 1 ? Math.min(cw + 0.004, (0.21 - cw) / (k - 1)) : 0;
         p.items.forEach((it, j) => {
