@@ -105,3 +105,5 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #zoom{position:fixed;inset:0;z-index:60;background:#000b;display:flex;align-items:center;justify-content:center;cursor:zoom-out}#zoom[hidden]{display:none}
 #zoom img{height:min(88vh,760px);max-width:92vw;object-fit:contain;border-radius:12px;box-shadow:0 10px 50px #000}
 img.zm{cursor:zoom-in}
+
+#log div.cur{color:#4cd964;font-weight:700}

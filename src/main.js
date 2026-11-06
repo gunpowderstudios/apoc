@@ -517,7 +517,7 @@ function actionClick(a, p) {
 function renderLog() {
   const el = $('#log'), last = S.log.length ? S.log[S.log.length - 1].n : 0;
   if (last === lastLogSeq) return; lastLogSeq = last;
-  const m = me(); el.innerHTML = S.log.slice(-120).map(l => `<div class="${l.pl === m ? 'me' : ''}">${esc(l.t)}</div>`).join(''); el.scrollTop = el.scrollHeight;
+  const m = me(); el.innerHTML = S.log.slice(-120).map((l, i, a) => `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}">${esc(l.t)}</div>`).join(''); el.scrollTop = el.scrollHeight;
 }
 function renderHand() {
   const p = S.players[me()], el = $('#hand'); if (!p) return;
