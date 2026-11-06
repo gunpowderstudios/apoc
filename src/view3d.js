@@ -402,6 +402,14 @@ export class View3D {
     }
     this.ctl.update(); this.r.render(this.scene, this.cam);
   }
+  // C key: centre the whole scene (chart, news row, board, pool, player mats) in view
+  fitAll() {
+    const tg = new THREE.Vector3(0.01, 0, -0.015), dir = new THREE.Vector3(0, Math.sin(1.0), Math.cos(1.0)), cam = this.cam.clone();
+    const pts = []; for (const x of [-0.6, 0.62]) for (const z of [-0.5, 0.47]) for (const y of [0, 0.06]) pts.push(new THREE.Vector3(x, y, z));
+    const fits = d => { cam.position.copy(tg).addScaledVector(dir, d); cam.lookAt(tg); cam.updateMatrixWorld(true); cam.updateProjectionMatrix(); return pts.every(q => { const v = q.clone().project(cam); return Math.abs(v.x) <= 0.97 && Math.abs(v.y) <= 0.97; }); };
+    let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (fits(m)) hi = m; else lo = m; }
+    this.flyTo(tg.clone().addScaledVector(dir, hi), tg, 800);
+  }
   reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
   // left-mouse tool: select (default: original mouse controls), pan, zoom (drag), rotate. Select keeps the original mouse: left-drag rotates, right-drag pans, wheel zooms; pieces and tokens are still picked up first.
   setTool(tool) {
