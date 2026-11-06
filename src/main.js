@@ -175,7 +175,7 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = id => { closePop(); onBoardClick(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onMat = id => { if (moveSel) dropOnMat(id); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -238,7 +238,7 @@ async function runSetup() {
 function doCmd(cmd) {
   if (setupHold) return { ok: false, error: 'Setting up…' };
   if (mode === 'guest') return net.send({ cmd });
-  const r = runCmd(actor(), cmd); if (!r.ok) toast(r.error || 'Not allowed'); return r;
+  const r = runCmd(actor(), cmd); if (!r.ok) toast(r.error || 'Not allowed'); else tick(); return r;
 }
 function afterChange() {
   render(); broadcast(); autosave(); schedule();
@@ -285,10 +285,10 @@ function updateTargets() {
   for (const id in seen) if (id !== p.node) targets[id] = { kind: 'move', steps: seen[id].steps };
   for (const m of E.legalMoves(S, p)) if (m.subway) targets[m.to] = { kind: 'subway', steps: [m.to] }; else if (m.cutters) targets[m.to] = { kind: 'move', steps: [m.to] };
 }
-function onBoardClick(id) {
+function onBoardClick(id, pt) {
   if (!S || !id) return;
   if (V2 && V2.edit) { V2.sel = id; V2.dirty = true; return; }
-  if (moveSel) return void dropStack(id);
+  if (moveSel) return void dropStack(id, pt);
   if (S.sandbox && sbxMove) return void doCmd({ t: 'sbxMove', to: id, p: sbxTarget });
   const t = targets[id]; if (!t) return;
   doCmd(t.steps.length === 1 ? { t: 'move', to: id } : { t: 'path', steps: t.steps });
@@ -318,15 +318,22 @@ function onDrop(pid, id) {
 
 // ---- click a token pile: choose how many, then move them to/from your player area
 let moveSel = null;
-function dropStack(id) {
-  const m = moveSel; moveSel = null; if (V3) V3.hl = null;
-  if (id !== m.node) doCmd({ t: 'moveStack', from: m.node, to: id, r: m.r }); else render();
+function endHold() { moveSel = null; if (V3) { V3.hl = null; V3.setHeld(null); } }
+function cancelMove() { if (moveSel) { endHold(); render(); } }
+function dropStack(id, pt) {
+  const m = moveSel; if (!id) return toast('Click on the board or a character card');
+  if (id === m.node) { endHold(); tick(); return render(); }
+  const r = doCmd({ t: 'moveStack', from: m.node, to: id, r: m.r, n: m.n, x: pt && pt.x, y: pt && pt.y });
+  if (r && r.ok !== false) endHold();
 }
-function cancelMove() { if (moveSel) { moveSel = null; if (V3) V3.hl = null; render(); } }
+function dropOnMat(pid) {
+  const m = moveSel; const r = doCmd({ t: 'moveStack', from: m.node, r: m.r, n: m.n, mat: pid });
+  if (r && r.ok !== false) endHold();
+}
 function closePop() { const p = $('#pop'); if (p) p.hidden = true; }
 function onToken(info) {
   if (!S || S.over) return; closePop();
-  if (moveSel) return dropStack(info.node !== undefined ? info.node : moveSel.node);
+  if (moveSel) return info.mat !== undefined ? dropOnMat(info.mat) : dropStack(info.node, null);
   const myTurn = iAct() && !S.pending;
   if (!myTurn && info.mat !== undefined) return toast(S.pending ? 'Make the pending decision first' : 'It is not your turn');
   if (S.pending && info.mat === undefined && !iAct()) return;
@@ -366,13 +373,13 @@ function onToken(info) {
       } else html += `<div class="note">${S.ts && S.ts.actions <= 0 ? 'No actions left this turn.' : 'Nothing to do with these right now.'}</div>`;
     }
   }
-  if (info.mat === undefined) html += `<div class="row"><button id="popMove">Move stack…</button></div>`;
+  if (info.mat === undefined) { const cnt = info.r === 'coin' ? S.loc[info.node].coin : S.loc[info.node].res[info.r]; html += `<div class="row"><b>Move / take with the mouse:</b></div><div class="row">Hold ${qtySel(cnt, 'holdQty')} of ${cnt} <button id="popMove">Pick up</button></div><div class="note">Then click a space to put them down, or your character card to keep them.</div>`; }
   html += `<div class="row"><button id="popX">Cancel</button></div>`;
   pop.innerHTML = html; pop.hidden = false;
   const go = $('#popGo'); if (go) go.onclick = acts[0];
   acts.forEach((f, i) => { const b = $('#popA' + i); if (b) b.onclick = f; });
   $('#popX').onclick = closePop;
-  const mv = $('#popMove'); if (mv) mv.onclick = () => { moveSel = { node: info.node, r: info.r }; V3 && (V3.hl = moveSel); closePop(); toast('Stack selected: click the space to move it to (Esc to cancel)'); render(); };
+  const mv = $('#popMove'); if (mv) { const hq = $('#holdQty'); hq.value = hq.options[hq.options.length - 1].value; mv.onclick = () => { moveSel = { node: info.node, r: info.r, n: +hq.value }; if (V3) { V3.hl = { node: info.node, r: info.r }; V3.setHeld(moveSel); } tick(); closePop(); toast(`Holding ${moveSel.n}: click a space to put them down, or your character card to keep them (Esc cancels)`); render(); }; }
   const w = pop.offsetWidth, h = pop.offsetHeight;
   pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, info.cx + 12)) + 'px'; pop.style.top = Math.max(8, Math.min(innerHeight - h - 8, info.cy - 20)) + 'px';
 }

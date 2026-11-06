@@ -75,6 +75,7 @@ export class View3D {
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
     el.addEventListener('pointermove', e => {
+      if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; }
       if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
       if (this.drag) {
         if (!down || !down.moved) return;
@@ -100,11 +101,21 @@ export class View3D {
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'token') { if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId); return; }
       const id = h ? (h.type === 'board' ? h.id : h.type === 'pawn' ? this.pawnNode(h.pid) : null) : null;
-      if (this.onClick) this.onClick(id);
+      if (this.onClick) { const bp = this.boardPoint(e); this.onClick(id, bp ? { x: bp.bx, y: bp.by } : null); }
     };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', () => { if (this.drag) { this.drag.mesh.userData.free = false; this.drag = null; this.ctl.enabled = true; } down = null; });
+  }
+  // tokens held in the hand: a floating stack that follows the pointer until the next click
+  setHeld(h) {
+    if (this.heldG) { this.scene.remove(this.heldG); this.heldG = null; }
+    if (!h) return;
+    this.heldPlane = this.heldPlane || new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.0);
+    const g = new THREE.Group(), geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
+    for (let i = 0; i < Math.min(h.n, 14); i++) { const m = new THREE.Mesh(geo, h.r === 'coin' ? new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: .7, roughness: .3 }) : this.tokenMat(h.r)); m.position.y = i * 0.003; m.castShadow = true; g.add(m); }
+    g.position.set(0, 0.03, 0.3); this.scene.add(g); this.heldG = g;
   }
   pawnNode(pid) { const m = this.pawnMeshes[pid]; return m && m.userData.node; }
   ndc(e) { const rc = this.r.domElement.getBoundingClientRect(); this.mouse.set(((e.clientX - rc.left) / rc.width) * 2 - 1, -((e.clientY - rc.top) / rc.height) * 2 + 1); this.ray.setFromCamera(this.mouse, this.cam); }
@@ -117,6 +128,7 @@ export class View3D {
     this.ndc(e);
     const cand = [];
     const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
+    const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId });
     const ph = this.ray.intersectObjects(this.pawns.children, true)[0];
     if (ph) { let o = ph.object; while (o && o.userData.pid === undefined) o = o.parent; if (o) cand.push({ d: ph.distance, type: 'pawn', pid: o.userData.pid }); }
     const bh = this.ray.intersectObject(this.top)[0];
@@ -134,14 +146,14 @@ export class View3D {
   sync(s, ui) {
     this.syncTable(s);
     // resource tokens
-    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin]), this.hide ? this.hide.size : -1, this.hl || null]);
+    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null]);
     if (sig !== this.sig) {
       this.sig = sig; this.tokens.clear();
       const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), coinMat = new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 });
       for (const n of this.board.nodes) {
         const L = s.loc[n.id]; if (!L || (this.hide && this.hide.has(n.id))) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
-        const [cx, cz] = this.w(n);
+        const [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w(n);
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
         const SP = 0.0175, PER = 6, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
@@ -241,6 +253,7 @@ export class View3D {
       this.matSig = msig; this.mats.clear();
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.0185;
       s.players.forEach((p, i) => {
+        const c0 = this.mats.children.length;
         const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[p.bunker ? 1 : 0] || art[0];
         const active = s.cur === p.id && s.stage === 'turn';
         const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
@@ -258,6 +271,7 @@ export class View3D {
           const m = this.flat(cw, cd, it.id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${it.id}.jpg`, x + (j - (k - 1) / 2) * step, 0.0012 + j * 0.0004, iz, it.broken ? { color: 0x777777 } : {});
           this.mats.add(m);
         });
+        for (let c = c0; c < this.mats.children.length; c++) { const o = this.mats.children[c]; if (o.userData.matId === undefined) o.userData.matId = p.id; }
       });
     }
   }

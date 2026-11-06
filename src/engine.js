@@ -826,14 +826,25 @@ export function dispatch(s, pl, cmd) {
   return r;
 }
 
-// Table tool: pick up a whole stack of one token type and put it down somewhere else (setup tweaks / "like a real board game").
+// Table tool: pick up some (or all) of a stack of one token type and put it down on another space, or on a player's card (it is then theirs).
 function moveStack(s, pl, cmd) {
-  const A = s.loc[cmd.from], B = s.loc[cmd.to];
-  if (!A || !B || cmd.from === cmd.to) return err('Pick a different space');
-  const n = cmd.r === 'coin' ? A.coin : (A.res[cmd.r] || 0);
-  if (!n) return err('Nothing to move');
-  if (cmd.r === 'coin') { A.coin = 0; B.coin += n; } else { delete A.res[cmd.r]; B.res[cmd.r] = (B.res[cmd.r] || 0) + n; }
-  logm(s, `${s.players[pl] ? s.players[pl].name : 'Player'} moves ${n} ${cmd.r === 'coin' ? 'PrepCoin' : RES_LABEL[cmd.r]} from ${D.node[cmd.from].name || cmd.from} to ${D.node[cmd.to].name || cmd.to}.`, pl);
+  const A = s.loc[cmd.from]; if (!A) return err('Pick a stack');
+  const have = cmd.r === 'coin' ? A.coin : (A.res[cmd.r] || 0);
+  const n = Math.min(have, Math.max(1, cmd.n || have)); if (!n) return err('Nothing to move');
+  const who = s.players[pl] ? s.players[pl].name : 'Player', lab = cmd.r === 'coin' ? 'PrepCoin' : RES_LABEL[cmd.r], from = D.node[cmd.from].name || cmd.from;
+  if (cmd.mat !== undefined) {   // dropped on a character card: into that prepper's inventory
+    const p = s.players[cmd.mat]; if (!p) return err('No such player');
+    let take = n;
+    if (cmd.r !== 'coin') take = Math.min(n, Math.max(0, holdLimit(p) - resTotal(p)));
+    if (take < 1) return err(`${p.name}'s backpack is full`);
+    if (cmd.r === 'coin') { A.coin -= take; p.coin += take; } else { A.res[cmd.r] -= take; if (!A.res[cmd.r]) delete A.res[cmd.r]; p.res[cmd.r] += take; }
+    logm(s, `${who} puts ${take} ${lab} from ${from} on ${p.name}'s card.`, pl);
+    return OK;
+  }
+  const B = s.loc[cmd.to]; if (!B || cmd.from === cmd.to) return err('Pick a different space');
+  if (cmd.r === 'coin') { A.coin -= n; B.coin += n; } else { A.res[cmd.r] -= n; if (!A.res[cmd.r]) delete A.res[cmd.r]; B.res[cmd.r] = (B.res[cmd.r] || 0) + n; }
+  if (cmd.x !== undefined && D.node[cmd.to].kind !== 'building') B.at = [Math.round(cmd.x), Math.round(cmd.y)]; else delete B.at;
+  logm(s, `${who} moves ${n} ${lab} from ${from} to ${D.node[cmd.to].name || cmd.to}.`, pl);
   return OK;
 }
 function sandbox(s, pl, cmd) {
