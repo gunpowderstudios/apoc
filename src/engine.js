@@ -76,7 +76,8 @@ export function createGame(opts) {
     s.players.push(p);
     gain(s, p, 'food', cfg.startFood);
   });
-  s.cur = Math.floor(rnd(s) * s.players.length);
+  const humans = s.players.filter(p => !p.ai);   // humans always go first (random among them)
+  s.cur = humans.length ? humans[Math.floor(rnd(s) * humans.length)].id : Math.floor(rnd(s) * s.players.length);
   logm(s, `Game starts. ${s.players[s.cur].name} goes first.`);
   beginTurn(s);
   advance(s);
