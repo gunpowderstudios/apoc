@@ -101,3 +101,7 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 
 #craftbtn{position:fixed;left:14px;bottom:84px;z-index:12;background:#2e9d3f;color:#fff;border:2px solid #fff;border-radius:12px;padding:10px 20px;font:800 18px sans-serif;cursor:pointer;box-shadow:0 4px 18px #0008;letter-spacing:.03em}
 #craftbtn small{display:block;font:600 12px sans-serif;opacity:.9;margin-top:2px}#craftbtn:hover{filter:brightness(1.12)}
+
+#zoom{position:fixed;inset:0;z-index:60;background:#000b;display:flex;align-items:center;justify-content:center;cursor:zoom-out}#zoom[hidden]{display:none}
+#zoom img{height:min(88vh,760px);max-width:92vw;object-fit:contain;border-radius:12px;box-shadow:0 10px 50px #000}
+img.zm{cursor:zoom-in}

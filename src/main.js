@@ -154,6 +154,9 @@ function enterApp() {
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('header').insertBefore(ex, $('#bGraph'));
+  document.addEventListener('click', e => {
+    const z = e.target.closest('img[data-zoom]'); if (z) { let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); } o.innerHTML = `<img src="${z.dataset.zoom}">`; o.hidden = false; return; }
+  }, true);
   document.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b && H[+b.dataset.i]) H[+b.dataset.i](e); });
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && modalFn) { modalFn = null; render(); } });
   $('#bUndo').hidden = mode === 'guest';
@@ -526,7 +529,7 @@ const newsSnd = new Audio('assets/sfx/breaking-news.mp3'), eventSnd = new Audio(
 let newsView = null;
 function itemDeckModal() {
   const cnt = {}; for (const c of S.itemDeck) cnt[c.id] = (cnt[c.id] || 0) + 1;
-  const rows = E.D.items.map(it => `<div style="width:92px;text-align:center;opacity:${cnt[it.id] ? 1 : .35}"><img src="${it.img}" style="width:92px;border-radius:5px"><div style="font-size:12px">${esc(it.name)}</div><b>x${cnt[it.id] || 0}</b></div>`).join('');
+  const rows = E.D.items.map(it => `<div style="width:92px;text-align:center;opacity:${cnt[it.id] ? 1 : .35}"><img class="zm" data-zoom="${it.img}" src="${it.img}" style="width:92px;border-radius:5px"><div style="font-size:12px">${esc(it.name)}</div><b>x${cnt[it.id] || 0}</b></div>`).join('');
   return `<div style="max-width:760px"><div style="font-weight:700;font-size:18px;margin-bottom:6px">ITEM DECK: ${S.itemDeck.length} cards, shuffled face down</div>
     <div class="note" style="margin-bottom:8px">Craft an item (pay its recipe) or buy one at a shop to take that card from the deck. Dumpsters and events take the top card.</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;max-height:60vh;overflow:auto">${rows}</div><div class="btns" style="margin-top:10px">${closeBtn()}</div></div>`;
@@ -647,12 +650,12 @@ function craftModal() {
   if (craftTab === 'craft') {
     body = `<div class="note" style="margin-bottom:6px">${ts && ts.crafted ? '<b>You have already crafted this turn.</b>' : 'You may craft ONE item this turn, at any point.'}</div><div class="grid">${E.D.items.map(it => {
       const c = can.get(it.id), stock = E.stockOf(S, it.id), rc = {}; it.recipe.forEach(r => { rc[r.r] = (rc[r.r] || 0) + 1; });
-      return `<div class="tile ${c ? '' : 'dis'}"><img src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
+      return `<div class="tile ${c ? '' : 'dis'}"><img class="zm" data-zoom="${it.img}" src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
     }).join('')}</div>`;
   } else {
     body = `<div class="note" style="margin-bottom:6px">${ts && ts.scrapped ? '<b>You have already broken down an item this turn.</b>' : 'You may break down ONE item this turn, at any point. You get back its resources except the last one, which is lost.'}</div><div class="grid">${p.items.length ? p.items.map(i => {
       const d = E.D.item[i.id], back = {}; for (const r of d.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
-      return `<div class="tile"><img src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Break down', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
+      return `<div class="tile"><img class="zm" data-zoom="${d.img}" src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Break down', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
     }).join('') : '<div class="note">You have no items to break down.</div>'}</div>`;
   }
   return `<h2>Craft & Break down <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Break down')}</div>${body}<div class="btns">${closeBtn()}</div>`;
