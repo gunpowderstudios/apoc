@@ -671,7 +671,7 @@ function zoomCard(src) {   // any face-up card clicked on the table or in a list
   o.innerHTML = `<img src="${src}">`; o.hidden = false;
 }
 function renderCraftBtn() {
-  let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; document.body.appendChild(b); }
+  let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; $('#boardWrap').appendChild(b); }
   const show = !setupHold && craftOk() && !S.players[actor()].ai; b.hidden = !show; if (!show) return;
   const ts = S.ts; b.innerHTML = `🔧 CRAFT / BREAK DOWN<small>${ts.crafted ? 'crafted ✓' : 'craft 1'} · ${ts.scrapped ? 'broken down ✓' : 'break down 1'}</small>`;
 }
