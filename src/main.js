@@ -533,7 +533,8 @@ function newsPileModal() {
     <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''}</div>
     <div class="btns" style="margin-top:10px">${ids.length > 1 ? btn('◀ Newer', () => { newsView.i = i - 1; render(); }, { dis: i === 0 }) + btn('Older ▶', () => { newsView.i = i + 1; render(); }, { dis: i >= ids.length - 1 }) : ''}${closeBtn()}</div></div></div>`;
 }
-const TURN_STEPS = ['Eat & Thugs', 'Draw News', 'Roll News Dice', 'Roll Day / Night', 'Move & Actions', 'End Turn'];
+const TURN_STEPS = ['Eat / Pay Thugs', 'Draw News', 'Roll News Dice', 'Roll Day/Night to Move', 'M.A.A.M', 'End Turn'];
+const TURN_TIPS = ['', '', '', '', 'Move or action, action or move (including craft)', ''];
 let dayPick = false;
 function renderTurnBar() {
   const el = $('#turnbar'); if (!S || S.over || setupHold) { el.innerHTML = ''; return; }
@@ -549,7 +550,7 @@ function renderTurnBar() {
     : TURN_STEPS.map((l, i) => {
       const go = me && (i === goStep || (i === 5 && endGo));
       const pick = i === 3 && dayPick && go ? `<div class="pick"><button data-d="day">☀ Day</button><button data-d="night" ${noNight ? 'disabled title="Tagged or curfew: day dice only"' : ''}>🌙 Night</button></div>` : '';
-      return `<div class="st ${i < now ? 'done' : i === now ? 'now' : ''} ${go ? 'go' : ''}" data-step="${i}"><b>${i < now ? '✓' : i + 1}</b>${l}${go && i !== 3 ? '<span class="clk">click</span>' : go && !dayPick ? '<span class="clk">click</span>' : ''}${pick}</div>`;
+      return `<div class="st ${i < now ? 'done' : i === now ? 'now' : ''} ${go ? 'go' : ''}" data-step="${i}"${TURN_TIPS[i] ? ` title="${TURN_TIPS[i]}"` : ''}><b>${i < now ? '✓' : i + 1}</b>${l}${go && i !== 3 ? '<span class="clk">click</span>' : go && !dayPick ? '<span class="clk">click</span>' : ''}${pick}</div>`;
     }).join(''));
   el.querySelectorAll('.st.go').forEach(c => c.onclick = e => {
     const i = +c.dataset.step, d = e.target.closest('button[data-d]');
