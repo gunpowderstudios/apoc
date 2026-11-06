@@ -459,6 +459,7 @@ function renderHand() {
   el.innerHTML = `<div class="note" style="flex:none">${esc(p.name)}'s items${p.itemCount !== undefined ? '' : ''}:</div>` + (items.length ? items.map(i => `<div class="itm ${i.broken ? 'broken' : ''}" data-i="${H.push(() => { modalFn = () => itemModal(p.id, i.uid); render(); }) - 1}" title="${i.id === 'hidden' ? 'hidden' : esc(E.D.item[i.id].name)}"><img src="${itemImg(i.id)}">${i.tokens !== undefined && i.tokens !== null ? `<span class="tk">${i.tokens}</span>` : ''}</div>`).join('') : '<span class="note">none</span>');
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
+const newsSnd = new Audio('assets/sfx/breaking-news.mp3');
 function showNewsCard(c, line) {
   const sym = (/News dice: ([A-Z ]+)\./.exec(line) || [])[1] || '', fake = /FAKE/.test(sym), hit = !fake && sym.toLowerCase() === c.type;
   const nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type], box = $('#newscard');
@@ -473,7 +474,7 @@ function renderBanner() {
     lastSeq = nl[nl.length - 1].n;
     for (const l of nl) {
       const m = /^NEWS: "(.+?)"/.exec(l.t); const c = m && E.D.news.find(n => n.title === m[1]);
-      if (c) { showNewsCard(c, l.t); bannerHtml = `<div><img src="${c.img}" height="150" style="border-radius:6px;float:left;margin-right:8px"><b>${esc(c.title)}</b><br>${esc(c.text || '')}<br><span class="note">${esc(l.t.replace(/^NEWS:[^.]*\.\s*/, ''))}</span></div>`; bannerUntil = Date.now() + 9000; }
+      if (c) { showNewsCard(c, l.t); try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} bannerHtml = `<div><img src="${c.img}" height="150" style="border-radius:6px;float:left;margin-right:8px"><b>${esc(c.title)}</b><br>${esc(c.text || '')}<br><span class="note">${esc(l.t.replace(/^NEWS:[^.]*\.\s*/, ''))}</span></div>`; bannerUntil = Date.now() + 9000; }
       else if (/DEFCON|SHTF|escalat/i.test(l.t)) { bannerHtml = `<div><b>${esc(l.t)}</b></div>`; bannerUntil = Date.now() + 8000; }
     }
     clearTimeout(renderBanner.t); renderBanner.t = setTimeout(() => { $('#banner').innerHTML = ''; }, 9000);
