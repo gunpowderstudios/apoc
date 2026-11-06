@@ -305,11 +305,11 @@ export class View3D {
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;
         const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[p.bunker ? 1 : 0] || art[0];
-        const active = s.cur === p.id && s.stage === 'turn';
+        const active = s.cur === p.id && s.stage === 'turn', fade = s.stage === 'turn' && !active, fx = fade ? { transparent: true, opacity: 0.5 } : {};   // players whose turn it is not are faded to 50%
         const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1 }));
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1, ...fx }));
         frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);
-        if (url) { const cm = this.flat(0.21, 0.149, url, x, 0.0026, zc); cm.userData.cardImg = url; this.mats.add(cm); }
+        if (url) { const cm = this.flat(0.21, 0.149, url, x, 0.0026, zc, fx); cm.userData.cardImg = url; this.mats.add(cm); }
         const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });

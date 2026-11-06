@@ -570,21 +570,26 @@ function renderTurnBar() {
     else if (i === 3) { dayPick = !dayPick; renderTurnBar(); } else if (i === 5) doCmd({ t: 'endTurn' });
   });
 }
+// A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
+function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closeNewsBig(); });
 function renderNewsPanel() {
-  const box = $('#newscard'); if (setupHold) { box.hidden = true; return; }
-  const nw = S && !S.over && S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];
-  if (!c) { box.hidden = true; return; }
-  const key = nw.id + ':' + S.round + ':' + S.cur;
-  if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; }
-  if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
-  if (newsClosed === key) { box.hidden = true; return; }
-  const sym = nw.sym, fake = sym === 'fake', fired = nw.fired && E.D.newsById[nw.fired], hit = !!fired, used = sym && !fake && !fired && S.stand[sym] && S.stand[sym].length, nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
-  const res = !sym ? '' : `<div class="res ${hit ? 'hit' : 'miss'}">News dice: ${fake ? 'FAKE NEWS' : sym.toUpperCase()} - ${hit ? (fired.id === c.id ? 'MATCH! The event happens.' : `triggers the ${sym.toUpperCase()} card already out: <b>${esc(fired.text || '')}</b>`) : fake ? 'nothing happens.' : (used ? `the ${sym.toUpperCase()} paper on top is already turned over, nothing happens.` : `no ${sym.toUpperCase()} card is out, nothing happens.`)}</div>`;
-  box.className = 't-' + c.type;
-  box.innerHTML = `<button class="x" title="Close">×</button>
-    <img class="card" src="${c.img}">
-    <div class="ev flash"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>${res}`;
-  box.hidden = false; box.querySelector('.x').onclick = () => { newsClosed = key; box.hidden = true; };
+  let big = $('#newsbig'); if (!big) { big = document.createElement('div'); big.id = 'newsbig'; big.hidden = true; big.onclick = () => closeNewsBig(); $('#boardWrap').appendChild(big); }
+  let bar = $('#evbar'); if (!bar) { bar = document.createElement('div'); bar.id = 'evbar'; $('#boardWrap').appendChild(bar); }
+  if (!S || S.over || setupHold) { big.hidden = true; bar.innerHTML = ''; return; }
+  const nw = S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];
+  if (c) {
+    const key = nw.id + ':' + S.round + ':' + S.cur;
+    if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; big.innerHTML = `<img src="${c.img}"><button class="x" title="Close (Esc)">×</button><div class="hint">Click or press Esc to close</div>`; big.hidden = false; }
+    if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
+  } else big.hidden = true;
+  // event info panels along the bottom: the newest paper of each type, until a newer one covers it
+  const nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }, spent = S.spent || [];
+  bar.innerHTML = ['ai', 'pandemic', 'nuclear'].map(ty => {
+    const ids = S.stand[ty]; if (!ids.length) return '';
+    const cd = E.D.newsById[ids[ids.length - 1]], used = spent.includes(cd.id), flash = S.glow && S.glow.card === cd.id;
+    return `<div class="evp t-${ty} ${used ? 'used' : ''} ${flash ? 'flash' : ''}"><img src="assets/ui/ev-${ty}.png"><div><div class="evh">${nm[ty]} EVENT${used ? ' - TURNED OVER' : ''}</div><div class="evt">${esc(cd.text || 'Not yet designed')}</div></div></div>`;
+  }).join('');
 }
 let evbClosed = null;
 function renderEventBanner() {
