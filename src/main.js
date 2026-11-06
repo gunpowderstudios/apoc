@@ -547,6 +547,7 @@ const TURN_STEPS = ['Eat / Pay Thugs', 'Draw News', 'Roll News Dice', 'Roll Day/
 const TURN_TIPS = ['', '', '', '', 'Move or action, action or move (including craft)', ''];
 let dayPick = false;
 function renderTurnBar() {
+  return;   // the top turn strip is removed: the right-hand panel does the same job
   const el = $('#turnbar'); if (!S || S.over || setupHold) { el.innerHTML = ''; return; }
   const pa = S.players[actor()], me = iAct() && !S.pending && !pa.ai; let now;
   if (S.stage === 'grab') now = 4;
