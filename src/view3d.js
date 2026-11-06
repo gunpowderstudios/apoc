@@ -265,7 +265,9 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
-    this.newsPos = { deck: [W + 0.03 + 0.068, -hb + 0.0955], ai: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955], pandemic: [W + 0.03 + 0.068, -hb + 0.0955 + 0.22], nuclear: [W + 0.03 + 0.068 + 0.15, -hb + 0.0955 + 0.22], items: [W + 0.03 + 0.068, -hb + 0.0955 + 0.44] };
+    // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
+    const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
+    this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [x0 + 4 * gap + 0.01, tz] };
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
   syncTable(s) {
