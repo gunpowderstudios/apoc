@@ -288,6 +288,17 @@ export class View3D {
     const df = s.defcon, ys = [590, 440, 270, 78];   // pixel rows of the four DEFCON lights on the chart image (400x866)
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
     this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.0, 1, 2.0); 
+    // the POOL: resources on the table that are not in play (crafted-away, sold and lost resources come back here), in stacks of 5 on the right of the board
+    const sup = s.supply || {}, ssig = JSON.stringify(sup);
+    if (ssig !== this.ssig) {
+      this.ssig = ssig; if (!this.pool) { this.pool = new THREE.Group(); this.pool.position.y = -0.013; this.scene.add(this.pool); } this.pool.clear();
+      const W2 = BOARD_W / 2, hb2 = this.H / 2, x0 = W2 + 0.045, z0 = -hb2 + 0.09, geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
+      const hd = this.label('POOL', '#fff'); hd.scale.set(0.1, 0.019, 1); hd.position.set(x0 + 0.05, 0.012, z0 - 0.05); this.pool.add(hd);
+      Object.keys(RCOL).forEach((r, row) => {
+        const n = sup[r] || 0, z = z0 + row * 0.042; const ns = this.numSprite(n); ns.position.set(x0, 0.012, z); this.pool.add(ns);
+        for (let i = 0; i < n; i++) { const st = Math.floor(i / 5), h = i % 5; const m = new THREE.Mesh(geo, this.tokenMat(r)); m.position.set(x0 + 0.025 + st * 0.018, 0.0015 + h * 0.003, z); m.castShadow = true; this.pool.add(m); }
+      });
+    }
     // news piles
     const deckN = Array.isArray(s.newsDeck) ? s.newsDeck.length : s.newsDeck, itemN = (s.itemDeck || []).length;
     const psig = JSON.stringify([deckN, s.stand, s.spent, itemN]);
