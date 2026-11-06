@@ -77,18 +77,20 @@ export class View3D {
     const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin])]);
     if (sig !== this.sig) {
       this.sig = sig; this.tokens.clear();
-      const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
+      const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), coinMat = new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 });
       for (const n of this.board.nodes) {
         const L = s.loc[n.id]; if (!L) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
         const [cx, cz] = this.w(n);
-        const byType = {}; list.forEach(r => (byType[r] = (byType[r] || 0) + 1));
-        let col = 0;
-        for (const [r, c] of Object.entries(byType)) {
-          for (let i = 0; i < c; i++) { const m = new THREE.Mesh(geo, this.tokenMat(r)); m.position.set(cx - 0.02 + col * 0.0165, 0.0014 + i * 0.003, cz + (n.kind === 'building' ? 0.03 : 0.012)); m.castShadow = true; this.tokens.add(m); }
-          col++;
-        }
-        if (L.coin) { const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 })); m.position.set(cx + 0.03, 0.0014, cz - 0.03); this.tokens.add(m); }
+        // lay tokens flat in a tidy grid (no stacking, no overlap): up to 6 per row
+        const SP = 0.0175, PER = 6, items = list.map(r => ({ r }));
+        if (L.coin) for (let i = 0; i < L.coin; i++) items.push({ coin: true });
+        const z0 = cz + (n.kind === 'building' ? 0.032 : 0.016);
+        items.forEach((it, i) => {
+          const row = Math.floor(i / PER), colN = Math.min(PER, items.length - row * PER), col = i % PER;
+          const m = new THREE.Mesh(geo, it.coin ? coinMat : this.tokenMat(it.r));
+          m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015, z0 + row * SP); m.castShadow = true; this.tokens.add(m);
+        });
       }
     }
     // pawns
