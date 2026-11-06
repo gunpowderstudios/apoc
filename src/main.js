@@ -393,7 +393,7 @@ function onToken(info) {
 window.addEventListener('keydown', e => { if (e.key === 'Escape') { closePop(); cancelMove(); } });
 
 function onHover(id) {
-  const tip = $('#tip'); if (!id || !S) { tip.textContent = 'Drag = pan · wheel = zoom'; return; }
+  const tip = $('#tip'); if (!id || !S) { tip.textContent = ''; return; }
   const n = E.D.node[id], L = S.loc[id], parts = [n.name || id];
   const res = L ? Object.entries(L.res).filter(([, c]) => c).map(([r, c]) => `${c}× ${E.RES_LABEL[r]}`) : []; if (res.length) parts.push(res.join(', ')); if (L && L.coin) parts.push(L.coin + ' coin');
   const here = S.players.filter(p => p.node === id).map(p => p.name); if (here.length) parts.push('here: ' + here.join(', '));
