@@ -82,14 +82,17 @@ export class View3D {
         const L = s.loc[n.id]; if (!L) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
         const [cx, cz] = this.w(n);
-        // lay tokens flat in a tidy grid (no stacking, no overlap): up to 6 per row
-        const SP = 0.0175, PER = 6, items = list.map(r => ({ r }));
-        if (L.coin) for (let i = 0; i < L.coin; i++) items.push({ coin: true });
+        // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
+        const SP = 0.0175, PER = 6, piles = [];
+        for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
+        if (L.coin) piles.push({ coin: true, c: L.coin });
         const z0 = cz + (n.kind === 'building' ? 0.032 : 0.016);
-        items.forEach((it, i) => {
-          const row = Math.floor(i / PER), colN = Math.min(PER, items.length - row * PER), col = i % PER;
-          const m = new THREE.Mesh(geo, it.coin ? coinMat : this.tokenMat(it.r));
-          m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015, z0 + row * SP); m.castShadow = true; this.tokens.add(m);
+        piles.forEach((pl, i) => {
+          const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
+          for (let k = 0; k < pl.c; k++) {
+            const m = new THREE.Mesh(geo, pl.coin ? coinMat : this.tokenMat(pl.r));
+            m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; this.tokens.add(m);
+          }
         });
       }
     }
