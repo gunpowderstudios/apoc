@@ -459,12 +459,21 @@ function renderHand() {
   el.innerHTML = `<div class="note" style="flex:none">${esc(p.name)}'s items${p.itemCount !== undefined ? '' : ''}:</div>` + (items.length ? items.map(i => `<div class="itm ${i.broken ? 'broken' : ''}" data-i="${H.push(() => { modalFn = () => itemModal(p.id, i.uid); render(); }) - 1}" title="${i.id === 'hidden' ? 'hidden' : esc(E.D.item[i.id].name)}"><img src="${itemImg(i.id)}">${i.tokens !== undefined && i.tokens !== null ? `<span class="tk">${i.tokens}</span>` : ''}</div>`).join('') : '<span class="note">none</span>');
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
+function showNewsCard(c, line) {
+  const sym = (/News dice: ([A-Z ]+)\./.exec(line) || [])[1] || '', fake = /FAKE/.test(sym), hit = !fake && sym.toLowerCase() === c.type;
+  const nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type], box = $('#newscard');
+  box.innerHTML = `<button class="x" title="Close">×</button>
+    <div class="ev"><img src="assets/ui/ev-${c.type}.png"><div><div class="evh">${nm} EVENT</div><div class="evt">${esc(c.text || 'Not yet designed')}</div></div></div>
+    <div class="res ${hit ? 'hit' : 'miss'}">News dice: ${esc(sym)} - ${hit ? 'MATCH! The event happens.' : fake ? 'Fake news, nothing happens.' : `doesn't match ${nm}, nothing happens.`}</div>
+    <img class="card" src="${c.img}" style="margin-top:8px"><div class="note" style="margin-top:4px">${esc(c.title)} (the rest of the article is just for fun)</div>`;
+  box.hidden = false; box.querySelector('.x').onclick = () => { box.hidden = true; };
+}
 function renderBanner() {
-  const nl = S.log.filter(l => l.n > lastSeq); if (lastSeq === 0) { lastSeq = S.log.length ? S.log[S.log.length - 1].n : 0; } else if (nl.length) {
+  const nl = S.log.filter(l => l.n > lastSeq); if (lastSeq === 0) { lastSeq = S.log.length ? S.log[S.log.length - 1].n : 0; const ln = [...S.log].reverse().find(l => /^NEWS: "/.test(l.t)); if (ln) { const mm = /^NEWS: "(.+?)"/.exec(ln.t), cc = E.D.news.find(n => n.title === mm[1]); if (cc) showNewsCard(cc, ln.t); } } else if (nl.length) {
     lastSeq = nl[nl.length - 1].n;
     for (const l of nl) {
       const m = /^NEWS: "(.+?)"/.exec(l.t); const c = m && E.D.news.find(n => n.title === m[1]);
-      if (c) { bannerHtml = `<div><img src="${c.img}" height="150" style="border-radius:6px;float:left;margin-right:8px"><b>${esc(c.title)}</b><br>${esc(c.text || '')}<br><span class="note">${esc(l.t.replace(/^NEWS:[^.]*\.\s*/, ''))}</span></div>`; bannerUntil = Date.now() + 9000; }
+      if (c) { showNewsCard(c, l.t); bannerHtml = `<div><img src="${c.img}" height="150" style="border-radius:6px;float:left;margin-right:8px"><b>${esc(c.title)}</b><br>${esc(c.text || '')}<br><span class="note">${esc(l.t.replace(/^NEWS:[^.]*\.\s*/, ''))}</span></div>`; bannerUntil = Date.now() + 9000; }
       else if (/DEFCON|SHTF|escalat/i.test(l.t)) { bannerHtml = `<div><b>${esc(l.t)}</b></div>`; bannerUntil = Date.now() + 8000; }
     }
     clearTimeout(renderBanner.t); renderBanner.t = setTimeout(() => { $('#banner').innerHTML = ''; }, 9000);
