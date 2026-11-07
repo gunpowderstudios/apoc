@@ -76,7 +76,8 @@ export class View2D {
       const d = Math.hypot(n.x - wx, n.y - wy), lim = n.kind === 'building' ? 70 : n.kind === 'intersection' ? 55 : 45;
       let dd = d;
       if (n.kind === 'street' && n.seg) { const [x0, y0, x1, y1] = n.seg; const dx = x1 - x0, dy = y1 - y0, L = dx * dx + dy * dy; const t = L ? Math.max(0, Math.min(1, ((wx - x0) * dx + (wy - y0) * dy) / L)) : 0; dd = Math.hypot(wx - (x0 + t * dx), wy - (y0 + t * dy)) + 8; }
-      if (dd < lim && dd < bd) { bd = dd; best = n.id; }
+      const sc = dd - (n.kind === 'intersection' ? 40 : n.kind === 'building' ? 30 : 0);   // junction and building markers win over the road running through them (so clicking the S subway ring never picks the street beside it)
+      if (dd < lim && sc < bd) { bd = sc; best = n.id; }
     }
     return best;
   }
