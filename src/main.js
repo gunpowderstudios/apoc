@@ -547,8 +547,8 @@ function actionClick(a, p) {
   if (a === 'drone') { modalFn = () => tokenPicker('Drone: take which resource?', (node, r) => { modalFn = null; doCmd({ t: 'drone', node, r }); }); return render(); }
   doCmd({ t: a });
 }
-// ---- big event pop-up for the human player: bad things that happen to you (busted, robbed, damage...) are shown large, then close by themselves (or click / Esc / Enter)
-let popSeq = null, popTimer = null;
+// ---- big event pop-up for the human player: bad things that happen to you (busted, robbed, damage...) are shown large, and stay up (the game pauses) until you click / Esc / Enter
+let popSeq = null, popPaused = false;
 function eventPopup() {
   const last = S.log.length ? S.log[S.log.length - 1].n : 0;
   if (popSeq === null || last < popSeq) { popSeq = last; return; }
@@ -561,12 +561,12 @@ function eventPopup() {
     if (!mineL.some(l => BAD.test(l.t))) continue;
     const head = mineL.some(l => /TAGGED/.test(l.t)) ? 'TAGGED!' : mineL.some(l => /BUSTED|caught/.test(l.t)) ? 'BUSTED!' : mineL.some(l => /SHOT|BOOBY|damage|HEALTH|hospital/.test(l.t)) ? 'OUCH!' : 'BAD NEWS';
     let o = $('#evpop'); if (!o) { o = document.createElement('div'); o.id = 'evpop'; o.onclick = () => closeEvPop(); document.body.appendChild(o); }
-    o.innerHTML = `<div class="evbox"><div class="evh">${esc(head)}</div>${mineL.map(l => `<div class="evl">${esc(l.t)}</div>`).join('')}<div class="evbar"><i></i></div><div class="evok">Click, Esc or Enter to close</div></div>`;
-    o.hidden = false; cardUpSound(false); clearTimeout(popTimer); popTimer = setTimeout(closeEvPop, 8000);
+    o.innerHTML = `<div class="evbox"><div class="evh">${esc(head)}</div>${mineL.map(l => `<div class="evl">${esc(l.t)}</div>`).join('')}<div class="evok">Click, Esc or Enter to continue</div></div>`;
+    o.hidden = false; cardUpSound(false); if (!paused) { popPaused = true; togglePause(); }   // the game waits until you've read it
     return;
   }
 }
-function closeEvPop() { const o = $('#evpop'); if (o && !o.hidden) { o.hidden = true; clearTimeout(popTimer); return true; } return false; }
+function closeEvPop() { const o = $('#evpop'); if (o && !o.hidden) { o.hidden = true; if (popPaused) { popPaused = false; if (paused) togglePause(); } return true; } return false; }
 function renderLog() {
   eventPopup();
   const el = $('#log'), last = S.log.length ? S.log[S.log.length - 1].n : 0;
