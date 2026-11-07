@@ -197,3 +197,5 @@ body.sidemin #evbar{right:330px}
 #sideTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:16;writing-mode:vertical-rl;background:#1b1e22;color:#fff;border:1px solid #555;border-right:0;border-radius:8px 0 0 8px;padding:12px 6px;cursor:pointer;font-size:13px;letter-spacing:1px}
 body.fs #sideTab{display:none}
 #modalBox:has(.npile){max-width:min(1200px,97vw);padding:10px;max-height:96vh}
+#sideTab{animation:tabglow 1.8s ease-in-out infinite}
+@keyframes tabglow{0%,100%{box-shadow:0 0 6px #8cf8,0 0 12px #4af4;border-color:#8cf8}50%{box-shadow:0 0 14px #8cf,0 0 28px #4af;border-color:#cfe}}

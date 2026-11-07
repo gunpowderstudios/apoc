@@ -173,3 +173,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: board resource piles now show the little white count (like the pool and the player mats); small shops (Thrift, Hardware, Drugs...) and Big Storage use smaller tokens placed inside the building; the pool is labelled RESOURCE POOL; the shortcut-key legend is top left; clicking a news card in a stack enlarges it as big as the window allows. (v1.152)
 - Test-build tool: the turn panel sits inside the table window, bottom-aligned on the same level as the event panels. (v1.153)
 - Test-build tool: the health cube now sits exactly on the numbered tile for the player's health (re-measured against the card art). (v1.154)
+- Test-build tool: the Info expand/collapse tab glows. (v1.155)
