@@ -623,7 +623,7 @@ function renderNewsPanel() {
   const nw = S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];
   if (c) {
     const key = nw.id + ':' + S.round + ':' + S.cur;
-    if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; if (S.players.every(q => q.ai)) { const k0 = key; setTimeout(() => { if (newsShown === k0) closeNewsBig(); }, 3000); }   // all-AI game: show the paper for 3 seconds then close
+    if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; cardUpSound(false); if (S.players.every(q => q.ai)) { const k0 = key; setTimeout(() => { if (newsShown === k0) closeNewsBig(); }, 3000); }   // all-AI game: show the paper for 3 seconds then close
       big.innerHTML = `<img src="${c.img}"><button class="x" title="Close (Esc)">×</button><div class="hint">Click or press Esc to close</div>`; big.hidden = false; }
     if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
   } else big.hidden = true;

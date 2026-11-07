@@ -134,4 +134,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Keyboard: P pauses / resumes the AI (the old P = pan tool shortcut is gone); C recentres. (v1.100)
 - Start screen plays a short radio chatter clip once (after the first click or key press if the browser blocks autoplay). (v1.105)
 - Ambient music plays during the game (quietly, looping); the Music off / Music on button at the top switches it and remembers your choice. (v1.107)
-- A card-up sound plays whenever a card is enlarged (clicking a card on the table or in a list). (v1.108)
+- A card-up sound plays whenever a card is enlarged (clicking a card on the table or in a list) and when a drawn news card pops up, including in all-AI games. (v1.109)
