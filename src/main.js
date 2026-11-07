@@ -161,6 +161,8 @@ function enterApp() {
     const setSide = min => { document.body.classList.toggle('sidemin', min); tab.textContent = min ? '◀ Info' : 'Info ▶'; tab.title = min ? 'Expand the info bar (players, log)' : 'Collapse the info bar'; try { localStorage.setItem('apoc-sidemin', min ? '1' : '0'); } catch (e) {} setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 60); };
     tab.onclick = () => setSide(!document.body.classList.contains('sidemin'));
     setSide(localStorage.getItem('apoc-sidemin') !== '0'); }
+  const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
+  $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
   $('#bMusic').onclick = toggleMusic; syncMusic();   // ambient music while playing
@@ -208,6 +210,7 @@ window.addEventListener('keydown', e => {
     zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
     V3.follow((a + zoomStep) % n, n); return;
   }
+  if (e.key.toLowerCase() === 'h' && V3 && !$('#app').hidden) { window.toggleRes(); return; }   // H = hide / show the resources on the board
   if (e.key.toLowerCase() === 'n' && V3 && !$('#app').hidden) { V3.followNews(); return; }   // N = zoom to the three news event stands
   if (e.key.toLowerCase() === 'd' && V3 && !$('#app').hidden) { V3.followDefcon(); return; }   // D = zoom to the DEFCON chart
   const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }

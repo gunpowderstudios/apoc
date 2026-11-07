@@ -184,7 +184,7 @@ export class View3D {
   hit(e) {
     this.ndc(e);
     const cand = [];
-    const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
+    const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok && !(this.hideRes && h.object.parent === this.tokens)); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
     const nh = this.ray.intersectObjects(this.piles.children, false).find(h => h.object.userData.news); if (nh) cand.push({ d: nh.distance, type: 'news', key: nh.object.userData.news });
     const chh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.healthCube); if (chh) cand.push({ d: chh.distance - 1e-4, type: 'cube', pid: chh.object.userData.healthCube.pid, mesh: chh.object });
     const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId, cardImg: mh.object.userData.cardImg });
@@ -404,6 +404,7 @@ export class View3D {
     this.flyTo(new THREE.Vector3(x, 0.36, zc + 0.2 + o), new THREE.Vector3(x, 0, zc + o), 900);
   }
   // N key: look down at the three event stands (AI, Pandemic, Nuclear) together
+  setHideRes(on) { this.hideRes = !!on; this.tokens.visible = !on; }   // hide every resource pile on the board so the building names can be read
   followNews() {
     this.manual = false;
     const a = this.newsPos.ai, c = this.newsPos.nuclear, xc = (a[0] + c[0]) / 2, z = a[1], w = Math.abs(c[0] - a[0]) + 0.135 + 0.2;
