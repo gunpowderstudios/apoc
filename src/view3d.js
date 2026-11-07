@@ -230,7 +230,7 @@ export class View3D {
       const a = (i / list.length) * Math.PI * 2, rr = list.length > 1 ? 0.012 : 0;
       m.userData.target = new THREE.Vector3(cx + Math.cos(a) * rr, 0, cz + Math.sin(a) * rr - 0.004); m.userData.node = p.node;
       if (m.userData.first) { m.position.copy(m.userData.target); m.userData.first = false; }
-      m.scale.setScalar(s.cur === p.id && s.stage === 'turn' ? 1.25 : 1);
+      m.scale.setScalar(1);   // figures always show at their true height (the active player is marked on their card instead)
     }
     // move highlights
     const msig = Object.keys(ui.targets || {}).join(',') + '|' + (ui.hover || '');
