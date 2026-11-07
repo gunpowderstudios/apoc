@@ -156,7 +156,7 @@ export class View3D {
     this.dropKey = null; if (!h) { this.setDrop(null); return; }
     this.heldPlane = this.heldPlane || new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.0);
     const g = new THREE.Group(), geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
-    for (let i = 0; i < Math.min(h.n, 14); i++) { const m = new THREE.Mesh(geo, h.r === 'coin' ? new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: .7, roughness: .3 }) : this.tokenMat(h.r)); m.position.y = i * 0.003; m.castShadow = true; g.add(m); }
+    for (let i = 0; i < Math.min(h.n, 14); i++) { const m = new THREE.Mesh(geo, this.tokenMat(h.r)); m.position.y = i * 0.003; m.castShadow = true; g.add(m); }
     g.position.set(0, 0.03, 0.3); this.scene.add(g); this.heldG = g;
   }
   pawnNode(pid) { const m = this.pawnMeshes[pid]; return m && m.userData.node; }
@@ -209,7 +209,7 @@ export class View3D {
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
           if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0006, z0 + row * SP); this.tokens.add(ring); }
           for (let k = 0; k < pl.c; k++) {
-            const m = new THREE.Mesh(geo, pl.coin ? coinMat : this.tokenMat(pl.r));
+            const m = new THREE.Mesh(geo, this.tokenMat(pl.coin ? 'coin' : pl.r));
             m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
           }
         });
