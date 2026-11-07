@@ -341,7 +341,7 @@ function doBurgle(s, p) {
     if (hasItem(p, 'bolt-cutters')) pickRes(s, p, 'burgle5', 'Padlocked containers: take 2 resources', RES, { n: 2 });
     else { gain(s, p, 'hardware', 1); logm(s, `${p.name} takes 1 hardware.`); }
   } else {
-    const c = drawTop(s, { notBunker: true });
+    const c = drawTop(s);
     if (c) { giveCard(s, p, c); logm(s, `${p.name} finds a ${D.item[c.id].name}!`, p.id); }
   }
 }

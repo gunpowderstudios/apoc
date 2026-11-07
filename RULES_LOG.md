@@ -63,7 +63,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - **Recycle (break down):** you get back every resource on the recipe **except the last one (marked X), which is lost**. The card goes back in the deck. **One break down per turn.** Sam gets +1 Know-how when he breaks something down. (v1.46)
 - Item cards on the table and in the craft book can be clicked to enlarge. (v1.48, v1.55)
 
-- Items that need a bunker to craft or keep: Bed, Hazmat Suit, Med Lab, Drone, Solar Panel, Hydroponics Lab. Chain: the Hydroponics Lab also needs you to own a Solar Panel; the Med Lab needs you to own both a Solar Panel and a Hydroponics Lab (you keep them, nothing is used up). The recipe book shows these requirements. These conditions only apply to crafting: item cards you are simply given (deck draws, bonus cards) can be kept without them. (Confirmed by Tim, v1.121.)
+- Items that need a bunker to craft or keep: Bed, Hazmat Suit, Med Lab, Drone, Solar Panel, Hydroponics Lab. Chain: the Hydroponics Lab also needs you to own a Solar Panel; the Med Lab needs you to own both a Solar Panel and a Hydroponics Lab (you keep them, nothing is used up). The recipe book shows these requirements. These conditions only apply to crafting: item cards you are simply given (deck draws, bonus cards) can be kept without them. Drawn item cards are never skipped: a burglar can find any item, with or without a bunker. (Confirmed by Tim, v1.122.)
 
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
