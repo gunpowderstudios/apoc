@@ -166,3 +166,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: if you angle/zoom/pan the table yourself, the Follow camera stops moving it until you press C or Z. (v1.144)
 - Test-build tool: X key zooms to the active player's character card (press again to step to the next card); the top-right legend now reads C Recenter · Z Zoom to figure · X Zoom to card. (v1.145)
 - Test-build tool: N key zooms to the three event news stands (AI, Pandemic, Nuclear); legend now C Recenter · Z Figure · X Card · N News · D DEFCON (v1.147: D zooms to the DEFCON chart).
+- Test-build tool: X zoom-to-card is a little further out and sits above the event panels. (v1.148)

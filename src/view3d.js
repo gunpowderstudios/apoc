@@ -384,7 +384,8 @@ export class View3D {
   follow(i, n) {   // look down at a player's character card (mat)
     this.manual = false;
     const x = this.matX(i, n), zc = this.H / 2 + 0.03 + 0.0745;
-    this.flyTo(new THREE.Vector3(x, 0.27, zc + 0.15), new THREE.Vector3(x, 0, zc), 900);
+    const o = 0.03;   // zoomed out a little and nudged so the card sits above the event panels along the bottom
+    this.flyTo(new THREE.Vector3(x, 0.36, zc + 0.2 + o), new THREE.Vector3(x, 0, zc + o), 900);
   }
   // N key: look down at the three event stands (AI, Pandemic, Nuclear) together
   followNews() {
