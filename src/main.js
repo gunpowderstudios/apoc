@@ -39,7 +39,7 @@ async function gate() {
 async function boot() {
   await gate(); $('#lobby').hidden = false;
   { const radio = new Audio('assets/sfx/radio-chatter.mp3'); let done = false;   // radio chatter on the start screen, played once (waits for the first click/key if the browser blocks autoplay)
-    const go = () => { if (done) return; radio.play().then(() => { done = true; rm(); }).catch(() => {}); };
+    const go = () => { if (done) return; radio.play().then(() => { done = true; rm(); if (musicOn) music.play().catch(() => {}); }).catch(() => {}); };   // ambient music starts with the radio chatter and keeps going into the game
     const rm = () => { for (const ev of ['pointerdown', 'keydown']) window.removeEventListener(ev, go); };
     go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); }
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
@@ -151,7 +151,7 @@ const music = new Audio('assets/sfx/ambient.mp3'); music.loop = true; music.volu
 let musicOn = (() => { try { return localStorage.getItem('apoc-music') !== 'off'; } catch (e) { return true; } })();
 function syncMusic() {
   const b = $('#bMusic'); if (b) b.textContent = musicOn ? '🔇 Music off' : '🎵 Music on';
-  if (musicOn && appUp) music.play().catch(() => {}); else music.pause();
+  if (musicOn) music.play().catch(() => {}); else music.pause();
 }
 function toggleMusic() { musicOn = !musicOn; try { localStorage.setItem('apoc-music', musicOn ? 'on' : 'off'); } catch (e) {} syncMusic(); }
 function enterApp() {
