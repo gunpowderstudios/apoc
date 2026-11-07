@@ -386,6 +386,13 @@ export class View3D {
     const x = this.matX(i, n), zc = this.H / 2 + 0.03 + 0.0745;
     this.flyTo(new THREE.Vector3(x, 0.27, zc + 0.15), new THREE.Vector3(x, 0, zc), 900);
   }
+  // N key: look down at the three event stands (AI, Pandemic, Nuclear) together
+  followNews() {
+    this.manual = false;
+    const a = this.newsPos.ai, c = this.newsPos.nuclear, xc = (a[0] + c[0]) / 2, z = a[1], w = Math.abs(c[0] - a[0]) + 0.135 + 0.2;
+    const hf = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2)) * this.cam.aspect), d = Math.max(0.3, (w / 2) / Math.tan(hf / 2)), el = 1.1;
+    this.flyTo(new THREE.Vector3(xc, Math.sin(el) * d, z + Math.cos(el) * d), new THREE.Vector3(xc, 0, z), 900);
+  }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   // ---- physical dice: thrown from the player's mat, tumble and bounce across the table, land showing the rolled face
   // spec: [{set:'day'|'night'|'news'|'num', face:0..5}]
@@ -434,7 +441,7 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Zoom to figure  ·  X Zoom to card'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Figure  ·  X Card  ·  N News'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
     if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
     this.hint.style.opacity = far ? '1' : '0.7';
