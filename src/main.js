@@ -193,11 +193,17 @@ function setTool(tool) {
   if (V3) V3.setTool(tool);
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+let zoomStep = 0, zoomAt = 0;
 window.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
   if (e.key.toLowerCase() === 'c' && V3 && !$('#app').hidden) { V3.fitAll(); return; }
   if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !$('#app').hidden) { togglePause(); return; }   // P = pause / resume the AI
-  const k = { s: 'select', z: 'zoom', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
+  if (e.key.toLowerCase() === 'z' && V3 && S && !$('#app').hidden) {   // Z = zoom in on the active player's figure; press again to step through the other players' figures
+    const n = S.players.length, a = S.players.findIndex(q => q.id === actor()), now = performance.now();
+    zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
+    const q = S.players[(a + zoomStep) % n]; if (!V3.followPawn(q.id)) V3.fitAll(); return;
+  }
+  const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
