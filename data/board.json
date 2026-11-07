@@ -241,20 +241,6 @@
    "sector": "NE"
   },
   {
-   "id": "H0_5",
-   "kind": "street",
-   "x": 2446,
-   "y": 195,
-   "name": "Bullet Drive (east end)",
-   "seg": [
-    2316,
-    195,
-    2576,
-    195
-   ],
-   "sector": "NE"
-  },
-  {
    "id": "H1_0",
    "kind": "street",
    "x": 170,
@@ -424,20 +410,6 @@
    "sector": "EC"
   },
   {
-   "id": "H3_0",
-   "kind": "street",
-   "x": 170,
-   "y": 1521,
-   "name": "Dumpster Drive",
-   "seg": [
-    0,
-    1521,
-    340,
-    1521
-   ],
-   "sector": "SW"
-  },
-  {
    "id": "H3_1",
    "kind": "street",
    "x": 586,
@@ -489,20 +461,6 @@
     1850,
     1588,
     2316,
-    1588
-   ],
-   "sector": "SE"
-  },
-  {
-   "id": "H3_5",
-   "kind": "street",
-   "x": 2446,
-   "y": 1588,
-   "name": "Fairbrass Exchange (east end)",
-   "seg": [
-    2316,
-    1588,
-    2576,
     1588
    ],
    "sector": "SE"
@@ -1083,15 +1041,10 @@
     "dive"
    ],
    "entrances": [
-    "H0_5"
+    "I04"
    ],
-   "entArrows": [
-    [
-     2443,
-     189
-    ]
-   ],
-   "note": "",
+   "entArrows": [],
+   "note": "no door: move in from the junction (1 move)",
    "sector": "NE"
   },
   {
@@ -1532,15 +1485,10 @@
     "dive"
    ],
    "entrances": [
-    "H3_0"
+    "I30"
    ],
-   "entArrows": [
-    [
-     206,
-     1523
-    ]
-   ],
-   "note": "",
+   "entArrows": [],
+   "note": "no door: move in from the junction (1 move)",
    "sector": "SW"
   },
   {
@@ -1939,14 +1887,6 @@
    "salvage"
   ],
   [
-   "H0_5",
-   "I04"
-  ],
-  [
-   "H0_5",
-   "dumpsterNE"
-  ],
-  [
    "H1_0",
    "I10"
   ],
@@ -2111,14 +2051,6 @@
    "basketball"
   ],
   [
-   "H3_0",
-   "I30"
-  ],
-  [
-   "H3_0",
-   "dumpsterSW"
-  ],
-  [
    "H3_1",
    "I30"
   ],
@@ -2173,10 +2105,6 @@
   [
    "H3_4",
    "pizza"
-  ],
-  [
-   "H3_5",
-   "I34"
   ],
   [
    "I00",
@@ -2385,6 +2313,14 @@
   [
    "V4_2",
    "thrift"
+  ],
+  [
+   "I04",
+   "dumpsterNE"
+  ],
+  [
+   "I30",
+   "dumpsterSW"
   ]
  ],
  "subway": [

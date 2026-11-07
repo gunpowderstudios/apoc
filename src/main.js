@@ -45,7 +45,7 @@ async function boot() {
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config, adjacent] = await Promise.all(['board', 'items', 'news', 'preppers', 'config', 'adjacent'].map(rd));
   D = E.init({ board, items, news, preppers, config, adjacent });
-  boardImg = await img('assets/board/board.jpg?v=161'); icons.coin = await img('assets/counters/prepcoin.webp');
+  boardImg = await img('assets/board/board.jpg?v=163'); icons.coin = await img('assets/counters/prepcoin.webp');
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
