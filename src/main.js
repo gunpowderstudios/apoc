@@ -218,7 +218,7 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key !== 'deck') cardUpSound(false); if (key === 'items') { modalFn = itemDeckModal; render(); return; } if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
+    V3 = window.V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key !== 'deck') cardUpSound(false); if (key === 'items') { modalFn = itemDeckModal; render(); return; } if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
@@ -616,7 +616,7 @@ function itemDeckModal() {
 function newsPileModal() {
   const ids = S.stand[newsView.type]; if (!ids.length) return null;
   const i = Math.max(0, Math.min(ids.length - 1, newsView.i)), c = E.D.newsById[ids[ids.length - 1 - i]], nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }[c.type];
-  return `<div style="display:flex;gap:14px;align-items:flex-start"><img src="${c.img}" style="height:min(70vh,560px);border-radius:8px">
+  return `<div class="npile" style="display:flex;gap:14px;align-items:flex-start"><img src="${c.img}" style="height:calc(88vh - 28px);max-width:62vw;object-fit:contain;border-radius:8px">
     <div class="t-${c.type} evbox" style="max-width:300px"><div class="ev" style="display:flex;gap:8px;align-items:center"><img src="assets/ui/ev-${c.type}.png" style="width:48px;height:48px"><div style="font-weight:700;color:#ffd54f">${nm} EVENT</div></div>
     <div style="font-size:18px;font-weight:600;margin:8px 0">${esc(c.text || 'Not yet designed')}</div>
     <div class="note">${esc(c.title)}. Card ${i + 1} of ${ids.length} in the ${nm} pile (newest first).${(S.spent || []).includes(c.id) ? ' <b>Already triggered: turned over.</b>' : ''}</div>

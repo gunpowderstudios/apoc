@@ -214,9 +214,10 @@ export class View3D {
       for (const n of this.board.nodes) {
         const L = s.loc[n.id]; if (!L || (this.hide && this.hide.has(n.id))) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
-        const [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w(n);
+        const NUDGE = { drugs: [-20, 0], thrift: [63, 0], hardwarestore: [15, 0], bigstorage: [65, 0] }, nu = NUDGE[n.id] || [0, 0], [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w({ x: n.x + nu[0], y: n.y + nu[1] });
+        const F = n.kind === 'building' ? (n.id === 'bigstorage' ? 0.8 : 0.62) : 1;   // small shops (Thrift, Hardware, Drugs...): smaller tokens and counts so they stay inside the building
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
-        const SP = 0.0175, piles = [];
+        const SP = 0.0175 * F, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
         if (L.coin) piles.push({ coin: true, c: L.coin });
         const PER = piles.length > 6 ? 3 : 6, rowsN = Math.ceil(piles.length / PER);   // lots of piles (Big Storage at the start): rows of 3 so they stay inside the building
@@ -226,9 +227,10 @@ export class View3D {
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
           if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0006, z0 + row * SP); this.tokens.add(ring); }
           for (let k = 0; k < pl.c; k++) {
-            const m = new THREE.Mesh(geo, this.tokenMat(pl.coin ? 'coin' : pl.r));
+            const m = new THREE.Mesh(geo, this.tokenMat(pl.coin ? 'coin' : pl.r)); m.scale.set(F, 1, F);
             m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
           }
+          const nsp = this.numSprite(pl.c); nsp.scale.multiplyScalar(F); nsp.position.set(cx + (col - (colN - 1) / 2) * SP + 0.0125 * F, 0.012, z0 + row * SP); this.tokens.add(nsp);   // little white count, same as the pool and the player mats
         });
       }
     }
@@ -320,7 +322,7 @@ export class View3D {
     if (ssig !== this.ssig) {
       this.ssig = ssig; if (!this.pool) { this.pool = new THREE.Group(); this.pool.position.y = -0.013; this.scene.add(this.pool); } this.pool.clear();
       const W2 = BOARD_W / 2, hb2 = this.H / 2, x0 = W2 + 0.045, z0 = -hb2 + 0.09, geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20);
-      const hd = this.label('POOL', '#fff'); hd.scale.set(0.1, 0.019, 1); hd.position.set(x0 + 0.05, 0.012, z0 - 0.05); this.pool.add(hd);
+      const hd = this.label('RESOURCE POOL', '#fff'); hd.scale.set(0.15, 0.019, 1); hd.position.set(x0 + 0.075, 0.012, z0 - 0.05); this.pool.add(hd);
       [...Object.keys(RCOL).filter(k => k !== 'coin'), 'coin'].forEach((r, row) => {
         const n = sup[r] || 0, z = z0 + row * 0.042; const ns = this.numSprite(n); ns.position.set(x0, 0.012, z); this.pool.add(ns);
         for (let i = 0; i < n; i++) { const st = Math.floor(i / 5), h = i % 5; const m = new THREE.Mesh(geo, this.tokenMat(r)); m.position.set(x0 + 0.025 + st * 0.018, 0.0015 + h * 0.003, z); m.castShadow = true; this.pool.add(m); }
