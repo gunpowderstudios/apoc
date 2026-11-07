@@ -201,7 +201,7 @@ window.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'z' && V3 && S && !$('#app').hidden) {   // Z = zoom in on the active player's figure; press again to step through the other players' figures
     const n = S.players.length, a = S.players.findIndex(q => q.id === actor()), now = performance.now();
     zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
-    const q = S.players[(a + zoomStep) % n]; if (!V3.followPawn(q.id)) V3.fitAll(); return;
+    const q = S.players[(a + zoomStep) % n]; if (!V3.followPawn(q.id, true)) V3.fitAll(); return;
   }
   const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });

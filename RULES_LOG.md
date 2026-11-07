@@ -162,3 +162,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the right-hand info bar (players, log, status) is collapsed by default; only the turn/action panel stays, bottom-right. The ◀ Info tab on the right edge expands it (remembered). (v1.138)
 - Test-build tool: Z key zooms in on the active player's figure; press Z again (within 4 seconds) to step to the next player's figure. C recentres. The hint "C to Recenter · Z to Zoom" is always shown top right of the table (v1.141).
 - Test-build tool: a game always opens on the full zoomed-out table; the Follow camera only starts zooming from the next turn/move. (v1.142)
+- Test-build tool: Z zooms in 30% closer and tilts in further than the Follow camera. (v1.143)
