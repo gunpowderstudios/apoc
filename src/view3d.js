@@ -331,7 +331,7 @@ export class View3D {
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
-    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.health, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), this.flip || {}, s.cur, s.stage, s.pending && s.pending.pl]);
+    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.health, p.busted, p.tagged, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), this.flip || {}, s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
       this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length; this.matItems = s.players.some(q => q.items.length > 0);
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.03;
@@ -351,6 +351,10 @@ export class View3D {
           cube.userData.matId = p.id; cube.userData.cardImg = url; this.mats.add(cube);
         }
         const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
+        // busted tokens (1-2) / tagged token sit beside the name above the card; 3 busts = tagged
+        { const tk = p.tagged ? [['tagged', 'tagged']] : Array.from({ length: p.busted || 0 }, () => ['busted']), bg = new THREE.CylinderGeometry(0.0085, 0.0085, 0.0028, 24);
+          tk.forEach((t, k) => { const f = t[1] || t[0], tm = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/' + f + '.webp'), transparent: true, roughness: 0.5 }), sm = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.6 });
+            const m = new THREE.Mesh(bg, [sm, tm, sm]); m.rotation.y = Math.PI / 2; m.position.set(x + 0.092 - k * 0.019, 0.0015, zc - 0.0745 - 0.014); m.castShadow = true; this.mats.add(m); }); }
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
         const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), pz = zc + 0.0745 + 0.02;

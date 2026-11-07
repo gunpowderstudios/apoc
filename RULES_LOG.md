@@ -154,3 +154,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - The figure whose turn it is (while it still has moves left) has a pulsing glowing base in its player colour. (v1.128)
 - F key toggles full screen (when a card is enlarged, F still flips it). (v1.129)
 - Test-build tool: 🎥 Follow button now glides the camera in on the active player's figure and tracks it as it moves (previously went to the player's mat). (v1.130)
+- Busted tokens now show on the table beside each player's card (one per bust). On the 3rd bust they swap for a single TAGGED token (day dice only, no stealing). (v1.131)
