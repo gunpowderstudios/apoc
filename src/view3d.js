@@ -423,10 +423,13 @@ export class View3D {
       let x0 = 9, x1 = -9, y0 = 9, y1 = -9; for (const q of pts) { const v = q.clone().project(cam); x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); }
       return { x0, x1, y0, y1 };
     };
+    // keep clear of the event panels along the bottom of the window (they sit over the canvas)
+    const bar = document.querySelector('#evbar'), ch = this.r.domElement.getBoundingClientRect().height || 1;
+    const ofs = bar && bar.querySelector('.evp') ? 2 * (bar.offsetHeight + 16) / ch : 0;
     let d = 1.5;
     for (let it = 0; it < 10; it++) {
-      let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window
-      const q = box(d), cx = (q.x0 + q.x1) / 2, cy = (q.y0 + q.y1) / 2;   // then centre it evenly
+      let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2 + ofs / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window
+      const q = box(d), cx = (q.x0 + q.x1) / 2, cy = (q.y0 + q.y1) / 2 - ofs / 2;   // then centre it evenly (a little higher when the event panels are showing)
       const half = d * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
       tg.x += Math.cos(az) * cx * half * this.cam.aspect; tg.z += Math.sin(az) * cx * half * this.cam.aspect;   // slide sideways along the screen
       tg.x -= hx * cy * half / Math.sin(el); tg.z -= hz * cy * half / Math.sin(el);                                 // and up/down the table
