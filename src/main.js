@@ -461,8 +461,8 @@ function render() {
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
-    const key = S.over ? 'over' : S.stage + ':' + actor();
-    if (follow && key !== lastActorKey && !S.over) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length);
+    const ap = S.players.find(p => p.id === actor()), key = S.over ? 'over' : S.stage + ':' + actor() + ':' + (ap && ap.node);
+    if (follow && key !== lastActorKey && !S.over) setTimeout(() => { if (!V3.followPawn(actor())) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length); }, 60);
     lastActorKey = key;
   }
 }

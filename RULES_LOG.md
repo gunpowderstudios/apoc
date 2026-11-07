@@ -153,3 +153,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Each character card has a white health cube on its 10-to-0 health track; it moves as health changes. (v1.126)
 - The figure whose turn it is (while it still has moves left) has a pulsing glowing base in its player colour. (v1.128)
 - F key toggles full screen (when a card is enlarged, F still flips it). (v1.129)
+- Test-build tool: 🎥 Follow button now glides the camera in on the active player's figure and tracks it as it moves (previously went to the player's mat). (v1.130)

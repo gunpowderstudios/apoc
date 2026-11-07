@@ -368,6 +368,12 @@ export class View3D {
     }
   }
   // glide the camera to look down at a player's mat with the board still in shot
+  // glide in on a player's figure (close, looking down at it); falls back to the mat if the figure isn't placed yet
+  followPawn(pid) {
+    const m = this.pawnMeshes[pid], t = m && m.userData.target;
+    if (!t) return false;
+    this.flyTo(new THREE.Vector3(t.x, 0.34, t.z + 0.2), new THREE.Vector3(t.x, 0, t.z), 900); return true;
+  }
   follow(i, n) {
     const x = this.matX(i, n), tx = x * 0.8, tz = 0.2;
     this.flyTo(new THREE.Vector3(tx, 1.0, tz + 0.42), new THREE.Vector3(tx, 0, tz), 1400);
