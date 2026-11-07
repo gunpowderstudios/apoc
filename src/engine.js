@@ -87,6 +87,7 @@ export function createGame(opts) {
 // ------------------------------------------------------------------ helpers
 export const cur = s => s.players[s.cur];
 export function logm(s, text, pl = null) { s.log.push({ n: ++s.seq, t: text, pl }); if (s.log.length > 600) s.log.splice(0, 100); }
+export function tally(p, k) { p.n = p.n || {}; p.n[k] = (p.n[k] || 0) + 1; }   // counts of what a player has done (used by AI goals)
 export const defc = s => D.cfg.defcon[s.defcon];
 export const nameOf = (s, i) => s.players[i].name;
 export function resTotal(p) { return ALLRES.reduce((a, r) => a + p.res[r], 0); }
@@ -989,7 +990,7 @@ function turnCmd(s, p, cmd) {
     case 'steal': case 'loot': {
       if (ts.actions <= 0) return err('No actions left');
       const mode = cmd.t; const A = actionsAt(s, p); if (!A.some(a => a.a === mode)) return err('Not possible here');
-      ts.actions--; ts.moveState = ts.moveState === 'moving' ? 'done' : ts.moveState; ts.looted = [];
+      ts.actions--; tally(p, mode); ts.moveState = ts.moveState === 'moving' ? 'done' : ts.moveState; ts.looted = [];
       lootRoll(s, p, mode); return OK;
     }
     case 'burgle': case 'dive': case 'gamble': case 'build': case 'recruit': case 'drone': case 'swap': case 'raid': case 'fight': case 'shop':
@@ -1085,7 +1086,7 @@ function doAction(s, p, cmd) {
     for (const [r, n] of Object.entries(cmd.get)) if (s.supply[r] < n) return err('Not in the supply');
   }
   if (a === 'build' && !canBuild(p)) return err('Missing resources');
-  ts.actions--; finishMove(s);
+  ts.actions--; finishMove(s); tally(p, a);
   if (a === 'shop') { ts.shop = p.node; logm(s, `${p.name} browses the shop.`); return OK; }
   if (a === 'burgle') { doBurgle(s, p); return OK; }
   if (a === 'dive') { doDive(s, p); return OK; }

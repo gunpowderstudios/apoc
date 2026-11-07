@@ -13,6 +13,10 @@ export function activeGoal(s, p) {
     case 'craft': return p.items.length >= 3 ? null : 'craft';
     case 'thug': return p.thug ? null : (s.thugsBar > 0 ? 'thug' : null);
     case 'food10': return p.res.food >= 10 ? null : 'food10';
+    case 'steal': return (((p.n || {}).steal || 0) + ((p.n || {}).loot || 0)) >= 3 ? null : 'steal';
+    case 'scavenge': return (((p.n || {}).burgle || 0) + ((p.n || {}).dive || 0)) >= 3 ? null : 'scavenge';
+    case 'hoard': return p.coin >= 8 ? null : 'hoard';
+    case 'raid': return ((p.n || {}).raid || 0) >= 1 ? null : 'raid';
     case 'gamble': return (p.gambled || 0) >= 2 ? null : 'gamble';
     default: return null;
   }
@@ -21,6 +25,7 @@ const shopAt = (s, id) => (D.cfg.shops[id] || []).map(([i, price]) => ({ id: i, 
 function needValue(s, p, r) {
   const g = activeGoal(s, p);
   if (g === 'food10' && r === 'food') return 9;
+  if (g === 'hoard') return r === 'food' && p.res.food < 2 ? 4 : 3;
   if (g === 'craft' && r !== 'ducttape') return Math.max(3, p.res[r] >= 4 ? 0.5 : 3);
   if (r === 'ducttape') return 1.5;
   let v = 1;
@@ -34,11 +39,11 @@ const price = s => E.defc(s).buy;
 
 function marketPlan(s, p) {
   const L = s.loc[p.node], pr = price(s);
-  let coin = p.coin - (activeGoal(s, p) === 'thug' ? 2 : 0); const buy = {}, sell = {};
+  let coin = p.coin - (activeGoal(s, p) === 'thug' ? 2 : 0) - (activeGoal(s, p) === 'hoard' ? 99 : 0); const buy = {}, sell = {};
   const isSell = D.cfg.sellNodes.includes(p.node);
   let room = E.holdLimit(p) - E.resTotal(p);
   if (isSell) {   // sell clear surpluses when short of coin
-    for (const r of ALLRES) { const keep = r === 'food' ? 4 : p.bunker ? 3 : 1; const extra = p.res[r] - keep; if (extra > 1 && coin < 6) { sell[r] = extra - 1; coin += sell[r]; room += sell[r]; } }
+    for (const r of ALLRES) { const hoard = activeGoal(s, p) === 'hoard', keep = hoard ? (r === 'food' ? 2 : 0) : r === 'food' ? 4 : p.bunker ? 3 : 1; const extra = p.res[r] - keep; if (hoard ? extra > 0 : (extra > 1 && coin < 6)) { sell[r] = hoard ? extra : extra - 1; coin += sell[r]; room += sell[r]; } }
   }
   const list = []; for (const r of ALLRES) for (let i = 0; i < (L.res[r] || 0); i++) list.push([needValue(s, p, r), r]);
   list.sort((a, b) => b[0] - a[0]);
@@ -76,6 +81,9 @@ function scoreNode(s, p, nodeId) {
   if (n.acts.includes('trade') && !p.bunker) { const miss = RES.filter(r => p.res[r] < 1); const extra = ALLRES.filter(r => p.res[r] > 1); if (miss.length && extra.length) { if (3 > best) { best = 3; what = 'swap'; } } }
   const g = activeGoal(s, p);
   if (g === 'craft' && (what === 'shop' || what === 'gamble' || what === 'recruit')) { best = 0; what = null; }
+  if (g === 'steal' && n.kind === 'building' && nodeId !== D.board.churchNode && ALLRES.some(r => L.res[r] > 0)) { if (df.steal && !p.tagged) { best = 8; what = 'steal'; } else if (df.loot && p.health >= 4) { best = 8; what = 'loot'; } }
+  if (g === 'scavenge') { if (n.acts.includes('burgle') && df.burgle && p.health >= 4) { best = 8; what = 'burgle'; } else if (n.acts.includes('dive') && p.health >= 3) { best = 7; what = 'dive'; } }
+  if (g === 'hoard' && D.cfg.sellNodes.includes(nodeId) && ALLRES.some(r => p.res[r] > (r === 'food' ? 2 : 0))) { best = 8; what = 'market'; }
   if (g === 'gamble' && nodeId === 'casino' && p.coin >= 1) { best = 9; what = 'gamble'; }
   if (g === 'thug' && nodeId === D.board.barNode && !p.thug && p.coin >= 2 && p.res.food >= 1 && s.thugsBar > 0) { best = 9; what = 'recruit'; }
   if (g === 'weapons' && n.acts.includes('buy') && shopAt(s, nodeId).some(x => x.stock && x.price <= p.coin && WEAPONS.includes(x.id) && !E.ownsItem(p, x.id))) { best = 8; what = 'shop'; }
@@ -146,6 +154,7 @@ export function next(s) {
     fail('thief'); if (bn) return C({ t: 'thief', node: bn, r: br });
   }
   if (E.hasItem(p, 'bow') && !ts.hunted) return C({ t: 'hunt' });
+  if (activeGoal(s, p) === 'raid' && p.health >= 5 && ts.actions > 0 && E.actionsAt(s, p).some(a => a.a === 'raid') && ok('raidgoal')) { fail('raidgoal'); const t = s.players.find(q => q.id !== p.id && q.bunker); if (t) return C({ t: 'raid', target: t.id }); }
   // crafting
   const craftPick = pickCraft(s, p);
   if (craftPick && ok('craft' + craftPick)) { fail('craft' + craftPick); return C({ t: 'craft', id: craftPick }); }
@@ -190,6 +199,10 @@ export function next(s) {
 function goalTarget(s, p) {   // where the opening goal wants to go next (null = nowhere in particular)
   const g = activeGoal(s, p), ok = id => id !== p.node && E.pathTo(s, p.node, id);
   if (g === 'thug' && p.coin >= 2 && p.res.food >= 1 && ok(D.board.barNode)) return D.board.barNode;
+  if (g === 'steal' || g === 'scavenge' || g === 'hoard') {
+    let best = null, bv = 0; for (const n of D.board.nodes) { if (!ok(n.id)) continue; const sc = scoreNode(s, p, n.id); if (sc.v >= 7 && sc.what && sc.v / (1 + E.pathTo(s, p.node, n.id).length * 0.3) > bv) { bv = sc.v / (1 + E.pathTo(s, p.node, n.id).length * 0.3); best = n.id; } }
+    return best;
+  }
   if (g === 'gamble' && p.coin >= 1 && ok('casino')) return 'casino';
   if (g === 'food10') {
     let best = null, bd = 1e9;

@@ -125,6 +125,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Online: the host opens a room and others join with the 5-letter code (peer-to-peer via the PeerJS broker). Unfilled remote seats become AI.
 
 ## Test-build tools (not game rules)
-- AI opening goals (start screen, per AI seat): Balanced (plays like a human); or first collect weapons (2 of pistol/rifle/knife/bow/chainsaw), build a bunker, craft items only (until it holds 3 items), recruit a thug, collect 10 food (backpack only holds 10, so the AI rarely manages it), or gamble at the casino (2 sessions). Once the goal is met the AI plays balanced. (v1.92)
+- AI opening goals (start screen, per AI seat): Balanced (plays like a human); or first collect weapons (2 of pistol/rifle/knife/bow/chainsaw), build a bunker, craft items only (until it holds 3 items), recruit a thug, collect 10 food (backpack only holds 10, so the AI rarely manages it), gamble at the casino (2 sessions), steal and loot (3 times), burgle and dumpster dive (3 times), hoard 8 PrepCoin (sells surplus, buys nothing), or raid a bunker (once one exists; no one can speed up DEFCON, so there is no DEFCON-rush goal). Once the goal is met the AI plays balanced. (v1.92)
 - Character cards: the table shows the bunker side once a player has a bunker; click a card to enlarge it and press Flip (or F) to view the other side. (v1.90)
 - Busted fine cut to 1 PrepCoin (v1.92).
