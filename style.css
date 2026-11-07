@@ -199,3 +199,14 @@ body.fs #sideTab{display:none}
 #modalBox:has(.npile){max-width:min(1200px,97vw);padding:10px;max-height:96vh}
 #sideTab{animation:tabglow 1.8s ease-in-out infinite}
 @keyframes tabglow{0%,100%{box-shadow:0 0 6px #8cf8,0 0 12px #4af4;border-color:#8cf8}50%{box-shadow:0 0 14px #8cf,0 0 28px #4af;border-color:#cfe}}
+/* top menu: never wraps; shrinks on smaller laptop screens so it fits neatly across the top */
+header{flex-wrap:nowrap;white-space:nowrap;min-width:0}
+header button,header select{white-space:nowrap;flex:none}
+@media(max-width:1600px){header{gap:4px;padding:5px 8px}header button,header select{font-size:12.5px;padding:5px 8px}header b{font-size:15px;letter-spacing:1px;margin-right:2px}#ver{margin:0 4px 0 2px!important}}
+@media(max-width:1350px){header button,header select{font-size:11.5px;padding:4px 6px}header b{font-size:13px;letter-spacing:.5px}header{gap:3px;padding:4px 6px}}
+@media(max-width:1150px){header b{display:none}header button,header select{font-size:11px;padding:4px 5px}}
+/* turn box: text and buttons centred in the panel */
+#turn{text-align:center}
+#turn .who,#turn .note,#turn p{text-align:center}
+#turn .btns,#turn .row,#turn .acts{justify-content:center}
+#turn button{margin-left:auto;margin-right:auto}

@@ -174,3 +174,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the turn panel sits inside the table window, bottom-aligned on the same level as the event panels. (v1.153)
 - Test-build tool: the health cube now sits exactly on the numbered tile for the player's health (re-measured against the card art). (v1.154)
 - Test-build tool: the Info expand/collapse tab glows. (v1.155)
+- Test-build tool: the top menu bar shrinks on smaller laptop screens so it stays on one line. (v1.156)
+- Test-build tool: the turn box text and button are centred in the panel. (v1.157)
