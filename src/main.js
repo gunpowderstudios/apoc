@@ -38,6 +38,10 @@ async function gate() {
 
 async function boot() {
   await gate(); $('#lobby').hidden = false;
+  { const radio = new Audio('assets/sfx/radio-chatter.mp3'); let done = false;   // radio chatter on the start screen, played once (waits for the first click/key if the browser blocks autoplay)
+    const go = () => { if (done) return; radio.play().then(() => { done = true; rm(); }).catch(() => {}); };
+    const rm = () => { for (const ev of ['pointerdown', 'keydown']) window.removeEventListener(ev, go); };
+    go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); }
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config] = await Promise.all(['board', 'items', 'news', 'preppers', 'config'].map(rd));
   D = E.init({ board, items, news, preppers, config });

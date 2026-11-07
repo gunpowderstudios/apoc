@@ -132,3 +132,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - When the APOC event triggers (AI, Pandemic or Nuclear) a big full-screen message shows with a siren sound; click or Esc to close. (v1.97)
 - The C (recentre) view leaves room at the bottom for the event panels so they don't cover the player cards. (v1.98)
 - Keyboard: P pauses / resumes the AI (the old P = pan tool shortcut is gone); C recentres. (v1.100)
+- Start screen plays a short radio chatter clip once (after the first click or key press if the browser blocks autoplay). (v1.105)
