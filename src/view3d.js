@@ -324,13 +324,13 @@ export class View3D {
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
-    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), s.cur, s.stage, s.pending && s.pending.pl]);
+    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), this.flip || {}, s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
       this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length; this.matItems = s.players.some(q => q.items.length > 0);
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.03;
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;
-        const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[p.bunker ? 1 : 0] || art[0];
+        const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[(this.flip && this.flip[p.id] !== undefined ? this.flip[p.id] : (p.bunker ? 1 : 0))] || art[0];
         const active = s.cur === p.id && s.stage === 'turn', fade = s.stage === 'turn' && !active, fx = fade ? { transparent: true, opacity: 0.5 } : {};   // players whose turn it is not are faded to 50%
         const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
         const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1, ...fx }));

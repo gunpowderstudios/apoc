@@ -184,7 +184,7 @@ function setView(v) {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
-  }; V3.onMat = (id, img) => { if (moveSel) dropOnMat(id); else if (img) zoomCard(img); }; V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+  }; V3.onMat = (id, img) => { if (moveSel) dropOnMat(id); else if (img) zoomMat(id); }; V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }
@@ -574,7 +574,7 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if (e.key !== 'Escape') return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
 function renderNewsPanel() {
   let big = $('#newsbig'); if (!big) { big = document.createElement('div'); big.id = 'newsbig'; big.hidden = true; big.onclick = () => closeNewsBig(); $('#boardWrap').appendChild(big); }
   let bar = $('#evbar'); if (!bar) { bar = document.createElement('div'); bar.id = 'evbar'; $('#boardWrap').appendChild(bar); }
@@ -668,7 +668,16 @@ function craftModal() {
   }
   return `<h2>APOC Recipe Book <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Recycle')}</div>${body}<div class="btns">${closeBtn()}</div>`;
 }
-function zoomCard(src) {   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
+function zoomMat(id) {   // character card on the table: shown big with a Flip button (backpack side <-> bunker side)
+  const p = S.players[id], pr = E.D.prepper[p.prepper]; if (!pr) return;
+  V3.flip = V3.flip || {}; const side = V3.flip[id] !== undefined ? V3.flip[id] : (p.bunker ? 1 : 0);
+  let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
+  o.innerHTML = `<img class="flipin" src="${pr.art[side] || pr.art[0]}"><button class="flipbtn">Flip to ${side ? 'BACKPACK' : 'BUNKER'} side (F)</button>`; o.hidden = false;
+  o.querySelector('.flipbtn').onclick = e => { e.stopPropagation(); V3.flip[id] = side ? 0 : 1; V3.matSig = null; zoomMat(id); };
+  zoomFlipId = id;
+}
+let zoomFlipId = null;
+function zoomCard(src) {   zoomFlipId = null;   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
   let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
   o.innerHTML = `<img src="${src}">`; o.hidden = false;
 }

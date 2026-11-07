@@ -146,3 +146,8 @@ img.zm{cursor:zoom-in}
 
 #chint{position:absolute;right:14px;bottom:10px;z-index:12;color:#fff;font:600 14px sans-serif;text-shadow:0 1px 3px #000,0 0 8px #fff,0 0 16px #8cf;pointer-events:none;display:none;animation:chglow 1.6s ease-in-out infinite}
 @keyframes chglow{0%,100%{text-shadow:0 1px 3px #000,0 0 4px #fff,0 0 8px #8cf;opacity:.8}50%{text-shadow:0 1px 3px #000,0 0 10px #fff,0 0 22px #8cf,0 0 34px #8cf;opacity:1}}
+
+#zoom{flex-direction:column;gap:14px}
+#zoom .flipbtn{background:#1f7a3a;color:#fff;border:2px solid #fff;border-radius:10px;padding:10px 18px;font:700 16px sans-serif;cursor:pointer}
+#zoom img.flipin{animation:cardflip .45s ease-out}
+@keyframes cardflip{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
