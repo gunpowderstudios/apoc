@@ -5,7 +5,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
-const PIECE_H = { frost: 0.042, jessica: 0.032186, naomi: 0.038, sam: 0.038 };
+const PIECE_H = { frost: 0.042, jessica: 0.0386232, naomi: 0.038, sam: 0.038 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const POOL_COINS = 30;   // PrepCoin that start in the pool
