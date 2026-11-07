@@ -121,7 +121,7 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Simple heuristic bots. They fill seats and exercise the rules, but are passive and sometimes starve. They are not a balance test.
 ### Test tools
 - Sandbox (lobby tickbox, off by default): give or take resources, coin, health, items; set DEFCON; teleport; trigger APOC.
-- Undo (host/solo only), Export (full state and log for bug reports), seed box in the lobby for repeatable games. Press C to centre the whole table.
+- Undo (host/solo only), Export (full state and log for bug reports) (share the saved game file or the online room to show testers a game). Press C to centre the whole table.
 - Online: the host opens a room and others join with the 5-letter code (peer-to-peer via the PeerJS broker). Unfilled remote seats become AI.
 
 ## Test-build tools (not game rules)
