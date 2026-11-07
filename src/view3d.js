@@ -430,9 +430,10 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C to Recenter'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C to Recenter  ·  Z to Zoom'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
-    if (far !== this._hintOn) { this._hintOn = far; this.hint.style.display = far ? 'block' : 'none'; }
+    if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
+    this.hint.style.opacity = far ? '1' : '0.7';
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
   fitAll() {
