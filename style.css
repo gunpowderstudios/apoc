@@ -154,3 +154,11 @@ img.zm{cursor:zoom-in}
 
 .seat .goal{grid-column:2/5;font-size:12px}
 @media(max-width:800px){.seat .goal{grid-column:2/4}}
+
+#apocbig{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle,#400d 0%,#000e 75%);color:#fff;text-align:center;cursor:pointer;animation:apocpulse 1s ease-in-out infinite}
+#apocbig[hidden]{display:none}
+#apocbig img{border-radius:50%;width:min(30vh,260px);filter:drop-shadow(0 0 30px #f33)}
+#apocbig .a1{font:800 clamp(18px,3vw,34px) sans-serif;letter-spacing:.12em;color:#ffcdd2}
+#apocbig .a2{font:900 clamp(40px,9vw,110px) sans-serif;letter-spacing:.06em;text-shadow:0 0 30px #f22,0 0 60px #f00}
+#apocbig .a3{font:600 14px sans-serif;opacity:.7;margin-top:10px}
+@keyframes apocpulse{0%,100%{box-shadow:inset 0 0 80px #f002}50%{box-shadow:inset 0 0 220px #f008}}

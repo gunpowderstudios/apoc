@@ -200,8 +200,13 @@ function cycleGraph() {
   $('#bGraph').textContent = V2.edit ? 'Graph: EDIT' : V2.showGraph ? 'Graph: on' : 'Graph'; $('#bExp').hidden = !V2.edit; V2.dirty = true;
 }
 function exportBoard() { download('board.json', JSON.stringify(D.board, null, 1)); toast('board.json downloaded. Send it to Claude to update the graph.'); }
+function exportText() {   // readable game log as a text file
+  const lines = [`APOC game log - ${VERSION} - ${new Date().toLocaleString()}`, `Players: ${S.players.map(p => `${p.name} (${E.D.prepper[p.prepper].name}${p.goal && p.goal !== 'balanced' ? ', goal: ' + p.goal : ''})`).join(', ')}`, S.over ? `Game over in round ${S.round}.` : `Round ${S.round} (game in progress)`, ''];
+  captureLog(); for (const l of fullLog) lines.push(`[R${l.r}] ${l.t}`);
+  download('apoc-game-log-' + Date.now() + '.txt', lines.join('\n'));
+}
 function exportLog() { download('apoc-game-' + Date.now() + '.json', JSON.stringify({ note: mode === 'guest' ? 'guest view' : 'full state', state: S, log: S.log }, null, 1)); }
-function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: name.endsWith('.txt') ? 'text/plain' : 'application/json' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 function undo() {
   if (mode === 'guest' || !hist.length) return toast('Nothing to undo');
   S = JSON.parse(hist.pop()); afterChange();
@@ -425,8 +430,16 @@ function rollSound() {
   if (rollInit && k && k !== lastRollKey && V3) throwDice(S.lastRoll);
   lastRollKey = k; rollInit = true;
 }
+let fullLog = [];   // every log line of the current game (the engine trims its own log at 600 lines)
+function captureLog() {
+  const top = S.log.length ? S.log[S.log.length - 1].n : 0;
+  while (fullLog.length && fullLog[fullLog.length - 1].n > top) fullLog.pop();   // undo / new game
+  const last = fullLog.length ? fullLog[fullLog.length - 1].n : 0;
+  for (const l of S.log) if (l.n > last) fullLog.push({ n: l.n, t: l.t, r: S.round });
+}
 function render() {
   if (!S) return;
+  captureLog();
   rollSound();
   H = []; updateTargets();
   renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
@@ -577,15 +590,28 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if (e.key !== 'Escape') return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+const sirenSnd = new Audio('assets/sfx/siren.mp3'); let apocShownKey = null;
+function closeApoc() { const o = $('#apocbig'); if (o && !o.hidden) { o.hidden = true; try { sirenSnd.pause(); } catch (e) {} return true; } return false; }
+function renderApocBig() {   // the APOC event has triggered: big message on screen + siren
+  let o = $('#apocbig'); if (!o) { o = document.createElement('div'); o.id = 'apocbig'; o.hidden = true; o.onclick = () => closeApoc(); document.body.appendChild(o); }
+  if (!S || !S.apocEvent) { apocShownKey = null; o.hidden = true; return; }
+  if (apocShownKey === S.apocEvent) return; apocShownKey = S.apocEvent;
+  const nm = { ai: 'AI', pandemic: 'PANDEMIC', nuclear: 'NUCLEAR' }[S.apocEvent] || String(S.apocEvent).toUpperCase();
+  o.className = 't-' + S.apocEvent; o.hidden = false;
+  o.innerHTML = `<img src="assets/ui/ev-${S.apocEvent}.png"><div class="a1">THE APOC EVENT HAS TRIGGERED</div><div class="a2">${nm} APOCALYPSE</div><div class="a3">Click or press Esc to close</div>`;
+  try { sirenSnd.currentTime = 0; sirenSnd.play().catch(() => {}); } catch (e) {}
+}
 function renderNewsPanel() {
+  renderApocBig();
   let big = $('#newsbig'); if (!big) { big = document.createElement('div'); big.id = 'newsbig'; big.hidden = true; big.onclick = () => closeNewsBig(); $('#boardWrap').appendChild(big); }
   let bar = $('#evbar'); if (!bar) { bar = document.createElement('div'); bar.id = 'evbar'; $('#boardWrap').appendChild(bar); }
   if (!S || S.over || setupHold) { big.hidden = true; bar.innerHTML = ''; return; }
   const nw = S.ts && S.ts.news, c = nw && E.D.newsById[nw.id];
   if (c) {
     const key = nw.id + ':' + S.round + ':' + S.cur;
-    if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; big.innerHTML = `<img src="${c.img}"><button class="x" title="Close (Esc)">×</button><div class="hint">Click or press Esc to close</div>`; big.hidden = false; }
+    if (newsShown !== key) { if (newsShown !== null) { try { newsSnd.currentTime = 0; newsSnd.play().catch(() => {}); } catch (e) {} } newsShown = key; newsClosed = null; if (S.players.every(q => q.ai)) { const k0 = key; setTimeout(() => { if (newsShown === k0) closeNewsBig(); }, 3000); }   // all-AI game: show the paper for 3 seconds then close
+      big.innerHTML = `<img src="${c.img}"><button class="x" title="Close (Esc)">×</button><div class="hint">Click or press Esc to close</div>`; big.hidden = false; }
     if (nw.fired && firedShown !== key) { firedShown = key; try { eventSnd.currentTime = 0; eventSnd.play().catch(() => {}); } catch (e) {} }
   } else big.hidden = true;
   // event info panels along the bottom: the newest paper of each type, until a newer one covers it
@@ -636,7 +662,7 @@ function gameOverModal() {
   const rows = E.summary(S).map(r => `<tr><td>${esc(r.name)}</td><td>${r.prepper}</td><td>${r.health}</td><td>${r.bunker ? 'yes' : 'no'}</td><td>${r.coin}</td><td>${r.resources}</td><td>${r.items}</td></tr>`).join('');
   return `<h2>Pre-APOC game over</h2><p>${esc(S.over.reason === 'apoc' ? `SHTF! Open the ${String(S.over.event).toUpperCase()} Mission Pack. The board has been cleared by the Panic Grab.` : JSON.stringify(S.over))}</p>
   <table class="tbl"><tr><th>Player</th><th>Prepper</th><th>HP</th><th>Bunker</th><th>Coin</th><th>Res</th><th>Items</th></tr>${rows}</table>
-  <div class="btns">${btn('Export log', exportLog)}${btn('Play again', () => location.reload())}${btn('Look at the board', () => { modalFn = null; S.over && (S._seen = 1); $('#modal').hidden = true; })}</div>`;
+  <div class="btns">${btn('Download game log (.txt)', exportText)}${btn('Export log (JSON)', exportLog)}${btn('Play again', () => location.reload())}${btn('Look at the board', () => { modalFn = null; S.over && (S._seen = 1); $('#modal').hidden = true; })}</div>`;
 }
 function prepperModal(id) {
   const p = S.players[id], pr = E.D.prepper[p.prepper];
