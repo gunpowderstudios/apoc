@@ -15,7 +15,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 let D, boardImg, icons = {}, V2, V3, view = '2d';
 let S = null, mode = 'local', net = null, mySeat = null, peerSeat = new Map(), guestNames = new Map(), remoteSeats = new Set();
-let paused = false, stepOnce = false, speed = 'normal', follow = false, lastActorKey = null;   // the camera starts on the straight C view and stays there until you move it
+let paused = false, stepOnce = false, speed = 'normal', follow = localStorage.getItem('apoc-follow') !== '0', lastActorKey = null;   // the camera starts on the straight C view and stays there until you move it
 let hist = [], sbxMove = false, sbxTarget = 0, busy = false, modalFn = null, H = [], targets = {}, lastSeq = 0, aiRejects = 0, lobbyMode = 'solo', appUp = false, lastLogSeq = -1;
 
 // ---------------------------------------------------------------- boot + lobby
@@ -167,7 +167,7 @@ function enterApp() {
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
-  $('#bFollow').onclick = () => { follow = !follow; $('#bFollow').classList.toggle('on', follow); lastActorKey = null; render(); };
+  $('#bFollow').classList.toggle('on', follow); $('#bFollow').onclick = () => { follow = !follow; try { localStorage.setItem('apoc-follow', follow ? '1' : '0'); } catch (e) {} $('#bFollow').classList.toggle('on', follow); if (!follow && V3) V3.fitAll(); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   $('#bRulesTab').onclick = () => { modalFn = rulesModal; render(); };
