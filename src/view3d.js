@@ -215,7 +215,7 @@ export class View3D {
         const L = s.loc[n.id]; if (!L || (this.hide && this.hide.has(n.id))) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
         const NUDGE = { drugs: [-20, 0], thrift: [63, 0], hardwarestore: [15, 0], bigstorage: [65, 0] }, nu = NUDGE[n.id] || [0, 0], [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w({ x: n.x + nu[0], y: n.y + nu[1] });
-        const F = n.kind === 'building' ? (n.id === 'bigstorage' ? 0.8 : 0.62) : 1;   // small shops (Thrift, Hardware, Drugs...): smaller tokens and counts so they stay inside the building
+        const F = 0.8;   // every resource token on the board is the same size (the Big Storage size)
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
         const SP = 0.0175 * F, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });

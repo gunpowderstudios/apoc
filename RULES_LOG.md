@@ -181,3 +181,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Board artwork replaced again with Tim's latest board PDF (Dumpster Drive typo fixed; this version has the printed resource number tiles on the buildings). The previous no-numbers board is in git history (v1.159/v1.160). (v1.161)
 - Test-build tool: the sandbox tools are a smaller, tidier box in the side bar (a sandbox game opens the side bar automatically). (v1.162)
 - Dumpsters (NE and SW) have no door: a player moves in from the junction for 1 move (the street piece in front of each dumpster no longer exists as a space). The gantry space below Prepper Joe's / Harbor Office at the bottom right (east end of Fairbrass Exchange) is removed: it is not a move space. Board artwork updated to match (door arrows removed). (v1.163)
+- Test-build tool: every resource token on the board spaces is now the same size (the Big Storage size); before, the small shops used smaller tokens. (v1.164)
