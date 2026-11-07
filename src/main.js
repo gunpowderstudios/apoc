@@ -209,6 +209,7 @@ window.addEventListener('keydown', e => {
     V3.follow((a + zoomStep) % n, n); return;
   }
   if (e.key.toLowerCase() === 'n' && V3 && !$('#app').hidden) { V3.followNews(); return; }   // N = zoom to the three news event stands
+  if (e.key.toLowerCase() === 'd' && V3 && !$('#app').hidden) { V3.followDefcon(); return; }   // D = zoom to the DEFCON chart
   const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
 function setView(v) {

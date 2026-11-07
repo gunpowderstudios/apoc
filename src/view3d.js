@@ -393,6 +393,13 @@ export class View3D {
     const hf = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2)) * this.cam.aspect), d = Math.max(0.3, (w / 2) / Math.tan(hf / 2)), el = 1.1;
     this.flyTo(new THREE.Vector3(xc, Math.sin(el) * d, z + Math.cos(el) * d), new THREE.Vector3(xc, 0, z), 900);
   }
+  // D key: look down at the DEFCON chart so the whole chart fills the view
+  followDefcon() {
+    this.manual = false;
+    const c = this.chart, vf = THREE.MathUtils.degToRad(this.cam.fov / 2), hf = Math.atan(Math.tan(vf) * this.cam.aspect), el = 1.2;
+    const d = Math.max(0.25, Math.max((c.d / 2 + 0.06) / Math.tan(vf), (c.w / 2 + 0.06) / Math.tan(hf)) * 1.1);
+    this.flyTo(new THREE.Vector3(c.x, Math.sin(el) * d, c.z + Math.cos(el) * d), new THREE.Vector3(c.x, 0, c.z), 900);
+  }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   // ---- physical dice: thrown from the player's mat, tumble and bounce across the table, land showing the rolled face
   // spec: [{set:'day'|'night'|'news'|'num', face:0..5}]
@@ -441,7 +448,7 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Figure  ·  X Card  ·  N News'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Figure  ·  X Card  ·  N News  ·  D DEFCON'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
     if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
     this.hint.style.opacity = far ? '1' : '0.7';
