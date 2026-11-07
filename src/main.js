@@ -15,7 +15,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 let D, boardImg, icons = {}, V2, V3, view = '2d';
 let S = null, mode = 'local', net = null, mySeat = null, peerSeat = new Map(), guestNames = new Map(), remoteSeats = new Set();
-let paused = false, stepOnce = false, speed = 'normal', follow = true, lastActorKey = null;
+let paused = false, stepOnce = false, speed = 'normal', follow = false, lastActorKey = null;   // the camera starts on the straight C view and stays there until you move it
 let hist = [], sbxMove = false, sbxTarget = 0, busy = false, modalFn = null, H = [], targets = {}, lastSeq = 0, aiRejects = 0, lobbyMode = 'solo', appUp = false, lastLogSeq = -1;
 
 // ---------------------------------------------------------------- boot + lobby
@@ -235,7 +235,7 @@ async function runSetup() {
   if (!V3 || !S || mode === 'guest') return;
   const ids = E.D.board.nodes.filter(n => { const L = S.loc[n.id]; return L && (L.coin || Object.values(L.res).some(v => v > 0)); }).map(n => n.id);
   for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
-  setupHold = true; setView('3d'); V3.reset(); V3.hide = new Set(ids); render();
+  setupHold = true; setView('3d'); V3.fitAll(); V3.hide = new Set(ids); render();
   const ov = $('#setup'), bar = $('#setupBar'); ov.hidden = false; bar.style.width = '0%';
   for (let i = 0; i < ids.length; i++) {
     await new Promise(r => setTimeout(r, 130));

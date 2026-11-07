@@ -89,3 +89,28 @@ Format: **rule**, then (version it went in). Items marked "ASK" are guesses that
 
 ## 9. Not built yet
 Post-APOC (Mission Packs), End Times cards, and any event or item whose effect isn't designed yet (they show their text but do nothing).
+
+## 10. Other assumptions built into the game (not yet confirmed)
+### Scope
+- Pre-APOC only. When SHTF triggers everyone does the Panic Grab, the board is cleared and the game ends, telling you which Mission Pack (AI / Virus / Nuclear) to open. Post-APOC is not built.
+- 5 same-type news cards on the stand escalate DEFCON (green, yellow, orange, red/SHTF). The End Times cards in the PDF were placeholder text, so they have no effect.
+### Board
+- All 56 door markers were read from the board PDF. Movement is only road segment to junction, and building to its door(s). Every step (road segment, junction, door) costs 1 move.
+- Each door joins the road its arrow points across. The two corner dumpsters sit at the end of a road.
+- Central Park has six doors and is its own block. Blocks (for Bolt Cutters) follow the street grid; the river row is the bottom row.
+- Pet Store: currently shares the Music Store's door on Coin Street. To be fixed when Tim's new map arrives (own door, south facing onto Coin Street).
+- Subway = the "S" markers; 1 PrepCoin to any other station. Bridges for the boat are not modelled.
+### Rules I had to guess
+- PrepCoin is an unlimited bank. Resource tokens are limited to the supply counts.
+- Combat modifiers stack.
+- Night dice are blocked by the Curfew event. Tagged preppers must use the day dice.
+- Jessica re-rolls the day dice once (keeps the new result).
+- Drone is an action. Walkie-Talkie only recruits a thug remotely. Thug upkeep is paid once at the start of the turn.
+- "Scavenge" = dumpster dive. At 0 HP with no meds you spend the turn resting (+1 HP).
+- The red APOC die in the dice PDF is unused.
+### AI players
+- Simple heuristic bots. They fill seats and exercise the rules, but are passive and sometimes starve. They are not a balance test.
+### Test tools
+- Sandbox (lobby tickbox, off by default): give or take resources, coin, health, items; set DEFCON; teleport; trigger APOC.
+- Undo (host/solo only), Export (full state and log for bug reports), seed box in the lobby for repeatable games. Press C to centre the whole table.
+- Online: the host opens a room and others join with the 5-letter code (peer-to-peer via the PeerJS broker). Unfilled remote seats become AI.

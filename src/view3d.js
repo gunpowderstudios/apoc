@@ -404,7 +404,7 @@ export class View3D {
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
   fitAll() {
-    const el = 0.9, az = THREE.MathUtils.degToRad(18), hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
+    const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
     rect(-0.585, -0.425, -0.2667, 0.06, 0.01);  // DEFCON chart
