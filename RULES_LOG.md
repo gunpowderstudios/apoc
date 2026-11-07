@@ -12,6 +12,11 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - When DEFCON goes red (the SHTF token reaches the red space) the town flips to its post-APOC state and survival becomes a final race through a town you no longer recognise.
 - **This online test build plays the pre-APOC part only.** When SHTF is triggered everyone does the Panic Grab, the board is cleared and the game ends, telling you which Mission Pack to open. Post-APOC is not built yet.
 
+## 1a. How the pre-APOC game ends
+1. DEFCON reaches the last level (5th paper in a pile at End Turn): the APOC event (AI, Pandemic or Nuclear) is triggered. Thugs and coin are cleared; in a Nuclear event players without a bunker drop to 1 health.
+2. Panic Grab: players may spend MEDS first, then take one last turn each (order: highest health, then fewest resources, then a die roll), 2 moves per health point, grabbing resources where they stand. Two players ending in the same building fight over it (Black Friday).
+3. After the last Panic Grab turn the board is cleared and the game stops. In the real game the players open the sealed envelope (Mission Pack) for that event and play on; in the online test the game just tells you which one. (Confirmed by Tim, v1.112.)
+
 ## 1. Turn order (pre-APOC)
 1. **Eat / Pay Thugs.** Eat 1 food (no food = lose 1 health). Thug pay, keep or give a job.
 2. **Draw News.** Top card of the news deck is drawn, news sound plays, card shown big until closed (click, x or Esc). It goes on the pile of its type. (v1.58)
