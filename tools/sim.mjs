@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import * as E from '../src/engine.js';
 import * as AI from '../src/ai.js';
 const rd = f => JSON.parse(fs.readFileSync(new URL('../data/' + f, import.meta.url)));
-E.init({ board: rd('board.json'), items: rd('items.json'), news: rd('news.json'), preppers: rd('preppers.json'), config: rd('config.json') });
+E.init({ board: rd('board.json'), items: rd('items.json'), news: rd('news.json'), preppers: rd('preppers.json'), config: rd('config.json'), adjacent: rd('adjacent.json') });
 const games = +process.argv[2] || 5, np = +process.argv[3] || 4, seed0 = +process.argv[4] || 1;
 const chars = ['jessica', 'sam', 'frost', 'naomi'];
 let stats = { done: 0, stuck: 0, errors: {}, rounds: [], cmdErr: {} };

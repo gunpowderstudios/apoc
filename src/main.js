@@ -43,8 +43,8 @@ async function boot() {
     const rm = () => { for (const ev of ['pointerdown', 'keydown']) window.removeEventListener(ev, go); };
     go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); }
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
-  const [board, items, news, preppers, config] = await Promise.all(['board', 'items', 'news', 'preppers', 'config'].map(rd));
-  D = E.init({ board, items, news, preppers, config });
+  const [board, items, news, preppers, config, adjacent] = await Promise.all(['board', 'items', 'news', 'preppers', 'config', 'adjacent'].map(rd));
+  D = E.init({ board, items, news, preppers, config, adjacent });
   boardImg = await img('assets/board/board.jpg'); icons.coin = await img('assets/counters/prepcoin.webp');
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();

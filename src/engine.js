@@ -20,6 +20,7 @@ export function init(data) {
   D.newsById = Object.fromEntries(data.news.map(n => [n.id, n]));
   D.prepper = Object.fromEntries(data.preppers.map(p => [p.id, p]));
   D.cfg = data.config;
+  D.nextTo = new Set(((data.adjacent && data.adjacent.pairs) || []).flatMap(([a, b]) => [a + '|' + b, b + '|' + a]));   // buildings that touch each other (data/adjacent.json)
   const VX = data.board.gridX;
   const HY = Object.values(data.board.gridY).map(a => a.reduce((x, y) => x + y, 0) / a.length);
   for (const n of data.board.nodes) {
@@ -750,10 +751,10 @@ export function legalMoves(s, p) {
   const ts = s.ts;
   if (ts.step !== 'prep' || ts.moves <= 0 || ts.moveState === 'done') return out;
   for (const n of D.adj[p.node]) out.push({ to: n });
-  // bolt cutters / parkour: building to building in same block
+  // bolt cutters / parkour: from a building to one that touches it (data/adjacent.json)
   const here = D.node[p.node];
   if (here.kind === 'building' && (hasItem(p, 'bolt-cutters') || p.prepper === 'sam')) {
-    for (const n of D.board.nodes) if (n.kind === 'building' && n.id !== here.id && n.block === here.block) out.push({ to: n.id, cutters: true });
+    for (const n of D.board.nodes) if (n.kind === 'building' && D.nextTo.has(here.id + '|' + n.id)) out.push({ to: n.id, cutters: true });   // only the building next door
   }
   // subway
   if (D.node[p.node].subway && subwayOpen(s) && p.coin >= 1) for (const st of D.board.subway) if (st !== p.node) out.push({ to: st, subway: true });
