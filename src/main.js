@@ -588,7 +588,7 @@ function renderNewsPanel() {
   // event info panels along the bottom: the newest paper of each type, until a newer one covers it
   const nm = { nuclear: 'NUCLEAR', ai: 'AI', pandemic: 'PANDEMIC' }, spent = S.spent || [];
   bar.innerHTML = ['ai', 'pandemic', 'nuclear'].map(ty => {
-    const ids = S.stand[ty]; if (!ids.length) return '';
+    const ids = S.stand[ty]; if (!ids.length) return '<div class="evp-empty"></div>';
     const cd = E.D.newsById[ids[ids.length - 1]], used = spent.includes(cd.id), flash = S.glow && S.glow.card === cd.id;
     return `<div class="evp t-${ty} ${used ? 'used' : ''} ${flash ? 'flash' : ''}"><img src="assets/ui/ev-${ty}.png"><div><div class="evh">${nm[ty]} EVENT${used ? ' - TURNED OVER' : ''}</div><div class="evt">${esc(cd.text || 'Not yet designed')}</div></div></div>`;
   }).join('');
