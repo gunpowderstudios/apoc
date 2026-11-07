@@ -271,7 +271,7 @@ export class View3D {
   // Table furniture: DEFCON countdown chart left of the board; news piles right of it.
   buildFurniture() {
     const hb = this.H / 2, W = BOARD_W / 2;
-    this.chart = { w: 0.15, d: 0.15 * 866 / 400, x: -(W + 0.03 + 0.075), z: -hb + 0.15 * 866 / 400 / 2 };
+    this.chart = { w: 0.15, d: 0.15 * 866 / 400, x: -(W + 0.03 + 0.075), z: -hb + 0.142 + 0.06 + 0.15 * 866 / 400 / 2 };   // DEFCON chart sits below the item deck on the left
     const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); c.userData.cardImg = 'assets/ui/countdown.jpg'; this.furniture.add(c);
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
@@ -281,7 +281,7 @@ export class View3D {
     // thin dotted white outlines mark where the news cards are (or will be) laid
     { const cv = document.createElement('canvas'); cv.width = 270; cv.height = 382; const g = cv.getContext('2d'); g.strokeStyle = '#fff'; g.lineWidth = 3; g.setLineDash([4, 8]); g.lineCap = 'round'; g.strokeRect(6, 6, 258, 370);
       const tx = new THREE.CanvasTexture(cv); tx.anisotropy = 8; this.slotTex = tx; }
-    this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [this.chart.x, this.chart.z + this.chart.d / 2 + 0.05 + 0.066] };   // item deck: left side, under the DEFCON chart
+    this.newsPos = { deck: [x0, tz], ai: [x0 + gap, tz], pandemic: [x0 + 2 * gap, tz], nuclear: [x0 + 3 * gap, tz], items: [this.chart.x, -hb + 0.076] };   // item deck: top left, above the DEFCON chart
     for (const k of ['deck', 'ai', 'pandemic', 'nuclear']) { const [sx, sz] = this.newsPos[k]; const sl = new THREE.Mesh(new THREE.PlaneGeometry(0.1347 + 0.004, 0.191 + 0.004), new THREE.MeshBasicMaterial({ map: this.slotTex, transparent: true, opacity: 0.8, depthWrite: false })); sl.rotation.x = -Math.PI / 2; sl.position.set(sx, 0.0006, sz); sl.renderOrder = 1; this.furniture.add(sl); }
   }
   matX(i, n) { return (i - (n - 1) / 2) * 0.225; }
@@ -407,8 +407,8 @@ export class View3D {
     const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
-    rect(-0.585, -0.425, -0.2667, 0.06, 0.01);  // DEFCON chart
-    rect(-0.56, -0.45, 0.13, 0.28, 0.07);       // item deck
+    rect(-0.585, -0.425, -0.065, 0.262, 0.01);  // DEFCON chart
+    rect(-0.56, -0.45, -0.27, -0.12, 0.07);     // item deck
     rect(-0.4, 0.235, -0.49, -0.295, 0.03);     // news row
     rect(0.415, 0.6, -0.245, 0.09, 0.02);       // pool
     { const n = this.nPlayers || 2, hx = ((n - 1) / 2) * 0.225 + 0.11; rect(-hx, hx, 0.285, this.matItems ? 0.575 : 0.5, 0.01); }   // player mats, their tokens and (if any) item cards

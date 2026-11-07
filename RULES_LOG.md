@@ -53,7 +53,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - **Contraband meds** ("swap any 2 resources for 3 MEDS"): the player whose turn it is gets the offer, **chooses which 2 resources** to give. Needs 2+ resources. (v1.67) ASK: should every player be able to use it?
 
 ## 3. Items, crafting and breaking down
-- Item deck: 21 item types x 4 copies = 84 cards, shuffled, face down on the table (left, under the DEFCON chart). Click it to see how many of each type remain. (v1.45, v1.54)
+- Item deck: 21 item types x 4 copies = 84 cards, shuffled, face down on the table (top left, above the DEFCON chart). Click it to see how many of each type remain. (v1.45, v1.54)
 - **Craft:** big green APOC Recipe Book button (Craft - Recycle), usable at **any point in your own turn**. You pay the recipe in resources and take that item's card from the deck. **One craft per turn.** (v1.46)
 - **Recycle (break down):** you get back every resource on the recipe **except the last one (marked X), which is lost**. The card goes back in the deck. **One break down per turn.** Sam gets +1 Know-how when he breaks something down. (v1.46)
 - Item cards on the table and in the craft book can be clicked to enlarge. (v1.48, v1.55)
