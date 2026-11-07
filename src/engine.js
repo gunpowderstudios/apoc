@@ -309,7 +309,7 @@ function arrest(s, p) {
     if (n === 0) { p.coin += 1; logm(s, `The Police Chief gives ${p.name} 1 PREPCOIN gate money.`); }
     else logm(s, `${p.name} does community service: ${n} resource goes back to the pool.`);
   }
-  if (s.bustedLeft > 0) { s.bustedLeft--; p.busted++; }
+  if (s.bustedLeft > 0) { s.bustedLeft--; p.busted++; logm(s, `${p.name} receives a BUSTED token (${p.busted} of 3). Three busted tokens means TAGGED.`, p.id); }
   if (p.busted >= 3) { p.tagged = true; s.bustedLeft += 2; p.busted = 0; logm(s, `${p.name} is TAGGED: day dice only, no stealing.`, p.id); }
   s.ts.forceEnd = true;
 }

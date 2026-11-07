@@ -547,7 +547,28 @@ function actionClick(a, p) {
   if (a === 'drone') { modalFn = () => tokenPicker('Drone: take which resource?', (node, r) => { modalFn = null; doCmd({ t: 'drone', node, r }); }); return render(); }
   doCmd({ t: a });
 }
+// ---- big event pop-up for the human player: bad things that happen to you (busted, robbed, damage...) are shown large, then close by themselves (or click / Esc / Enter)
+let popSeq = null, popTimer = null;
+function eventPopup() {
+  const last = S.log.length ? S.log[S.log.length - 1].n : 0;
+  if (popSeq === null || last < popSeq) { popSeq = last; return; }
+  const fresh = S.log.filter(l => l.n > popSeq); popSeq = last;
+  const humans = S.players.map((q, i) => ({ q, i })).filter(x => mine(x.i));
+  if (!fresh.length || !humans.length || S.players.every(q => q.ai)) return;
+  const BAD = /BUSTED|TAGGED|caught|SHOT|loses|robbed|damage|rushed to the hospital|hospital is closed|BOOBY|busts|0 HEALTH/;
+  for (const { q, i } of humans) {
+    const mineL = fresh.filter(l => l.pl === i || l.t.includes(q.name));
+    if (!mineL.some(l => BAD.test(l.t))) continue;
+    const head = mineL.some(l => /TAGGED/.test(l.t)) ? 'TAGGED!' : mineL.some(l => /BUSTED|caught/.test(l.t)) ? 'BUSTED!' : mineL.some(l => /SHOT|BOOBY|damage|HEALTH|hospital/.test(l.t)) ? 'OUCH!' : 'BAD NEWS';
+    let o = $('#evpop'); if (!o) { o = document.createElement('div'); o.id = 'evpop'; o.onclick = () => closeEvPop(); document.body.appendChild(o); }
+    o.innerHTML = `<div class="evbox"><div class="evh">${esc(head)}</div>${mineL.map(l => `<div class="evl">${esc(l.t)}</div>`).join('')}<div class="evbar"><i></i></div><div class="evok">Click, Esc or Enter to close</div></div>`;
+    o.hidden = false; cardUpSound(false); clearTimeout(popTimer); popTimer = setTimeout(closeEvPop, 8000);
+    return;
+  }
+}
+function closeEvPop() { const o = $('#evpop'); if (o && !o.hidden) { o.hidden = true; clearTimeout(popTimer); return true; } return false; }
 function renderLog() {
+  eventPopup();
   const el = $('#log'), last = S.log.length ? S.log[S.log.length - 1].n : 0;
   if (last === lastLogSeq) return; lastLogSeq = last;
   const m = me(); el.innerHTML = S.log.slice(-120).map((l, i, a) => `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}">${esc(l.t)}</div>`).join(''); el.scrollTop = el.scrollHeight;
@@ -605,7 +626,7 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|SELECT|TEXTAREA/.test((e.target && e.target.tagName) || '')) { $('#bFull').click(); return; } if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|SELECT|TEXTAREA/.test((e.target && e.target.tagName) || '')) { $('#bFull').click(); return; } if ((e.key === 'Escape' || e.key === 'Enter') && closeEvPop()) return; if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
 const sirenSnd = new Audio('assets/sfx/siren.mp3'); let apocShownKey = null;
 function closeApoc() { const o = $('#apocbig'); if (o && !o.hidden) { o.hidden = true; try { sirenSnd.pause(); } catch (e) {} return true; } return false; }
 function renderApocBig() {   // the APOC event has triggered: big message on screen + siren

@@ -155,3 +155,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - F key toggles full screen (when a card is enlarged, F still flips it). (v1.129)
 - Test-build tool: 🎥 Follow button now glides the camera in on the active player's figure and tracks it as it moves (previously went to the player's mat). (v1.130)
 - Busted tokens now show on the table beside each player's card (one per bust). On the 3rd bust they swap for a single TAGGED token (day dice only, no stealing). (v1.131)
+- Test-build tool: when something bad happens to a human player (busted, tagged, robbed, shot, health lost, hospital) a big pop-up shows the log lines at full size, closes itself after 8 seconds (or click / Esc / Enter). The side log stays as before. Busting now also logs 'receives a BUSTED token (n of 3)'. (v1.133)
