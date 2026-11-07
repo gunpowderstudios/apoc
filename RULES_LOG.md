@@ -163,3 +163,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: Z key zooms in on the active player's figure; press Z again (within 4 seconds) to step to the next player's figure. C recentres. The hint "C to Recenter · Z to Zoom" is always shown top right of the table (v1.141).
 - Test-build tool: a game always opens on the full zoomed-out table; the Follow camera only starts zooming from the next turn/move. (v1.142)
 - Test-build tool: Z zooms in 30% closer and tilts in further than the Follow camera. (v1.143)
+- Test-build tool: if you angle/zoom/pan the table yourself, the Follow camera stops moving it until you press C or Z. (v1.144)

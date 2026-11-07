@@ -24,6 +24,7 @@ export class View3D {
     this.cam = new THREE.PerspectiveCamera(40, 1, 0.005, 6);
     this.cam.position.set(0, 1.15, 1.0); this.cam.lookAt(0, 0, 0.15);
     this.ctl = new OrbitControls(this.cam, r.domElement);
+    this.ctl.addEventListener('start', () => { this.manual = true; this.fly = null; });   // you moved the camera yourself: the auto-follow leaves it alone until C or Z
     this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.zoomToCursor = true; this.ctl.minDistance = 0.03; this.ctl.maxDistance = 2.6;
     this.ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     this.ctl.update();
@@ -374,6 +375,7 @@ export class View3D {
   // glide the camera to look down at a player's mat with the board still in shot
   // glide in on a player's figure (close, looking down at it); falls back to the mat if the figure isn't placed yet
   followPawn(pid, close) {
+    this.manual = false;
     const m = this.pawnMeshes[pid], t = m && m.userData.target;
     if (!t) return false;
     const cam = close ? new THREE.Vector3(t.x, 0.195, t.z + 0.195) : new THREE.Vector3(t.x, 0.34, t.z + 0.2);   // Z: 30% closer and tilted in further
@@ -438,6 +440,7 @@ export class View3D {
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
   fitAll() {
+    this.manual = false;
     const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
