@@ -87,7 +87,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - Sectors are a 3x3 compass: West column NW / W / SW, centre column N / C (park) / S, East column NE / E / SE.
 - Building outlines in orange/yellow on the board are just graphics, no rules.
 - Pet Store door faces south onto Coin Street (map graphic to be fixed by Tim).
-- Two streets are both called Turbine Drive: they need separate names (Tim is updating the map).
+- The two streets that were both called Turbine Drive are now Dumpster Drive (west, past the Dumpster) and Turbine Drive (middle). Pet Store now has its south door onto Coin Street (revised board). (v1.160)
 
 ## 8. Still to confirm (ASK)
 1. Combat damage = difference of rolls, capped at 3, min 1; all modifiers stack?

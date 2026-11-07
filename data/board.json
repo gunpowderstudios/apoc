@@ -134,7 +134,7 @@
    "kind": "intersection",
    "x": 340,
    "y": 1521,
-   "name": "Turbine Drive / Rust Road",
+   "name": "Dumpster Drive / Rust Road",
    "sector": "SW"
   },
   {
@@ -142,7 +142,7 @@
    "kind": "intersection",
    "x": 832,
    "y": 1521,
-   "name": "Turbine Drive / Fisher Street",
+   "name": "Dumpster Drive / Turbine Drive / Fisher Street",
    "sector": "SW"
   },
   {
@@ -428,7 +428,7 @@
    "kind": "street",
    "x": 170,
    "y": 1521,
-   "name": "Turbine Drive",
+   "name": "Dumpster Drive",
    "seg": [
     0,
     1521,
@@ -442,7 +442,7 @@
    "kind": "street",
    "x": 586,
    "y": 1521,
-   "name": "Turbine Drive",
+   "name": "Dumpster Drive",
    "seg": [
     340,
     1521,
@@ -1198,11 +1198,11 @@
    ],
    "entArrows": [
     [
-     2178,
-     1004
+     2036,
+     1002
     ]
    ],
-   "note": "orange outline on board",
+   "note": "orange outline on board; south door onto Coin Street (added on the revised board)",
    "sector": "EC"
   },
   {
