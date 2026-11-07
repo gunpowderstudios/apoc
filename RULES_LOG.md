@@ -176,3 +176,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the Info expand/collapse tab glows. (v1.155)
 - Test-build tool: the top menu bar shrinks on smaller laptop screens so it stays on one line. (v1.156)
 - Test-build tool: the turn box text and button are centred in the panel. (v1.157)
+- Test-build tool: the little white count numbers on the board piles were removed again (too distracting); the pool and player mats still show counts. (v1.158)

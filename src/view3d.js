@@ -230,7 +230,6 @@ export class View3D {
             const m = new THREE.Mesh(geo, this.tokenMat(pl.coin ? 'coin' : pl.r)); m.scale.set(F, 1, F);
             m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
           }
-          const nsp = this.numSprite(pl.c); nsp.scale.multiplyScalar(F); nsp.position.set(cx + (col - (colN - 1) / 2) * SP + 0.0125 * F, 0.012, z0 + row * SP); this.tokens.add(nsp);   // little white count, same as the pool and the player mats
         });
       }
     }
