@@ -219,7 +219,12 @@ function setView(v) {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
-  }; V3.onMat = (id, img) => { if (moveSel) dropOnMat(id); else if (img) zoomMat(id); }; V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
+  }; V3.onMat = (id, img) => { if (moveSel) dropOnMat(id); else if (img) zoomMat(id); }; V3.canAdjustHealth = true; V3.onHealth = (pid, hp) => {   // a health cube was dragged by hand: logged as a MANUAL ADJUSTMENT
+    const c = { t: 'manualHealth', p: pid, n: hp };
+    if (mode === 'guest') net.send({ cmd: c }); else runCmd(iAct() ? actor() : Math.max(0, S.players.findIndex((q, i) => mine(i))), c);
+    V3.matSig = ''; render();
+  };
+  V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
   if (v === '3d') { V3.resize(); } else { V2.resize(); }

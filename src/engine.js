@@ -836,6 +836,14 @@ const OK = { ok: true };
 
 export function dispatch(s, pl, cmd) {
   if (s.over) return err('Game over');
+  // hand correction of a health cube (any player may do it, any time; always written to the log so it is clear the game didn't do it)
+  if (cmd.t === 'manualHealth') {
+    const q = s.players[cmd.p]; if (!q) return err('No such player');
+    const n = Math.max(0, Math.min(10, Math.round(cmd.n))), old = q.health; if (n === old) return OK;
+    q.health = n; (s.corrections = s.corrections || []).push({ round: s.round, p: q.id, from: old, to: n, by: pl });
+    logm(s, `MANUAL ADJUSTMENT: ${s.players[pl] ? s.players[pl].name : 'A player'} moved ${q.name}'s health cube by hand from ${old} to ${n} (not caused by a game rule).`, q.id);
+    return OK;
+  }
   // prompts
   if (cmd.t === 'choose') {
     if (!s.pending) return err('Nothing to choose');

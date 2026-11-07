@@ -76,11 +76,20 @@ export class View3D {
       if (e.button === 0 && !e.altKey) this.pivotCentre();   // rotate around what is at the centre of the screen
       if (e.button !== 0) return;
       const h = this.hit(e);
+      if (h && h.type === 'cube' && !this.heldG && this.canAdjustHealth) { const hc = h.mesh.userData.healthCube; this.cdrag = { ...hc, mesh: h.mesh, hp: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
     el.addEventListener('pointermove', e => {
       if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; this.updateDrop(e); }
       if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
+      if (this.cdrag) {   // sliding a health cube along its track
+        if (!down || !down.moved) return; this.ndc(e);
+        const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.004), pt)) {
+          const c = this.cdrag, fx = (pt.x - c.x) / 0.21 + 0.5, hp = Math.max(0, Math.min(10, Math.round(10 - (fx - 0.2785) / 0.0697)));
+          c.hp = hp; c.mesh.position.x = c.x + ((0.2785 + (10 - hp) * 0.0697) - 0.5) * 0.21; c.mesh.position.y = c.y + 0.006;
+        }
+        el.style.cursor = 'grabbing'; return;
+      }
       if (this.drag) {
         if (!down || !down.moved) return;
         const pt = this.boardPoint(e); if (!pt) return;
@@ -93,11 +102,16 @@ export class View3D {
       const h = this.hit(e), key = h ? h.type + (h.id || h.pid || (h.info && (h.info.node || h.info.mat) + h.info.r)) : '';
       if (key !== this.hoverKey) {
         this.hoverKey = key;
-        el.style.cursor = !h ? 'grab' : h.type === 'token' ? 'pointer' : h.type === 'pawn' ? (this.canDrag && this.canDrag(h.pid) ? 'grab' : 'default') : (h.id && this.targets && this.targets[h.id] ? 'pointer' : 'grab');
+        el.style.cursor = !h ? 'grab' : h.type === 'cube' ? 'grab' : h.type === 'token' ? 'pointer' : h.type === 'pawn' ? (this.canDrag && this.canDrag(h.pid) ? 'grab' : 'default') : (h.id && this.targets && this.targets[h.id] ? 'pointer' : 'grab');
       }
     });
     const up = e => {
       if (this._leftWas !== undefined) { this.ctl.mouseButtons.LEFT = this._leftWas; this._leftWas = undefined; }
+      if (this.cdrag) {
+        const c = this.cdrag; this.cdrag = null; this.ctl.enabled = true;
+        if (down && down.moved && c.hp !== null) { down = null; if (this.onHealth) this.onHealth(c.pid, c.hp); return; }
+        c.mesh.position.y = c.y;
+      }
       if (this.drag) {
         const d = this.drag; this.drag = null; this.ctl.enabled = true; d.mesh.userData.free = false;
         if (down && down.moved) { down = null; if (this.onDrop) this.onDrop(d.pid, d.node); return; }
@@ -172,6 +186,7 @@ export class View3D {
     const cand = [];
     const th = this.ray.intersectObjects([...this.tokens.children, ...this.mats.children], false).find(h => h.object.userData.tok); if (th) cand.push({ d: th.distance, type: 'token', info: th.object.userData.tok });
     const nh = this.ray.intersectObjects(this.piles.children, false).find(h => h.object.userData.news); if (nh) cand.push({ d: nh.distance, type: 'news', key: nh.object.userData.news });
+    const chh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.healthCube); if (chh) cand.push({ d: chh.distance - 1e-4, type: 'cube', pid: chh.object.userData.healthCube.pid, mesh: chh.object });
     const mh = this.ray.intersectObjects(this.mats.children, false).find(h => h.object.userData.matId !== undefined); if (mh) cand.push({ d: mh.distance + 1e-5, type: 'mat', matId: mh.object.userData.matId, cardImg: mh.object.userData.cardImg });
     const fh = this.ray.intersectObjects(this.furniture.children, false).find(h => h.object.userData.cardImg); if (fh) cand.push({ d: fh.distance, type: 'card', img: fh.object.userData.cardImg });
     const ph = this.ray.intersectObjects(this.pawns.children, true)[0];
@@ -349,7 +364,7 @@ export class View3D {
           const cube = new THREE.Mesh(new THREE.BoxGeometry(cs, cs, cs), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 }));
           cube.position.set(x + (fx2 - 0.5) * 0.21, 0.0026 + cs / 2, zc + (fz2 - 0.5) * 0.149); cube.castShadow = true;
           const ed = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: 0x111111 })); cube.add(ed);
-          cube.userData.matId = p.id; cube.userData.cardImg = url; this.mats.add(cube);
+          cube.userData.matId = p.id; cube.userData.cardImg = url; cube.userData.healthCube = { pid: p.id, x, zc, y: cube.position.y }; this.mats.add(cube);
         }
         const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
         // busted tokens (1-2) / tagged token sit beside the name above the card; 3 busts = tagged
