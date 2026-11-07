@@ -312,7 +312,7 @@ export class View3D {
         const [x, z] = this.newsPos[key], h = Math.max(0.001, n * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 });
         const top = new THREE.MeshStandardMaterial({ map: this.tex(topUrl), roughness: 0.8 });
         const m = new THREE.Mesh(new THREE.BoxGeometry(0.1347, h, 0.191), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = key; this.piles.add(m);
-        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.11); this.piles.add(lb);
+        const lb = this.label(`${name} ${n}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z - 0.118); this.piles.add(lb);
       };
       make('deck', deckN, 'assets/news/back.jpg', 'DECK');
       if (itemN > 0) {   // face-down shuffled ITEM deck (portrait cards 63x88 mm, drawn bigger so it reads like the news piles)
