@@ -601,7 +601,7 @@ function escalate(s, type) {
   for (const t of APOC_TYPES) { s.newsDeck.push(...s.stand[t]); s.stand[t] = []; }
   s.spent = [];
   s.offers = [];
-  if (s.defcon === 1) for (const q of s.players) { if (q.tagged) { q.tagged = false; s.bustedLeft++; logm(s, `${q.name}'s TAGGED token is discarded.`); } }
+  for (const q of s.players) { if (q.tagged) { q.tagged = false; s.bustedLeft++; logm(s, `${q.name}'s TAGGED token is discarded.`); } }
   const lvl = ['green', 'yellow', 'orange'][s.defcon];
   if (s.endTimes[lvl]) s.newsDeck.push(...s.endTimes[lvl]);
   shuffle(s, s.newsDeck);

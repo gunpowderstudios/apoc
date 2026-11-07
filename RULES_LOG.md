@@ -77,7 +77,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 ## 5. Stealing, looting, busted
 - **Steal:** roll to steal, pick a resource, may push your luck. **If you are caught, everything stolen in that steal action goes back to the place it came from**, then you are busted. (v1.69)
 - **Loot:** a failed loot loses everything looted that action back to the place and you are shot (2 damage) and crawl into the nearest dumpster.
-- Busted: pay a 1 PrepCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing).
+- Busted: pay a 1 PrepCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing) until the DEFCON next rises, then the tagged token is discarded (v1.132; before this it only cleared at DEFCON 1).
 
 ## 6. Buying and selling
 - **Sell resources** only at the purple coin places: Truck Stop, Salvage Yard, Prison, Pawn Shop.
