@@ -381,9 +381,10 @@ export class View3D {
     const cam = close ? new THREE.Vector3(t.x, 0.195, t.z + 0.195) : new THREE.Vector3(t.x, 0.34, t.z + 0.2);   // Z: 30% closer and tilted in further
     this.flyTo(cam, new THREE.Vector3(t.x, 0, t.z), 900); return true;
   }
-  follow(i, n) {
-    const x = this.matX(i, n), tx = x * 0.8, tz = 0.2;
-    this.flyTo(new THREE.Vector3(tx, 1.0, tz + 0.42), new THREE.Vector3(tx, 0, tz), 1400);
+  follow(i, n) {   // look down at a player's character card (mat)
+    this.manual = false;
+    const x = this.matX(i, n), zc = this.H / 2 + 0.03 + 0.0745;
+    this.flyTo(new THREE.Vector3(x, 0.27, zc + 0.15), new THREE.Vector3(x, 0, zc), 900);
   }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   // ---- physical dice: thrown from the player's mat, tumble and bounce across the table, land showing the rolled face
@@ -433,7 +434,7 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C to Recenter  ·  Z to Zoom'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Zoom to figure  ·  X Zoom to card'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
     if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
     this.hint.style.opacity = far ? '1' : '0.7';

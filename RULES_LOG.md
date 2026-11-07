@@ -164,3 +164,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: a game always opens on the full zoomed-out table; the Follow camera only starts zooming from the next turn/move. (v1.142)
 - Test-build tool: Z zooms in 30% closer and tilts in further than the Follow camera. (v1.143)
 - Test-build tool: if you angle/zoom/pan the table yourself, the Follow camera stops moving it until you press C or Z. (v1.144)
+- Test-build tool: X key zooms to the active player's character card (press again to step to the next card); the top-right legend now reads C Recenter · Z Zoom to figure · X Zoom to card. (v1.145)

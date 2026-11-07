@@ -203,6 +203,11 @@ window.addEventListener('keydown', e => {
     zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
     const q = S.players[(a + zoomStep) % n]; if (!V3.followPawn(q.id, true)) V3.fitAll(); return;
   }
+  if (e.key.toLowerCase() === 'x' && V3 && S && !$('#app').hidden) {   // X = zoom in on the active player's character card; press again to step through the other players' cards
+    const n = S.players.length, a = S.players.findIndex(q => q.id === actor()), now = performance.now();
+    zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
+    V3.follow((a + zoomStep) % n, n); return;
+  }
   const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
 function setView(v) {
