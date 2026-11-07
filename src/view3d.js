@@ -5,7 +5,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
-const PIECE_H = { frost: 0.040, jessica: 0.03388, naomi: 0.038, sam: 0.038 };
+const PIECE_H = { frost: 0.042, jessica: 0.032186, naomi: 0.038, sam: 0.038 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const POOL_COINS = 30;   // PrepCoin that start in the pool
@@ -264,7 +264,7 @@ export class View3D {
   label(text, color = '#fff') {
     const k = text + color; if (this.labels[k]) return this.labels[k].clone();
     const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d');
-    g.font = 'bold 54px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 10; g.lineJoin = 'round'; g.miterLimit = 2; g.strokeStyle = '#000'; g.strokeText(text, 256, 50); g.fillStyle = color; g.fillText(text, 256, 50);
+    let fs = 54; g.font = `bold ${fs}px system-ui,sans-serif`; while (g.measureText(text).width > 470 && fs > 20) { fs -= 2; g.font = `bold ${fs}px system-ui,sans-serif`; } g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 10; g.lineJoin = 'round'; g.miterLimit = 2; g.strokeStyle = '#000'; g.strokeText(text, 256, 50); g.fillStyle = color; g.fillText(text, 256, 50);
     const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true })); sp.scale.set(0.16, 0.03, 1); sp.renderOrder = 10;
     this.labels[k] = sp; return sp.clone();
@@ -276,7 +276,7 @@ export class View3D {
     const c = this.flat(this.chart.w, this.chart.d, 'assets/ui/countdown.jpg', this.chart.x, 0.0018, this.chart.z); c.userData.cardImg = 'assets/ui/countdown.jpg'; this.furniture.add(c);
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
-    { const lg = this.flat(0.19, 0.19 * 226 / 500, 'assets/ui/logo.png', -0.5, 0.002, -0.405, { transparent: true }); lg.castShadow = false; lg.material = new THREE.MeshBasicMaterial({ map: this.tex('assets/ui/logo.png'), transparent: true }); this.furniture.add(lg); }   // game logo, top left of the table
+    { const lw = 0.19, ld = lw * 226 / 500, lx = 0.51, lz = this.H / 2 - ld / 2, lg = this.flat(lw, ld, 'assets/ui/logo.png', lx, 0.002, lz, { transparent: true }); lg.castShadow = false; lg.material = new THREE.MeshBasicMaterial({ map: this.tex('assets/ui/logo.png'), transparent: true }); this.furniture.add(lg); const cp = this.label('\u00a9 Gunpowder Studios', '#fff'); cp.scale.set(0.15, 0.019, 1); cp.position.set(lx, 0.012, this.H / 2 + 0.014); this.furniture.add(cp); }   // game logo + copyright, right of the board, base level with the board's base
     const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
     // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
     const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
@@ -417,7 +417,7 @@ export class View3D {
     rect(-0.585, -0.425, -0.065, 0.262, 0.01);  // DEFCON chart
     rect(-0.56, -0.45, -0.27, -0.12, 0.07);     // item deck
     rect(-0.4, 0.235, -0.49, -0.295, 0.03);     // news row
-    rect(-0.6, -0.4, -0.45, -0.36, 0.01);       // logo
+    rect(0.41, 0.61, 0.18, 0.31, 0.01);          // logo + copyright
     rect(0.415, 0.6, -0.245, 0.09, 0.02);       // pool
     { const n = this.nPlayers || 2, hx = ((n - 1) / 2) * 0.225 + 0.11; rect(-hx, hx, 0.285, this.matItems ? 0.575 : 0.5, 0.01); }   // player mats, their tokens and (if any) item cards
     const box = d => {   // projected bounding box of the whole scene for distance d (NDC)
