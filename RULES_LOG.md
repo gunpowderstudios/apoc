@@ -113,7 +113,7 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Each door joins the road its arrow points across. The two corner dumpsters sit at the end of a road.
 - Central Park has six doors and is its own block. Blocks (for Bolt Cutters) follow the street grid; the river row is the bottom row.
 - Pet Store: currently shares the Music Store's door on Coin Street. To be fixed when Tim's new map arrives (own door, south facing onto Coin Street).
-- Subway = the "S" markers; 1 PrepCoin to any other station. Bridges for the boat are not modelled.
+- Subway = the "S" markers (junctions). You can walk onto an S junction like any other junction without using the subway. Using the subway costs 1 move and 1 PrepCoin and takes you to any other S station. (Confirmed by Tim, v1.117.) Bridges for the boat are not modelled.
 ### Rules I had to guess
 - PrepCoin is an unlimited bank. Resource tokens are limited to the supply counts.
 - Combat modifiers stack.
