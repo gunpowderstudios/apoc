@@ -159,3 +159,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the camera now zooms in on whichever player's turn it is by default (🎥 Follow is on at start; click it to turn off, which also returns to the full-table view; the choice is remembered). (v1.134)
 - Test-build tool: the newspaper now pops up on the left of the table with no screen dimming, so the board stays visible. (v1.135)
 - Test-build tool: choice pop-ups (steal, loot, etc.) now show only your own last few log lines, not the news/event lines. (v1.136)
+- Test-build tool: the right-hand info bar (players, log, status) is collapsed by default; only the turn/action panel stays, bottom-right. The ◀ Info tab on the right edge expands it (remembered). (v1.138)

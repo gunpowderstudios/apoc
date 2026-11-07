@@ -157,6 +157,10 @@ function toggleMusic() { musicOn = !musicOn; try { localStorage.setItem('apoc-mu
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
+  { const tab = document.createElement('button'); tab.id = 'sideTab'; document.body.appendChild(tab);
+    const setSide = min => { document.body.classList.toggle('sidemin', min); tab.textContent = min ? '◀ Info' : 'Info ▶'; tab.title = min ? 'Expand the info bar (players, log)' : 'Collapse the info bar'; try { localStorage.setItem('apoc-sidemin', min ? '1' : '0'); } catch (e) {} setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 60); };
+    tab.onclick = () => setSide(!document.body.classList.contains('sidemin'));
+    setSide(localStorage.getItem('apoc-sidemin') !== '0'); }
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
   $('#bMusic').onclick = toggleMusic; syncMusic();   // ambient music while playing

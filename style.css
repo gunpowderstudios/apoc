@@ -188,3 +188,11 @@ body.fs #hand{display:none}
 #newsbig{background:none !important;pointer-events:none;align-items:flex-start !important;justify-content:center !important;inset:0 auto 0 0 !important;width:min(46%,560px);padding-top:2%}
 #newsbig img{pointer-events:auto;cursor:zoom-out;height:min(88%,780px) !important;max-width:100% !important}
 #newsbig .x,#newsbig .hint{pointer-events:auto}
+
+/* right info bar collapsed by default: only the turn/action panel floats bottom-right; the tab expands the full bar */
+body.sidemin aside{position:fixed;right:14px;bottom:36px;width:300px;max-width:40vw;border:0;background:transparent;overflow:visible;z-index:15;pointer-events:none}
+body.sidemin #status,body.sidemin #players,body.sidemin #log{display:none}
+body.sidemin #turn{pointer-events:auto;background:#1b1e22ee;border:1px solid #444;border-radius:12px;box-shadow:0 6px 26px #000a}
+body.sidemin #evbar{right:330px}
+#sideTab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:16;writing-mode:vertical-rl;background:#1b1e22;color:#fff;border:1px solid #555;border-right:0;border-radius:8px 0 0 8px;padding:12px 6px;cursor:pointer;font-size:13px;letter-spacing:1px}
+body.fs #sideTab{display:none}
