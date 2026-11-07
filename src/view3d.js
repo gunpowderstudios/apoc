@@ -85,8 +85,8 @@ export class View3D {
       if (this.cdrag) {   // sliding a health cube along its track
         if (!down || !down.moved) return; this.ndc(e);
         const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.004), pt)) {
-          const c = this.cdrag, fx = (pt.x - c.x) / 0.21 + 0.5, hp = Math.max(0, Math.min(10, Math.round(10 - (fx - 0.2785) / 0.0697)));
-          c.hp = hp; c.mesh.position.x = c.x + ((0.2785 + (10 - hp) * 0.0697) - 0.5) * 0.21; c.mesh.position.y = c.y + 0.006;
+          const c = this.cdrag, fx = (pt.x - c.x) / 0.21 + 0.5, hp = Math.max(0, Math.min(10, Math.round(10 - (fx - 0.2805) / 0.0651)));
+          c.hp = hp; c.mesh.position.x = c.x + ((0.2805 + (10 - hp) * 0.0651) - 0.5) * 0.21; c.mesh.position.y = c.y + 0.006;
         }
         el.style.cursor = 'grabbing'; return;
       }
@@ -363,7 +363,7 @@ export class View3D {
         frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);
         if (url) { const cm = this.flat(0.21, 0.149, url, x, 0.0026, zc, fx); cm.userData.cardImg = url; this.mats.add(cm); }
         if (url) {   // health cube: sits on the card's health track (10 on the left down to 0 on the right) and moves as health changes
-          const hp = Math.max(0, Math.min(10, p.health)), fx2 = 0.2785 + (10 - hp) * 0.0697, fz2 = 0.903, cs = 0.0105;
+          const hp = Math.max(0, Math.min(10, p.health)), fx2 = 0.2805 + (10 - hp) * 0.0651, fz2 = 0.903, cs = 0.0105;
           const cube = new THREE.Mesh(new THREE.BoxGeometry(cs, cs, cs), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 }));
           cube.position.set(x + (fx2 - 0.5) * 0.21, 0.0026 + cs / 2, zc + (fz2 - 0.5) * 0.149); cube.castShadow = true;
           const ed = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: 0x111111 })); cube.add(ed);
