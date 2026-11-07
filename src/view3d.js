@@ -401,7 +401,12 @@ export class View3D {
       const f = this.fly, k = Math.min(1, (performance.now() - f.start) / f.ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
       this.cam.position.lerpVectors(f.p0, f.p1, e); this.ctl.target.lerpVectors(f.t0, f.t1, e); if (k >= 1) this.fly = null;
     }
-    this.ctl.update(); this.r.render(this.scene, this.cam);
+    this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
+  }
+  updateHint() {
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C to Recenter'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
+    if (far !== this._hintOn) { this._hintOn = far; this.hint.style.display = far ? 'block' : 'none'; }
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
   fitAll() {
@@ -426,6 +431,7 @@ export class View3D {
       tg.x += Math.cos(az) * cx * half * this.cam.aspect; tg.z += Math.sin(az) * cx * half * this.cam.aspect;   // slide sideways along the screen
       tg.x -= hx * cy * half / Math.sin(el); tg.z -= hz * cy * half / Math.sin(el);                                 // and up/down the table
     }
+    this.fitD = d; this.fitT = tg.clone();
     this.flyTo(tg.clone().addScaledVector(dir, d), tg, 800);
   }
   reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
