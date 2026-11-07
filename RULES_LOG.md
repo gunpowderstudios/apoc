@@ -3,6 +3,15 @@
 What the game does now (v1.69), as decided by Tim. I add to this every time a rule is decided or changed.
 Format: **rule**, then (version it went in). Items marked "ASK" are guesses that still need confirming.
 
+## Object of the game
+You are a prepper in Hope Falls, a town on the edge of collapse. Race your rivals to grab the essential resources (FOOD, KNOW-HOW, CHEM, HARDWARE, TECH, MEDS) and the DUCT TAPE that holds everything together, and stay alive.
+- You start in Central Park with a backpack, 2 PREPCOIN and 3 FOOD. PREPCOIN is portable crypto: use it to buy resources and items.
+- Short of coin? Steal, loot or dumpster dive, and risk a stretch in jail or hospital.
+- Soon you need a **bunker** to keep your gear in and other players out.
+- Every turn a news headline points at one of three looming APOC events: AI uprising, nuclear strike or global pandemic. As DEFCON rises, easy pickings disappear, the town gets meaner and law and order fails.
+- When DEFCON goes red (the SHTF token reaches the red space) the town flips to its post-APOC state and survival becomes a final race through a town you no longer recognise.
+- **This online test build plays the pre-APOC part only.** When SHTF is triggered everyone does the Panic Grab, the board is cleared and the game ends, telling you which Mission Pack to open. Post-APOC is not built yet.
+
 ## 1. Turn order (pre-APOC)
 1. **Eat / Pay Thugs.** Eat 1 food (no food = lose 1 health). Thug pay, keep or give a job.
 2. **Draw News.** Top card of the news deck is drawn, news sound plays, card shown big until closed (click, x or Esc). It goes on the pile of its type. (v1.58)
