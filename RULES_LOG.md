@@ -139,6 +139,7 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Keyboard: P pauses / resumes the AI (the old P = pan tool shortcut is gone); C recentres. (v1.100)
 - Start screen plays a short radio chatter clip once (after the first click or key press if the browser blocks autoplay). (v1.105)
 - Ambient music starts on the start screen with the radio chatter and plays on through the game (quietly, looping); the Music off / Music on button at the top switches it and remembers your choice. (v1.107)
-- A card-up sound plays whenever a card is enlarged (clicking a card on the table or in a list) and when a drawn news card pops up, including in all-AI games. (v1.109)
+- A card-up sound plays whenever anything is enlarged (a card on the table or in a list, a news pile or the item deck) and when a drawn news card pops up, including in all-AI games. (v1.109)
 - Figures are always shown at their true height (Frost 42, Jessica 38.6, Naomi 38, Sam 38 mm, tuned by eye); the player whose turn it is no longer grows. (v1.111)
 - Bolt Cutters: a player holding them (or Sam, with Parkour) can move from a building straight into a building that touches it (e.g. Casino to Bar, Bar to Pizza House), 1 move, no door needed. It is not any building in the block, only neighbours. The neighbour list is in data/adjacent.json (35 pairs, generated from the map by distance and checked by Tim); edit it freely. (v1.114)
+- News dice faces are tinted with the event colour (Pandemic red, AI blue, Nuclear amber; Fake News stays white). (v1.118)

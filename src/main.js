@@ -196,7 +196,7 @@ window.addEventListener('keydown', e => {
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
   if (v === '3d' && !V3) {
-    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key === 'items') { modalFn = itemDeckModal; render(); return; } if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
+    V3 = new View3D($('#c3'), D.board, boardImg, icons); V3.preppers = E.D.prepper; V3.onClick = (id, pt) => { closePop(); onBoardClick(id, pt); }; V3.onNews = key => { if (key !== 'deck') cardUpSound(false); if (key === 'items') { modalFn = itemDeckModal; render(); return; } if (key === 'deck') return toast('The news deck: face-down until drawn'); newsView = { type: key, i: 0 }; modalFn = newsPileModal; render(); }; V3.onHeldHover = tgt => {
     if (!moveSel) return false;
     if (tgt.type === 'node') return tgt.id === moveSel.node ? 'same' : true;
     const q = S.players[tgt.id]; return !!q && (moveSel.r === 'coin' || E.holdLimit(q) - E.resTotal(q) >= 1);
