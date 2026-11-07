@@ -166,3 +166,10 @@ img.zm{cursor:zoom-in}
 .evp .evt{font-size:13px!important;line-height:1.2!important}.evp{padding:6px 9px!important}
 
 #copyr{position:fixed;right:12px;bottom:6px;z-index:5;font:11px sans-serif;color:#fff;opacity:.75;pointer-events:none}
+
+/* full screen: the table fills the window; only the action buttons float over the bottom right */
+body.fs aside{position:fixed;right:14px;bottom:36px;width:300px;max-width:40vw;border:0;background:transparent;overflow:visible;z-index:15;pointer-events:none}
+body.fs #status,body.fs #players,body.fs #log{display:none}
+body.fs #turn{pointer-events:auto;background:#1b1e22ee;border:1px solid #444;border-radius:12px;box-shadow:0 6px 26px #000a}
+body.fs #evbar{right:330px}
+body.fs #hand{display:none}

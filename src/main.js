@@ -158,7 +158,7 @@ function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
-  document.addEventListener('fullscreenchange', () => { $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
+  document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
   $('#bMusic').onclick = toggleMusic; syncMusic();   // ambient music while playing
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
   V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;

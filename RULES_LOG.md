@@ -149,4 +149,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Figures are always shown at their true height (Frost 42, Jessica 38.6, Naomi 38, Sam 38 mm, tuned by eye); the player whose turn it is no longer grows. (v1.111)
 - Bolt Cutters: a player holding them (or Sam, with Parkour) can move from a building straight into a building that touches it (e.g. Casino to Bar, Bar to Pizza House), 1 move, no door needed. It is not any building in the block, only neighbours. The neighbour list is in data/adjacent.json (35 pairs, generated from the map by distance and checked by Tim); edit it freely. (v1.114)
 - News dice faces are tinted with the event colour (Pandemic red, AI blue, Nuclear amber; Fake News stays white). (v1.118)
-- Full screen button at the top (Esc leaves full screen); the table recentres when you switch. (v1.124)
+- Full screen button at the top (Esc leaves full screen). In full screen the right column is hidden except the turn buttons, which float over the bottom right; the table recentres. (v1.125)
