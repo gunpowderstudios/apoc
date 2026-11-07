@@ -151,3 +151,6 @@ img.zm{cursor:zoom-in}
 #zoom .flipbtn{background:#1f7a3a;color:#fff;border:2px solid #fff;border-radius:10px;padding:10px 18px;font:700 16px sans-serif;cursor:pointer}
 #zoom img.flipin{animation:cardflip .45s ease-out}
 @keyframes cardflip{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
+
+.seat .goal{grid-column:2/5;font-size:12px}
+@media(max-width:800px){.seat .goal{grid-column:2/4}}

@@ -4,7 +4,24 @@ const D = new Proxy({}, { get: (_, k) => E.D[k] });
 const { RES, ALLRES } = E;
 
 const chance = p => Math.random() < p;
+// ---- opening goals chosen on the start screen: the AI pursues its goal first, then plays balanced
+const WEAPONS = ['pistol', 'rifle', 'knife', 'bow', 'chainsaw'];
+export function activeGoal(s, p) {
+  switch (p.goal) {
+    case 'weapons': return WEAPONS.filter(w => E.ownsItem(p, w)).length >= 2 ? null : 'weapons';
+    case 'bunker': return p.bunker ? null : 'bunker';
+    case 'craft': return p.items.length >= 3 ? null : 'craft';
+    case 'thug': return p.thug ? null : (s.thugsBar > 0 ? 'thug' : null);
+    case 'food10': return p.res.food >= 10 ? null : 'food10';
+    case 'gamble': return (p.gambled || 0) >= 2 ? null : 'gamble';
+    default: return null;
+  }
+}
+const shopAt = (s, id) => (D.cfg.shops[id] || []).map(([i, price]) => ({ id: i, price, stock: i === 'DUCT' ? s.supply.ducttape : E.stockOf ? E.stockOf(s, i) : 1 }));
 function needValue(s, p, r) {
+  const g = activeGoal(s, p);
+  if (g === 'food10' && r === 'food') return 9;
+  if (g === 'craft' && r !== 'ducttape') return Math.max(3, p.res[r] >= 4 ? 0.5 : 3);
   if (r === 'ducttape') return 1.5;
   let v = 1;
   if (!p.bunker && p.res[r] < 1 && r !== 'ducttape') v = 5;
@@ -17,7 +34,7 @@ const price = s => E.defc(s).buy;
 
 function marketPlan(s, p) {
   const L = s.loc[p.node], pr = price(s);
-  let coin = p.coin; const buy = {}, sell = {};
+  let coin = p.coin - (activeGoal(s, p) === 'thug' ? 2 : 0); const buy = {}, sell = {};
   const isSell = D.cfg.sellNodes.includes(p.node);
   let room = E.holdLimit(p) - E.resTotal(p);
   if (isSell) {   // sell clear surpluses when short of coin
@@ -52,14 +69,22 @@ function scoreNode(s, p, nodeId) {
   }
   if (n.acts.includes('dive') && p.health >= 4) { if (1.6 > best) { best = 1.6; what = 'dive'; } }
   if (n.acts.includes('burgle') && df.burgle && p.health >= 5) { if (2.4 > best) { best = 2.4; what = 'burgle'; } }
-  if (n.acts.includes('buy') && p.coin >= 3) { const sh = E.shopList(s, p).filter(x => x.stock && x.price <= p.coin && wantItem(s, p, x.id)); if (sh.length) { const v = 2 + (p.bunker ? 0 : -1); if (v > best) { best = v; what = 'shop'; } } }
+  if (n.acts.includes('buy') && p.coin >= 3 && activeGoal(s, p) !== 'craft') { const sh = E.shopList(s, p).filter(x => x.stock && x.price <= p.coin && wantItem(s, p, x.id)); if (sh.length) { const v = 2 + (p.bunker ? 0 : -1); if (v > best) { best = v; what = 'shop'; } } }
   if (n.acts.includes('gamble') && p.coin >= 5) { if (0.9 > best) { best = 0.9; what = 'gamble'; } }
   if (nodeId === D.board.barNode && !p.thug && p.coin >= 6 && s.thugsBar > 0) { if (1.8 > best) { best = 1.8; what = 'recruit'; } }
   if (nodeId === D.board.hospitalNode && p.health <= 4 && false) best = 0;
   if (n.acts.includes('trade') && !p.bunker) { const miss = RES.filter(r => p.res[r] < 1); const extra = ALLRES.filter(r => p.res[r] > 1); if (miss.length && extra.length) { if (3 > best) { best = 3; what = 'swap'; } } }
+  const g = activeGoal(s, p);
+  if (g === 'craft' && (what === 'shop' || what === 'gamble' || what === 'recruit')) { best = 0; what = null; }
+  if (g === 'gamble' && nodeId === 'casino' && p.coin >= 1) { best = 9; what = 'gamble'; }
+  if (g === 'thug' && nodeId === D.board.barNode && !p.thug && p.coin >= 2 && p.res.food >= 1 && s.thugsBar > 0) { best = 9; what = 'recruit'; }
+  if (g === 'weapons' && n.acts.includes('buy') && shopAt(s, nodeId).some(x => x.stock && x.price <= p.coin && WEAPONS.includes(x.id) && !E.ownsItem(p, x.id))) { best = 8; what = 'shop'; }
   return { v: best, what };
 }
 function wantItem(s, p, id) {
+  const g = activeGoal(s, p);
+  if (g === 'weapons') return WEAPONS.includes(id) && !E.ownsItem(p, id);
+  if (g === 'craft') return false;
   if (E.ownsItem(p, id)) return id === 'knife' ? false : false;
   if (!p.bunker && E.defc(s).id === 'green' && p.coin < 6) return false;
   return ['pistol', 'rifle', 'knife', 'flashlight', 'bolt-cutters', 'kevlar-vest', 'chainsaw', 'bow'].includes(id);
@@ -162,7 +187,24 @@ export function next(s) {
   }
   return C({ t: 'endTurn' });
 }
+function goalTarget(s, p) {   // where the opening goal wants to go next (null = nowhere in particular)
+  const g = activeGoal(s, p), ok = id => id !== p.node && E.pathTo(s, p.node, id);
+  if (g === 'thug' && p.coin >= 2 && p.res.food >= 1 && ok(D.board.barNode)) return D.board.barNode;
+  if (g === 'gamble' && p.coin >= 1 && ok('casino')) return 'casino';
+  if (g === 'food10') {
+    let best = null, bd = 1e9;
+    for (const n of D.board.nodes) { const f = s.loc[n.id].res.food || 0; if (!f || !ok(n.id)) continue; if (n.kind === 'building' && n.id !== D.board.churchNode && p.coin < E.defc(s).buy) continue; const d = E.pathTo(s, p.node, n.id).length / Math.min(f, 3); if (d < bd) { bd = d; best = n.id; } }
+    return best;
+  }
+  if (g === 'weapons') {
+    let best = null, bd = 1e9;
+    for (const id of Object.keys(D.cfg.shops)) if (shopAt(s, id).some(x => x.stock && x.price <= p.coin && WEAPONS.includes(x.id) && !E.ownsItem(p, x.id)) && ok(id)) { const d = E.pathTo(s, p.node, id).length; if (d < bd) { bd = d; best = id; } }
+    return best;
+  }
+  return null;
+}
 function pickTarget(s, p) {
+  const gt = goalTarget(s, p); if (gt && !s.ts.aiFail.includes('t' + gt)) return gt;
   const ts = s.ts, { dist } = E.reachable(s, p, 14);
   let best = null, bv = 0.7;
   const reach = Math.max(1, ts.moves);
@@ -180,6 +222,11 @@ function pickTarget(s, p) {
   return best;
 }
 function pickCraft(s, p) {
+  const g = activeGoal(s, p);
+  if (g === 'craft' || g === 'weapons') {   // goal: craft whatever can be made (weapons only for the weapons goal), no reserve held back
+    const ids = E.craftable(s, p).map(c => c.id).filter(id => !E.ownsItem(p, id) && (g === 'craft' || WEAPONS.includes(id)));
+    if (ids.length) return ids[0];
+  }
   const prio = p.bunker ? ['bed', 'solar-panel', 'hydroponics-lab', 'med-lab', 'rifle', 'pistol', 'flashlight', 'knife', 'bolt-cutters', 'kevlar-vest', 'shopping-cart', 'town-map'] : ['knife', 'town-map'];
   const bunkerNeed = p.bunker ? [] : RES.filter(r => p.res[r] < 1);
   for (const id of prio) {

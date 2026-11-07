@@ -45,18 +45,21 @@ async function boot() {
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
+const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino']];
 function buildSeats() {
   const types = lobbyMode === 'host' ? [['human', 'Human (this device)'], ['remote', 'Remote player'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
-  const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value } : null);
+  const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value, g: $('#sg' + i).value } : null);
   $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" id="sd${i}" style="background:${PREP_COL[PREPS[i]]}"></span><input id="sn${i}" value="${NAMES[i]}">
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
-    <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
+    <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
+    <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
     const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = dot; dot();
     $('#st' + i).value = o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : i === 1 ? 'ai' : 'off');
-    if (o) $('#sn' + i).value = o.n;
+    if (o) { $('#sn' + i).value = o.n; $('#sg' + i).value = o.g || 'balanced'; }
+    const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = gl; gl();
   });
 }
 function bindLobby() {
@@ -79,7 +82,7 @@ function readSeats() {
     const t = $('#st' + i).value; if (t === 'off') continue;
     let name = $('#sn' + i).value.trim() || NAMES[i];
     if (t === 'ai' && !/\(AI\)$/.test(name)) name += ' (AI)';
-    out.push({ name, prepper: $('#sp' + i).value, ai: t === 'ai', type: t, color: i });
+    out.push({ name, prepper: $('#sp' + i).value, ai: t === 'ai', type: t, color: i, goal: $('#sg' + i).value });
   }
   return out;
 }
@@ -95,7 +98,7 @@ async function onStart() {
     seats.forEach((s, i) => {
       let ai = s.ai, name = s.name;
       if (s.type === 'remote') { const g = guests.shift(); if (g) { peerSeat.set(g, i); name = guestNames.get(g); remoteSeats.add(i); } else { ai = true; name += ' (AI)'; } }
-      players.push({ name, prepper: s.prepper, ai });
+      players.push({ name, prepper: s.prepper, ai, goal: s.goal });
     });
     guests.forEach(g => peerSeat.set(g, -1));
     mode = lobbyMode === 'host' ? 'host' : 'local';

@@ -71,7 +71,7 @@ export function createGame(opts) {
     const p = {
       id: i, name: pl.name, ai: !!pl.ai, prepper: pl.prepper, node: D.board.startNode, health: cfg.maxHealth, bunker: false,
       res: Object.fromEntries(ALLRES.map(r => [r, 0])), coin: cfg.startCoin, items: [], busted: 0, tagged: false,
-      thug: null, admitted: false, carePending: false, moon: false, askedHospital: false, standee: null,
+      goal: pl.goal || 'balanced', gambled: 0, thug: null, admitted: false, carePending: false, moon: false, askedHospital: false, standee: null,
     };
     s.players.push(p);
     gain(s, p, 'food', cfg.startFood);
@@ -299,13 +299,13 @@ RESOLVE.lootAgain = (s, pd, o) => { if (o === 'again') lootRoll(s, s.players[pd.
 function arrest(s, p) {
   logm(s, `${p.name} is BUSTED!`, p.id);
   p.node = D.board.policeNode;
-  if (p.coin >= 2) { p.coin -= 2; logm(s, `${p.name} pays a 2 PREPCOIN fine.`); }
+  if (p.coin >= 1) { p.coin -= 1; logm(s, `${p.name} pays a 1 PREPCOIN fine.`); }
   else {
     const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
     let n = 0;
-    for (const r of have) { while (p.res[r] > 0 && n < 2) { spend(s, p, r, 1); n++; } }
-    if (n === 0) { p.coin += 2; logm(s, `The Police Chief gives ${p.name} 2 PREPCOIN gate money.`); }
-    else logm(s, `${p.name} does community service: ${n} resource(s) go back to the pool.`);
+    for (const r of have) { while (p.res[r] > 0 && n < 1) { spend(s, p, r, 1); n++; } }
+    if (n === 0) { p.coin += 1; logm(s, `The Police Chief gives ${p.name} 1 PREPCOIN gate money.`); }
+    else logm(s, `${p.name} does community service: ${n} resource goes back to the pool.`);
   }
   if (s.bustedLeft > 0) { s.bustedLeft--; p.busted++; }
   if (p.busted >= 3) { p.tagged = true; s.bustedLeft += 2; p.busted = 0; logm(s, `${p.name} is TAGGED: day dice only, no stealing.`, p.id); }
@@ -553,7 +553,7 @@ RESOLVE.contraband = (s, pd, o) => {
   const p = s.players[pd.pl]; if (o !== 'yes') return;
   if (!p.ai) { pickRes(s, p, 'contra', 'Swap for 3 MEDS: give resource 1 of 2', ALLRES.filter(r => p.res[r] > 0), { n: 2 }); return; }   // people choose which 2 resources to give
   let n = 0; const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
-  for (const r of have) while (p.res[r] > 0 && n < 2) { spend(s, p, r, 1); n++; }
+  for (const r of have) while (p.res[r] > 0 && n < 1) { spend(s, p, r, 1); n++; }
   gain(s, p, 'meds', 3); logm(s, `${p.name} swaps 2 resources for 3 MEDS.`, p.id);
 };
 RESOLVE.crypto = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'all') { const n = p.res.tech; spend(s, p, 'tech', n); p.coin += 2 * n; logm(s, `${p.name} cashes in ${n} TECH for ${2 * n} PREPCOIN.`, p.id); } };
@@ -1089,7 +1089,7 @@ function doAction(s, p, cmd) {
   if (a === 'shop') { ts.shop = p.node; logm(s, `${p.name} browses the shop.`); return OK; }
   if (a === 'burgle') { doBurgle(s, p); return OK; }
   if (a === 'dive') { doDive(s, p); return OK; }
-  if (a === 'gamble') { p.coin -= 1; ts.gamble = { n: 0, pot: 0 }; gambleThrow(s, p); return OK; }
+  if (a === 'gamble') { p.coin -= 1; p.gambled = (p.gambled || 0) + 1; ts.gamble = { n: 0, pot: 0 }; gambleThrow(s, p); return OK; }
   if (a === 'build') {
     p.bunker = true; logm(s, `${p.name} BUILDS A BUNKER! Home sweet home.`, p.id);
     if (!s.bunkerBonusTaken) { s.bunkerBonusTaken = true; const c = drawTop(s); if (c) { giveCard(s, p, c); logm(s, `Bunker bonus: ${p.name} receives a ${D.item[c.id].name}.`, p.id); } }

@@ -62,13 +62,13 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - Shown on the right of the board in piles with counts. (v1.68)
 - **Everything spent, crafted away, sold, lost, robbed or paid goes back to the pool.** (v1.68)
 - The pool also holds **30 PrepCoin** (a row at the bottom of the pool). The count shown is 30 minus the coin players hold or have left on the board, so coin earned and spent moves in and out of it. The rules still treat PrepCoin as unlimited if the pool runs out. (v1.71)
-- Busted and can't pay the 2-coin fine: 2 resources go back to the pool (not the church). (v1.69)
+- Busted and can't pay the 1-coin fine: 1 resource goes back to the pool (not the church). (v1.69, fine cut to 1 in v1.92)
 - Taken from another player (fight / Black Friday): goes to the winner, not the pool.
 
 ## 5. Stealing, looting, busted
 - **Steal:** roll to steal, pick a resource, may push your luck. **If you are caught, everything stolen in that steal action goes back to the place it came from**, then you are busted. (v1.69)
 - **Loot:** a failed loot loses everything looted that action back to the place and you are shot (2 damage) and crawl into the nearest dumpster.
-- Busted: pay a 2 PrepCoin fine; no coin = 2 resources to the pool; nothing at all = police chief gives 2 coin. Three busts = tagged (day dice only, no stealing).
+- Busted: pay a 1 PrepCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing).
 
 ## 6. Buying and selling
 - **Sell resources** only at the purple coin places: Truck Stop, Salvage Yard, Prison, Pawn Shop.
@@ -123,3 +123,8 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Sandbox (lobby tickbox, off by default): give or take resources, coin, health, items; set DEFCON; teleport; trigger APOC.
 - Undo (host/solo only), Export (full state and log for bug reports), seed box in the lobby for repeatable games. Press C to centre the whole table.
 - Online: the host opens a room and others join with the 5-letter code (peer-to-peer via the PeerJS broker). Unfilled remote seats become AI.
+
+## Test-build tools (not game rules)
+- AI opening goals (start screen, per AI seat): Balanced (plays like a human); or first collect weapons (2 of pistol/rifle/knife/bow/chainsaw), build a bunker, craft items only (until it holds 3 items), recruit a thug, collect 10 food (backpack only holds 10, so the AI rarely manages it), or gamble at the casino (2 sessions). Once the goal is met the AI plays balanced. (v1.92)
+- Character cards: the table shows the bunker side once a player has a bunker; click a card to enlarge it and press Flip (or F) to view the other side. (v1.90)
+- Busted fine cut to 1 PrepCoin (v1.92).
