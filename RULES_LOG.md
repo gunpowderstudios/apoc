@@ -150,3 +150,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Bolt Cutters: a player holding them (or Sam, with Parkour) can move from a building straight into a building that touches it (e.g. Casino to Bar, Bar to Pizza House), 1 move, no door needed. It is not any building in the block, only neighbours. The neighbour list is in data/adjacent.json (35 pairs, generated from the map by distance and checked by Tim); edit it freely. (v1.114)
 - News dice faces are tinted with the event colour (Pandemic red, AI blue, Nuclear amber; Fake News stays white). (v1.118)
 - Full screen button at the top (Esc leaves full screen). In full screen the right column is hidden except the turn buttons, which float over the bottom right; the table recentres. (v1.125)
+- Each character card has a white health cube on its 10-to-0 health track; it moves as health changes. (v1.126)

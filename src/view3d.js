@@ -325,7 +325,7 @@ export class View3D {
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
-    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), this.flip || {}, s.cur, s.stage, s.pending && s.pending.pl]);
+    const msig = JSON.stringify([s.players.map(p => [p.prepper, p.bunker, p.res, p.coin, p.health, p.items.map(i => i.id + (i.broken ? 'x' : ''))]), this.flip || {}, s.cur, s.stage, s.pending && s.pending.pl]);
     if (msig !== this.matSig) {
       this.matSig = msig; this.mats.clear(); this.nPlayers = s.players.length; this.matItems = s.players.some(q => q.items.length > 0);
       const n = s.players.length, zc = this.H / 2 + 0.03 + 0.0745, SP = 0.03;
@@ -337,6 +337,13 @@ export class View3D {
         const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1, ...fx }));
         frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);
         if (url) { const cm = this.flat(0.21, 0.149, url, x, 0.0026, zc, fx); cm.userData.cardImg = url; this.mats.add(cm); }
+        if (url) {   // health cube: sits on the card's health track (10 on the left down to 0 on the right) and moves as health changes
+          const hp = Math.max(0, Math.min(10, p.health)), fx2 = 0.2785 + (10 - hp) * 0.0697, fz2 = 0.903, cs = 0.0105;
+          const cube = new THREE.Mesh(new THREE.BoxGeometry(cs, cs, cs), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 }));
+          cube.position.set(x + (fx2 - 0.5) * 0.21, 0.0026 + cs / 2, zc + (fz2 - 0.5) * 0.149); cube.castShadow = true;
+          const ed = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: 0x111111 })); cube.add(ed);
+          cube.userData.matId = p.id; cube.userData.cardImg = url; this.mats.add(cube);
+        }
         const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
