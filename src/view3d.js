@@ -5,7 +5,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
-const PIECE_H = { frost: 0.040, jessica: 0.028, naomi: 0.038, sam: 0.038 };
+const PIECE_H = { frost: 0.040, jessica: 0.0308, naomi: 0.038, sam: 0.038 };
 
 const BOARD_W = 0.8;   // metres (800 mm). Height follows the artwork's aspect ratio.
 const POOL_COINS = 30;   // PrepCoin that start in the pool
@@ -21,10 +21,10 @@ export class View3D {
     r.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(r.domElement); this.r = r;
     this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0x15171a);
-    this.cam = new THREE.PerspectiveCamera(40, 1, 0.01, 6);
+    this.cam = new THREE.PerspectiveCamera(40, 1, 0.005, 6);
     this.cam.position.set(0, 1.15, 1.0); this.cam.lookAt(0, 0, 0.15);
     this.ctl = new OrbitControls(this.cam, r.domElement);
-    this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.12; this.ctl.maxDistance = 2.6;
+    this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.03; this.ctl.maxDistance = 2.6;
     this.ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     this.ctl.update();
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 0.85));
