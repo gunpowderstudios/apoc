@@ -691,7 +691,7 @@ function renderModal() {
   m.hidden = false; b.innerHTML = html;
 }
 function promptModal(pd) {
-  const recent = S.log.slice(-5).map(l => `<div class="note">${esc(l.t)}</div>`).join('');
+  const nm = S.players[pd.pl].name, recent = S.log.slice(-8).filter(l => l.pl === pd.pl || l.t.startsWith(nm)).slice(-3).map(l => `<div class="note">${esc(l.t)}</div>`).join('');
   return `<h2>${esc(S.players[pd.pl].name)}: ${esc(pd.title)}</h2>${recent}<div class="btns">${pd.options.map(o => btn(esc(o.label), () => doCmd({ t: 'choose', o: o.id }))).join('')}</div>`;
 }
 function gameOverModal() {

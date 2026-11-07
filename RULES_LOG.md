@@ -158,3 +158,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: when something bad happens to a human player (busted, tagged, robbed, shot, health lost, hospital) a big pop-up shows the log lines at full size, closes itself after 8 seconds (or click / Esc / Enter). The side log stays as before. Busting now also logs 'receives a BUSTED token (n of 3)'. (v1.133)
 - Test-build tool: the camera now zooms in on whichever player's turn it is by default (🎥 Follow is on at start; click it to turn off, which also returns to the full-table view; the choice is remembered). (v1.134)
 - Test-build tool: the newspaper now pops up on the left of the table with no screen dimming, so the board stays visible. (v1.135)
+- Test-build tool: choice pop-ups (steal, loot, etc.) now show only your own last few log lines, not the news/event lines. (v1.136)
