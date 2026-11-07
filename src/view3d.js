@@ -24,7 +24,7 @@ export class View3D {
     this.cam = new THREE.PerspectiveCamera(40, 1, 0.005, 6);
     this.cam.position.set(0, 1.15, 1.0); this.cam.lookAt(0, 0, 0.15);
     this.ctl = new OrbitControls(this.cam, r.domElement);
-    this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.minDistance = 0.03; this.ctl.maxDistance = 2.6;
+    this.ctl.target.set(0, 0, 0.15); this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.47; this.ctl.zoomToCursor = true; this.ctl.minDistance = 0.03; this.ctl.maxDistance = 2.6;
     this.ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     this.ctl.update();
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 0.85));
@@ -72,6 +72,7 @@ export class View3D {
     el.addEventListener('pointerdown', e => {
       down = { x: e.clientX, y: e.clientY, moved: false };
       if (e.button === 0 && e.altKey) { this._leftWas = this.ctl.mouseButtons.LEFT; this.ctl.mouseButtons.LEFT = THREE.MOUSE.PAN; }   // Alt/Option + drag = pan too
+      if (e.button === 0 && !e.altKey) this.pivotCentre();   // rotate around what is at the centre of the screen
       if (e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
@@ -433,5 +434,6 @@ export class View3D {
     const M = THREE.MOUSE; this.tool = tool;
     this.ctl.mouseButtons = { LEFT: { select: M.ROTATE, pan: M.PAN, zoom: M.DOLLY, rotate: M.ROTATE }[tool], MIDDLE: M.DOLLY, RIGHT: M.PAN };
   }
+  pivotCentre() { const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0, 0), this.cam); const pt = new THREE.Vector3(); if (rc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), pt) && pt.distanceTo(this.cam.position) < 3) this.ctl.target.copy(pt); }
   topDown() { this.cam.position.set(0, 0.95, 0.001); this.ctl.target.set(0, 0, 0); this.ctl.update(); }
 }
