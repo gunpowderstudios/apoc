@@ -710,10 +710,13 @@ function craftModal() {
   }
   return `<h2>APOC Recipe Book <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Recycle')}</div>${body}<div class="btns">${closeBtn()}</div>`;
 }
+const cardSnd = new Audio('assets/sfx/card-up.mp3');
+function cardUpSound(wasShown) { if (wasShown) return; try { cardSnd.currentTime = 0; cardSnd.play().catch(() => {}); } catch (e) {} }   // sound when a card is enlarged (not when just flipping it)
 function zoomMat(id) {   // character card on the table: shown big with a Flip button (backpack side <-> bunker side)
   const p = S.players[id], pr = E.D.prepper[p.prepper]; if (!pr) return;
   V3.flip = V3.flip || {}; const side = V3.flip[id] !== undefined ? V3.flip[id] : (p.bunker ? 1 : 0);
   let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
+  cardUpSound(!o.hidden);
   o.innerHTML = `<img class="flipin" src="${pr.art[side] || pr.art[0]}"><button class="flipbtn">Flip to ${side ? 'BACKPACK' : 'BUNKER'} side (F)</button>`; o.hidden = false;
   o.querySelector('.flipbtn').onclick = e => { e.stopPropagation(); V3.flip[id] = side ? 0 : 1; V3.matSig = null; zoomMat(id); };
   zoomFlipId = id;
@@ -721,7 +724,7 @@ function zoomMat(id) {   // character card on the table: shown big with a Flip b
 let zoomFlipId = null;
 function zoomCard(src) {   zoomFlipId = null;   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
   let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
-  o.innerHTML = `<img src="${src}">`; o.hidden = false;
+  cardUpSound(!o.hidden); o.innerHTML = `<img src="${src}">`; o.hidden = false;
 }
 function renderCraftBtn() {
   let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; $('#boardWrap').appendChild(b); }
