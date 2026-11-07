@@ -184,3 +184,7 @@ body.fs #hand{display:none}
 #evpop .evok{font-size:13px;opacity:.6}
 @keyframes evcount{from{width:100%}to{width:0}}
 @keyframes evin{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+/* newspaper pops up on the left without dimming, so the board stays visible */
+#newsbig{background:none !important;pointer-events:none;align-items:flex-start !important;justify-content:center !important;inset:0 auto 0 0 !important;width:min(46%,560px);padding-top:2%}
+#newsbig img{pointer-events:auto;cursor:zoom-out;height:min(88%,780px) !important;max-width:100% !important}
+#newsbig .x,#newsbig .hint{pointer-events:auto}

@@ -157,3 +157,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Busted tokens now show on the table beside each player's card (one per bust). On the 3rd bust they swap for a single TAGGED token (day dice only, no stealing). (v1.131)
 - Test-build tool: when something bad happens to a human player (busted, tagged, robbed, shot, health lost, hospital) a big pop-up shows the log lines at full size, closes itself after 8 seconds (or click / Esc / Enter). The side log stays as before. Busting now also logs 'receives a BUSTED token (n of 3)'. (v1.133)
 - Test-build tool: the camera now zooms in on whichever player's turn it is by default (🎥 Follow is on at start; click it to turn off, which also returns to the full-table view; the choice is remembered). (v1.134)
+- Test-build tool: the newspaper now pops up on the left of the table with no screen dimming, so the board stays visible. (v1.135)
