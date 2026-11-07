@@ -661,12 +661,12 @@ function craftModal() {
       return `<div class="tile ${c ? '' : 'dis'}"><img class="zm" data-zoom="${it.img}" src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
     }).join('')}</div>`;
   } else {
-    body = `<div class="note" style="margin-bottom:6px">${ts && ts.scrapped ? '<b>You have already broken down an item this turn.</b>' : 'You may break down ONE item this turn, at any point. You get back its resources except the last one, which is lost.'}</div><div class="grid">${p.items.length ? p.items.map(i => {
+    body = `<div class="note" style="margin-bottom:6px">${ts && ts.scrapped ? '<b>You have already recycled an item this turn.</b>' : 'You may recycle ONE item this turn, at any point. You get back its resources except the last one, which is lost.'}</div><div class="grid">${p.items.length ? p.items.map(i => {
       const d = E.D.item[i.id], back = {}; for (const r of d.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
-      return `<div class="tile"><img class="zm" data-zoom="${d.img}" src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Break down', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
-    }).join('') : '<div class="note">You have no items to break down.</div>'}</div>`;
+      return `<div class="tile"><img class="zm" data-zoom="${d.img}" src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Recycle', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
+    }).join('') : '<div class="note">You have no items to recycle.</div>'}</div>`;
   }
-  return `<h2>Craft & Break down <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Break down')}</div>${body}<div class="btns">${closeBtn()}</div>`;
+  return `<h2>APOC Recipe Book <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Recycle')}</div>${body}<div class="btns">${closeBtn()}</div>`;
 }
 function zoomCard(src) {   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
   let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
@@ -675,7 +675,7 @@ function zoomCard(src) {   // any face-up card clicked on the table or in a list
 function renderCraftBtn() {
   let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; $('#boardWrap').appendChild(b); }
   const show = !setupHold && craftOk() && !S.players[actor()].ai; b.hidden = !show; if (!show) return;
-  const ts = S.ts; b.innerHTML = `🔧 CRAFT / BREAK DOWN<small>${ts.crafted ? 'crafted ✓' : 'craft 1'} · ${ts.scrapped ? 'broken down ✓' : 'break down 1'}</small>`;
+  const ts = S.ts; b.innerHTML = `APOC Recipe Book<small>Craft${ts.crafted ? ' ✓' : ''} - Recycle${ts.scrapped ? ' ✓' : ''}</small>`;
 }
 function shopModal() {
   const p = S.players[actor()];
