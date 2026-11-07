@@ -168,3 +168,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: N key zooms to the three event news stands (AI, Pandemic, Nuclear); legend now C Recenter · Z Figure · X Card · N News · D DEFCON (v1.147: D zooms to the DEFCON chart).
 - Test-build tool: X zoom-to-card is a little further out and sits above the event panels. (v1.148)
 - Health cubes on the character cards are moved by the game automatically (they follow each player's health in every game, solo or multiplayer). Anyone can also drag a cube along its track to correct it by hand; this is written to the log as "MANUAL ADJUSTMENT: ... (not caused by a game rule)" and kept in the game log/export so a hand change is never hidden. (v1.149)
+- Test-build tool: a space with more than 6 resource piles (Big Storage at the start, 7 incl. duct tape) lays them out in rows of 3 so they stay inside the building. (v1.150)

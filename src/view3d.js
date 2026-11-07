@@ -216,10 +216,11 @@ export class View3D {
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
         const [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w(n);
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
-        const SP = 0.0175, PER = 6, piles = [];
+        const SP = 0.0175, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
         if (L.coin) piles.push({ coin: true, c: L.coin });
-        const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016);
+        const PER = piles.length > 6 ? 3 : 6, rowsN = Math.ceil(piles.length / PER);   // lots of piles (Big Storage at the start): rows of 3 so they stay inside the building
+        const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016) - (PER === 3 ? (rowsN - 1) * SP / 2 : 0);
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
