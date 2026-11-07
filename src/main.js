@@ -102,7 +102,7 @@ async function onStart() {
     });
     guests.forEach(g => peerSeat.set(g, -1));
     mode = lobbyMode === 'host' ? 'host' : 'local';
-    const seedTxt = $('#seed').value.trim();
+    const seedTxt = (new URLSearchParams(location.search).get('seed') || '').trim();   // hidden: ?seed=abc in the address for replaying a game
     S = E.createGame({ players, seed: seedTxt ? (+seedTxt || [...seedTxt].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) : undefined, sandbox: $('#sandbox').checked });
     hist = []; enterApp(); afterChange(); runSetup();
   } catch (e) { console.error(e); lobbyMsg(String(e.message || e)); }
