@@ -179,3 +179,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the little white count numbers on the board piles were removed again (too distracting); the pool and player mats still show counts. (v1.158)
 - Board artwork replaced with Tim's revised board PDF (printed resource numbers removed; same size and layout, board spaces unchanged). (v1.159)
 - Board artwork replaced again with Tim's latest board PDF (Dumpster Drive typo fixed; this version has the printed resource number tiles on the buildings). The previous no-numbers board is in git history (v1.159/v1.160). (v1.161)
+- Test-build tool: the sandbox tools are a smaller, tidier box in the side bar (a sandbox game opens the side bar automatically). (v1.162)

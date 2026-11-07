@@ -158,7 +158,7 @@ function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   { const tab = document.createElement('button'); tab.id = 'sideTab'; document.body.appendChild(tab);
-    const setSide = min => { document.body.classList.toggle('sidemin', min); tab.textContent = min ? '◀ Info' : 'Info ▶'; tab.title = min ? 'Expand the info bar (players, log)' : 'Collapse the info bar'; try { localStorage.setItem('apoc-sidemin', min ? '1' : '0'); } catch (e) {} setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 60); };
+    window.setSide = min => setSide(min, false); const setSide = (min, save = true) => { document.body.classList.toggle('sidemin', min); tab.textContent = min ? '◀ Info' : 'Info ▶'; tab.title = min ? 'Expand the info bar (players, log)' : 'Collapse the info bar'; if (save) try { localStorage.setItem('apoc-sidemin', min ? '1' : '0'); } catch (e) {} setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 60); };
     tab.onclick = () => setSide(!document.body.classList.contains('sidemin'));
     setSide(localStorage.getItem('apoc-sidemin') !== '0'); }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
@@ -482,7 +482,7 @@ function render() {
   captureLog();
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
+  renderStatus(); renderPlayers(); renderTurn(); renderSandbox(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
@@ -524,7 +524,7 @@ function renderTurn() {
   const ts = S.ts;
   h += `<h3>${esc(pa.name)}'s turn <span class="note">(${E.D.prepper[pa.prepper].name})</span></h3>`;
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
-  if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>` + (S.sandbox ? sandboxPanel() : ''); return; }
+  if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>`; return; }
   if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>' + (S.sandbox ? sandboxPanel() : ''); return; }
   if (ts.step === 'eat') {
     h += `<div class="btns">${btn('🍽 Eat (1 food)', () => doCmd({ t: 'eat' }), { cls: 'primary' })}</div><div class="note">Press when you are ready. No food = lose 1 health.</div>`;
@@ -550,7 +550,7 @@ function renderTurn() {
     if (pa.thug && pa.thug.job === 'bouncer') h += btn('🛡 Post bouncer (1 coin)', () => { modalFn = buildingPicker; render(); });
     h += '</div><div class="btns">' + btn('End turn ▶', () => doCmd({ t: 'endTurn' }), { cls: 'primary' }) + '</div>';
   } else h += '<div class="note">…</div>';
-  el.innerHTML = h + (S.sandbox ? sandboxPanel() : '');
+  el.innerHTML = h;
 }
 function rollText(r) {
   if (r.kind === 'day' || r.kind === 'night') return E.diceText(r.kind, r.face) + ` (${r.kind})`;
@@ -841,17 +841,24 @@ function assumptionsModal() {
 }
 
 // ---------------------------------------------------------------- sandbox panel
-function sandboxPanel() {
+function sandboxPanel() {   // compact test tools, shown in the side bar (own box under the turn panel)
   const t = Math.min(sbxTarget, S.players.length - 1), p = S.players[t];
-  const sc = (c, extra = {}) => btn(...c);
-  return `<details open style="margin-top:8px"><summary><b>Sandbox tools</b></summary>
-  <div class="btns">Player: ${S.players.map(q => btn(esc(q.name), () => { sbxTarget = q.id; render(); }, { cls: q.id === t ? 'on' : '' })).join('')}</div>
-  <div class="btns">${E.ALLRES.map(r => btn('+' + E.RES_LABEL[r], () => doCmd({ t: 'sbxGive', p: t, r, n: 1 }))).join('')}</div>
-  <div class="btns">${E.ALLRES.map(r => btn('−' + E.RES_LABEL[r], () => doCmd({ t: 'sbxGive', p: t, r, n: -1 }), { dis: p.res[r] < 1 })).join('')}</div>
-  <div class="btns">${btn('+3 coin', () => doCmd({ t: 'sbxCoin', p: t, n: 3 }))}${btn('+1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health + 1 }))}${btn('−1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health - 1 }))}${btn('+4 moves', () => doCmd({ t: 'sbxMoves', n: 4 }))}</div>
-  <div class="btns">DEFCON: ${[0, 1, 2].map(i => btn(['Green', 'Yellow', 'Orange'][i], () => doCmd({ t: 'sbxDefcon', n: i }), { cls: S.defcon === i ? 'on' : '' })).join('')}${btn('Trigger APOC', () => doCmd({ t: 'sbxApoc' }))}</div>
-  <div class="btns">${btn(sbxMove ? '✔ Click board to teleport' : 'Teleport player…', () => { sbxMove = !sbxMove; render(); }, { cls: sbxMove ? 'on' : '' })}
-  <select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${btn('Give item', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
+  const mini = (label, fn, o = {}) => btn(label, fn, o);
+  return `<details open class="sbx"><summary>🧪 Sandbox tools</summary>
+  <div class="sr"><span class="sl">Player</span>${S.players.map(q => mini(esc(q.name), () => { sbxTarget = q.id; render(); }, { cls: q.id === t ? 'on' : '' })).join('')}</div>
+  <div class="sr"><span class="sl">Resources</span><div class="sg">${E.ALLRES.map(r => `<span class="sc"><img src="assets/counters/${ICON[r]}.webp" title="${E.RES_LABEL[r]}"><b>${p.res[r]}</b>${mini('−', () => doCmd({ t: 'sbxGive', p: t, r, n: -1 }), { dis: p.res[r] < 1 })}${mini('+', () => doCmd({ t: 'sbxGive', p: t, r, n: 1 }))}</span>`).join('')}</div></div>
+  <div class="sr"><span class="sl">Quick</span>${mini('+3 coin', () => doCmd({ t: 'sbxCoin', p: t, n: 3 }))}${mini('+1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health + 1 }))}${mini('−1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health - 1 }))}${mini('+4 moves', () => doCmd({ t: 'sbxMoves', n: 4 }))}</div>
+  <div class="sr"><span class="sl">DEFCON</span>${[0, 1, 2].map(i => mini(['Green', 'Yellow', 'Orange'][i], () => doCmd({ t: 'sbxDefcon', n: i }), { cls: S.defcon === i ? 'on' : '' })).join('')}${mini('Trigger APOC', () => doCmd({ t: 'sbxApoc' }))}</div>
+  <div class="sr"><span class="sl">Move</span>${mini(sbxMove ? '✔ click board' : 'Teleport…', () => { sbxMove = !sbxMove; render(); }, { cls: sbxMove ? 'on' : '' })}</div>
+  <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
+}
+let sbxKeep = null;
+function renderSandbox() {
+  const el = $('#sbx'); if (!el) return;
+  if (!S || !S.sandbox) { el.innerHTML = ''; return; }
+  if (document.activeElement && document.activeElement.id === 'sbxItem') return;   // don't rebuild while the item list is open
+  const sel = sbxKeep; el.innerHTML = sandboxPanel(); const si = $('#sbxItem'); if (si && sel) si.value = sel; if (si) si.onchange = () => { sbxKeep = si.value; };
+  if (!renderSandbox.opened) { renderSandbox.opened = true; if (window.setSide) window.setSide(false); }   // sandbox games open the side bar once
 }
 
 boot().catch(e => { document.body.insertAdjacentHTML('afterbegin', `<pre style="color:#f88;padding:12px">${esc(e.stack || e)}</pre>`); });
