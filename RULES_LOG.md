@@ -131,3 +131,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - All-AI games: the news paper is shown for 3 seconds then closes by itself (stays up for human players). At game over you can download the whole game log as a text file (round-tagged) or the JSON. (v1.96)
 - When the APOC event triggers (AI, Pandemic or Nuclear) a big full-screen message shows with a siren sound; click or Esc to close. (v1.97)
 - The C (recentre) view leaves room at the bottom for the event panels so they don't cover the player cards. (v1.98)
+- Keyboard: P pauses / resumes the AI (the old P = pan tool shortcut is gone); C recentres. (v1.100)

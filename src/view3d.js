@@ -425,7 +425,7 @@ export class View3D {
     };
     // keep clear of the event panels along the bottom of the window (they sit over the canvas)
     const bar = document.querySelector('#evbar'), ch = this.r.domElement.getBoundingClientRect().height || 1;
-    const ofs = bar && bar.querySelector('.evp') ? 2 * (bar.offsetHeight + 16) / ch : 0;
+    const ofs = 2 * (Math.max(bar ? bar.offsetHeight : 0, 120) + 16) / ch;   // always keep ~136px clear, so panels that arrive later never cover the cards
     let d = 1.5;
     for (let it = 0; it < 10; it++) {
       let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2 + ofs / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window

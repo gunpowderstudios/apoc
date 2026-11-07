@@ -162,3 +162,5 @@ img.zm{cursor:zoom-in}
 #apocbig .a2{font:900 clamp(40px,9vw,110px) sans-serif;letter-spacing:.06em;text-shadow:0 0 30px #f22,0 0 60px #f00}
 #apocbig .a3{font:600 14px sans-serif;opacity:.7;margin-top:10px}
 @keyframes apocpulse{0%,100%{box-shadow:inset 0 0 80px #f002}50%{box-shadow:inset 0 0 220px #f008}}
+
+.evp .evt{font-size:13px!important;line-height:1.2!important}.evp{padding:6px 9px!important}

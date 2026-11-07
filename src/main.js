@@ -178,7 +178,8 @@ document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setToo
 window.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
   if (e.key.toLowerCase() === 'c' && V3 && !$('#app').hidden) { V3.fitAll(); return; }
-  const k = { s: 'select', p: 'pan', z: 'zoom', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
+  if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !$('#app').hidden) { togglePause(); return; }   // P = pause / resume the AI
+  const k = { s: 'select', z: 'zoom', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
