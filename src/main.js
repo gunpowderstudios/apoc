@@ -605,7 +605,7 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|SELECT|TEXTAREA/.test((e.target && e.target.tagName) || '')) { $('#bFull').click(); return; } if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
 const sirenSnd = new Audio('assets/sfx/siren.mp3'); let apocShownKey = null;
 function closeApoc() { const o = $('#apocbig'); if (o && !o.hidden) { o.hidden = true; try { sirenSnd.pause(); } catch (e) {} return true; } return false; }
 function renderApocBig() {   // the APOC event has triggered: big message on screen + siren

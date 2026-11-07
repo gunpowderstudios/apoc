@@ -223,13 +223,19 @@ export class View3D {
         m = new THREE.Group();
         const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(PREP_COL[p.prepper] || '#888'), roughness: 0.4 });
         const ph = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.03, 20), mat); ph.position.y = 0.015; m.add(ph);   // placeholder until the model loads
-        this.piece(p.prepper).then(proto => { if (proto) { m.clear(); m.add(proto.clone()); } });
+        const gc = new THREE.Color(PREP_COL[p.prepper] || '#fff'), glow = new THREE.Group();   // glowing base: shows which figure is the one to move
+        const gm = () => new THREE.MeshBasicMaterial({ color: gc, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+        const ring = new THREE.Mesh(new THREE.RingGeometry(0.0125, 0.0185, 40), gm()), halo = new THREE.Mesh(new THREE.CircleGeometry(0.0185, 40), gm());
+        halo.material.opacity = 0.3; for (const o of [ring, halo]) { o.rotation.x = -Math.PI / 2; o.position.y = 0.0012; o.renderOrder = 5; glow.add(o); }
+        glow.visible = false; m.userData.glow = glow; m.add(glow);
+        this.piece(p.prepper).then(proto => { if (proto) { m.clear(); m.add(proto.clone()); m.add(glow); } });
         this.pawns.add(m); this.pawnMeshes[p.id] = m; m.userData.cur = new THREE.Vector3(); m.userData.first = true; m.userData.pid = p.id;
       }
       const list = at[p.node], i = list.indexOf(p), n = this.nodes[p.node], [cx, cz] = this.w(n);
       const a = (i / list.length) * Math.PI * 2, rr = list.length > 1 ? 0.012 : 0;
       m.userData.target = new THREE.Vector3(cx + Math.cos(a) * rr, 0, cz + Math.sin(a) * rr - 0.004); m.userData.node = p.node;
       if (m.userData.first) { m.position.copy(m.userData.target); m.userData.first = false; }
+      m.userData.active = s.cur === p.id && !s.over && ((s.stage === 'turn' && s.ts && s.ts.step === 'prep' && s.ts.moves > 0 && s.ts.moveState !== 'done') || (s.stage === 'grab' && s.grab && s.grab.moves > 0));
       m.scale.setScalar(1);   // figures always show at their true height (the active player is marked on their card instead)
     }
     // move highlights
@@ -404,6 +410,7 @@ export class View3D {
   frame(t) {
     this.stepDice();
     for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id]; if (m.userData.target && !m.userData.free) { m.position.lerp(m.userData.target, 0.18); } }
+    for (const id in this.pawnMeshes) { const m = this.pawnMeshes[id], g = m.userData.glow; if (!g) continue; g.visible = !!m.userData.active; if (g.visible) { const k = 0.5 + 0.5 * Math.sin(t / 260); g.children[0].material.opacity = 0.45 + 0.5 * k; g.children[1].material.opacity = 0.15 + 0.3 * k; const em = 0.05 + 0.35 * k; m.traverse(o => { if (o.isMesh && o.material && o.material.emissive && !g.children.includes(o)) { o.material.emissive.set(g.children[0].material.color); o.material.emissiveIntensity = em; } }); } else if (m.userData.wasGlow) m.traverse(o => { if (o.isMesh && o.material && o.material.emissive && !g.children.includes(o)) o.material.emissiveIntensity = 0; }); m.userData.wasGlow = g.visible; }
     if (this.glowMats) { const o = 0.5 + 0.28 * Math.sin(t / 260); for (const m of this.glowMats) m.opacity = o; }
     this.marks.children.forEach((m, i) => { m.scale.setScalar(1 + 0.12 * Math.sin(t / 220 + i)); });
     if (this.fly) {
