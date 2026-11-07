@@ -65,6 +65,8 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 
 - Items that need a bunker to craft or keep: Bed, Hazmat Suit, Med Lab, Drone, Solar Panel, Hydroponics Lab. Chain: the Hydroponics Lab also needs you to own a Solar Panel; the Med Lab needs you to own both a Solar Panel and a Hydroponics Lab (you keep them, nothing is used up). The recipe book shows these requirements. These conditions only apply to crafting: item cards you are simply given (deck draws, bonus cards) can be kept without them. Drawn item cards are never skipped: a burglar can find any item, with or without a bunker. (Confirmed by Tim, v1.122.)
 
+- Building a bunker: take the Build action (1 action, any place) when you hold at least one of each of the six resources (Food, Know-how, Chem, Hardware, Tech, Meds). One DUCT TAPE can stand in for one missing resource. The resources are NOT used up. Your character card turns over to the bunker side (unlimited resources, no backpack limit). The first player to build also receives a bonus item card. (As built in v1.122: please confirm, see Still to confirm.)
+
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
 - **Everything spent, crafted away, sold, lost, robbed or paid goes back to the pool.** (v1.68)
@@ -102,6 +104,8 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 12. News card 15: typo in card text, keep or fix?
 13. Boat Yard location (SW on the board, Tim said SE).
 14. Contraband meds: every player or only the roller?
+
+15. Building a bunker: are the six resources kept or spent? Does duct tape really stand in for one missing resource? Is the Build action allowed anywhere? Does the first-bunker bonus card exist?
 
 ## 9. Not built yet
 Post-APOC (Mission Packs), End Times cards, and any event or item whose effect isn't designed yet (they show their text but do nothing).
