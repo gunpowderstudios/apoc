@@ -147,9 +147,17 @@ function loadGame(o) {
 }
 
 // ---------------------------------------------------------------- app shell
+const music = new Audio('assets/sfx/ambient.mp3'); music.loop = true; music.volume = 0.35;
+let musicOn = (() => { try { return localStorage.getItem('apoc-music') !== 'off'; } catch (e) { return true; } })();
+function syncMusic() {
+  const b = $('#bMusic'); if (b) b.textContent = musicOn ? '🔇 Music off' : '🎵 Music on';
+  if (musicOn && appUp) music.play().catch(() => {}); else music.pause();
+}
+function toggleMusic() { musicOn = !musicOn; try { localStorage.setItem('apoc-music', musicOn ? 'on' : 'off'); } catch (e) {} syncMusic(); }
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
+  $('#bMusic').onclick = toggleMusic; syncMusic();   // ambient music while playing
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
   V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;
   V2.loop(() => S, () => ({}));
