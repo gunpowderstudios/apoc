@@ -198,26 +198,28 @@ function setTool(tool) {
   if (V3) V3.setTool(tool);
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
-let zoomStep = 0, zoomAt = 0;
+let zoomStep = 0, zoomAt = 0, bOn = false;
 window.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
-  if (e.key.toLowerCase() === 'c' && V3 && !$('#app').hidden) { V3.fitAll(true); return; }
-  if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !$('#app').hidden) { togglePause(); return; }   // P = pause / resume the AI
-  if (e.key.toLowerCase() === 'z' && V3 && S && !$('#app').hidden) {   // Z = zoom in on the active player's figure; press again to step through the other players' figures
+  const kk = e.key.toLowerCase(), appOn = !$('#app').hidden;
+  if (appOn && V3 && 'cpndb'.includes(kk) && kk !== 'b') bOn = false;
+  if (kk === 'f' && appOn && !(zoomFlipId !== null && $('#zoom') && !$('#zoom').hidden)) { $('#bFull').click(); return; }   // F = full screen on / off
+  if (kk === 'r' && appOn) { const cb = $('#craftbtn'); if (modalFn === craftModal) { modalFn = null; render(); } else if (cb && !cb.hidden) cb.click(); return; }   // R = recipe book
+  if (kk === 'p' && V3 && S && appOn) {   // P = zoom in on the active player's figure; press again to step through the other players' figures
     const n = S.players.length, a = S.players.findIndex(q => q.id === actor()), now = performance.now();
     zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
     const q = S.players[(a + zoomStep) % n]; if (!V3.followPawn(q.id, true)) V3.fitAll(); return;
   }
-  if (e.key.toLowerCase() === 'x' && V3 && S && !$('#app').hidden) {   // X = zoom in on the active player's character card; press again to step through the other players' cards
+  if (kk === 'c' && V3 && S && appOn) {   // C = zoom in on the active player's character card; press again to step through the other players' cards
     const n = S.players.length, a = S.players.findIndex(q => q.id === actor()), now = performance.now();
     zoomStep = now - zoomAt < 4000 ? (zoomStep + 1) % n : 0; zoomAt = now;
     V3.follow((a + zoomStep) % n, n); return;
   }
   if (e.key.toLowerCase() === 'h' && V3 && !$('#app').hidden) { window.toggleRes(); return; }   // H = hide / show the resources on the board
   if (e.key.toLowerCase() === 'n' && V3 && !$('#app').hidden) { V3.followNews(); return; }   // N = zoom to the three news event stands
-  if (e.key.toLowerCase() === 'b' && V3 && !$('#app').hidden) { V3.fitBoard(); return; }   // B = board as large as possible, slight tilt
+  if (kk === 'b' && V3 && appOn) { bOn = !bOn; if (bOn) V3.fitBoard(); else V3.fitAll(true); return; }   // B = board as large as possible; press again = centred overview (held)
   if (e.key.toLowerCase() === 'd' && V3 && !$('#app').hidden) { V3.followDefcon(); return; }   // D = zoom to the DEFCON chart
-  const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
+  const k = { s: 'select' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
 function setView(v) {
   view = '3d'; $('#c2').hidden = true; $('#c3').hidden = false;
@@ -677,7 +679,7 @@ function renderTurnBar() {
 }
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
-window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|SELECT|TEXTAREA/.test((e.target && e.target.tagName) || '')) { $('#bFull').click(); return; } if ((e.key === 'Escape' || e.key === 'Enter') && closeEvPop()) return; if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
+window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'Escape' || e.key === 'Enter') && closeEvPop()) return; if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
 const sirenSnd = new Audio('assets/sfx/siren.mp3'); let apocShownKey = null;
 function closeApoc() { const o = $('#apocbig'); if (o && !o.hidden) { o.hidden = true; try { sirenSnd.pause(); } catch (e) {} return true; } return false; }
 function renderApocBig() {   // the APOC event has triggered: big message on screen + siren
