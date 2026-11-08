@@ -536,7 +536,7 @@ function renderTurn() {
     bk = ready ? `<div class="bunkerline ok">🏠 Bunker: READY to build${miss.length ? ' (duct tape covers ' + miss.map(r => E.RES_LABEL[r]).join(', ') + ')' : ''}</div>`
       : `<div class="bunkerline">🏠 Bunker: ${6 - miss.length} of 6 - need ${miss.map(r => E.RES_LABEL[r]).join(', ')}${tape ? ' (' + tape + ' duct tape)' : ''}</div>`;
   }
-  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip">❤ ${pa.health}</span><span class="chip">🪙 ${pa.coin}</span></div><div class="gitems">${items}</div>${bk}</div>`);
+  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip"><b class="gheart">♥</b> ${pa.health}</span><span class="chip"><i class="gcoin"></i> ${pa.coin}</span></div><div class="gitems">${items}</div>${bk}</div>`);
 }
 function renderTurn0() {
   const el = $('#turn'); let h = '';
