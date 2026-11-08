@@ -196,3 +196,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: DEFCON rise sound effect (assets/sfx/defcon.mp3) plays whenever DEFCON goes up. (v1.176)
 - Board art updated (duplicate Pet Store door arrow removed; one south door onto Coin Street remains, matching the board data). (v1.177)
 - Test-build tool: pressing C zooms out to the whole table and holds it there (the auto-follow stops moving the camera, e.g. while watching AI turns) until Z, X, N or D is pressed; moving the camera by hand also holds it. (v1.178)
+- Test-build tool: turn button (End turn / Roll) is now green; the APOC Recipe Book button is black. (v1.179)

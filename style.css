@@ -99,7 +99,7 @@ aside{width:360px;max-width:42vw;display:flex;flex-direction:column;border-left:
 #newscard .ev.flash{margin-top:8px;padding:8px 22px 8px 8px;border-radius:8px;background:#00000045;animation:evflash 1s ease-in-out infinite}
 @keyframes evflash{0%,100%{box-shadow:0 0 0 #fff0;background:#00000045}50%{box-shadow:0 0 18px #fffc;background:#ffffff33}}
 
-#craftbtn{position:absolute;left:12px;bottom:10px;z-index:12;background:#2e9d3f;color:#fff;border:2px solid #fff;border-radius:12px;padding:10px 20px;font:800 18px sans-serif;cursor:pointer;box-shadow:0 4px 18px #0008;letter-spacing:.03em}
+#craftbtn{position:absolute;left:12px;bottom:10px;z-index:12;background:#000;color:#fff;border:2px solid #fff;border-radius:12px;padding:10px 20px;font:800 18px sans-serif;cursor:pointer;box-shadow:0 4px 18px #0008;letter-spacing:.03em}
 #craftbtn small{display:block;font:600 12px sans-serif;opacity:.9;margin-top:2px}#craftbtn:hover{filter:brightness(1.12)}
 
 #zoom{position:fixed;inset:0;z-index:60;background:#000b;display:flex;align-items:center;justify-content:center;cursor:zoom-out}#zoom[hidden]{display:none}
@@ -110,7 +110,7 @@ img.zm{cursor:zoom-in}
 
 #turnbar{display:none!important}
 #turn .btns button{padding:10px 16px;font-size:15px;font-weight:600;border-radius:8px}
-#turn .btns button.primary{padding:13px 20px;font-size:18px;font-weight:800;box-shadow:0 2px 10px #0006}
+#turn .btns button.primary{background:#2e9d3f;border-color:#6fd47f;padding:13px 20px;font-size:18px;font-weight:800;box-shadow:0 2px 10px #0006}
 
 #tools{display:none!important}
 #tip:empty{display:none}
