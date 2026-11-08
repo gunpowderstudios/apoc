@@ -129,7 +129,7 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
-      if (h && h.type === 'token') { if (this.editPiles) return; if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      if (h && h.type === 'token') { if (this.editPiles) { if (this.onPileClick && h.info && h.info.node !== undefined) this.onPileClick(h.info.node); return; } if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
       if (h && h.type === 'card') { if (this.onCard) this.onCard(h.img); return; }
@@ -313,7 +313,7 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     { const lw = 0.19, ld = lw * 226 / 500, lx = 0.51, lz = this.H / 2 - ld / 2, lg = this.flat(lw, ld, 'assets/ui/logo.png', lx, 0.002, lz, { transparent: true }); lg.castShadow = false; lg.material = new THREE.MeshBasicMaterial({ map: this.tex('assets/ui/logo.png'), transparent: true }); this.furniture.add(lg); }   // game logo + copyright, right of the board, base level with the board's base
-    const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
+    const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.036); this.furniture.add(lb);
     // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
     const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
     // thin dotted white outlines mark where the news cards are (or will be) laid
@@ -355,7 +355,7 @@ export class View3D {
       if (itemN > 0) {   // face-down shuffled ITEM deck (portrait cards 63x88 mm, drawn bigger so it reads like the news piles)
         const [x, z] = this.newsPos.items, h = Math.max(0.001, itemN * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 }), top = new THREE.MeshStandardMaterial({ map: this.tex('assets/items/back.jpg'), roughness: 0.8 });
         const m = new THREE.Mesh(new THREE.BoxGeometry(0.0945, h, 0.132), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = 'items'; this.piles.add(m);
-        const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.085); this.piles.add(lb);
+        const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z - 0.085); this.piles.add(lb);
       }
       for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? ((s.spent || []).includes(a[a.length - 1]) ? 'assets/news/back.jpg' : `assets/news/${a[a.length - 1]}.jpg`) : '', ty.toUpperCase()); }
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
@@ -485,8 +485,8 @@ export class View3D {
     this.hint.style.opacity = far ? '1' : '0.7';
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
-  fitAll() {
-    this.manual = false;
+  fitAll(hold) {
+    this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
     const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
