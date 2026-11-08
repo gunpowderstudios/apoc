@@ -625,7 +625,10 @@ function renderLog() {
   eventPopup();
   const el = $('#log'), last = S.log.length ? S.log[S.log.length - 1].n : 0;
   if (last === lastLogSeq) return; lastLogSeq = last;
-  const m = me(); el.innerHTML = S.log.slice(-120).map((l, i, a) => `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}">${esc(l.t)}</div>`).join(''); el.scrollTop = el.scrollHeight;
+  const m = me(), names = S.players.map(q => [q.name, q]).sort((a, b) => b[0].length - a[0].length);
+  const who = l => { if (l.pl !== null && l.pl !== undefined && S.players[l.pl]) return S.players[l.pl]; const f = names.find(([nm]) => l.t.startsWith(nm + ' ') || l.t.startsWith(nm + "'")); return f ? f[1] : null; };
+  let rr = null;
+  el.innerHTML = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; h = `<div class="rd">Round ${l.r}</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join(''); el.scrollTop = el.scrollHeight;
 }
 function renderHand() {
   const p = S.players[me()], el = $('#hand'); if (!p) return;
