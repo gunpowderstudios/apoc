@@ -521,6 +521,13 @@ function renderPlayers() {
   document.querySelectorAll('.lnk').forEach(b => { b.style.cssText = 'background:none;border:0;padding:0;text-align:left'; });
 }
 function renderTurn() {
+  renderTurn0();
+  if (!S || S.over) return;
+  const pa = S.players[actor()], el = $('#turn');
+  const items = pa.items.map(i => `<span class="gitem${i.broken ? ' brk' : ''}">${esc((E.D.item[i.id] || {}).name || i.id)}${i.broken ? ' (broken)' : ''}</span>`).join('') || '<span class="note">no items</span>';
+  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip">❤ ${pa.health}</span><span class="chip">🪙 ${pa.coin}</span></div><div class="gitems">${items}</div></div>`);
+}
+function renderTurn0() {
   const el = $('#turn'); let h = '';
   if (S.over) { el.innerHTML = '<h3>Game over</h3>'; return; }
   const a = actor(), pa = S.players[a], mineNow = iAct();

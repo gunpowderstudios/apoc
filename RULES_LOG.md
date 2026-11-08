@@ -197,3 +197,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Board art updated (duplicate Pet Store door arrow removed; one south door onto Coin Street remains, matching the board data). (v1.177)
 - Test-build tool: pressing C zooms out to the whole table and holds it there (the auto-follow stops moving the camera, e.g. while watching AI turns) until Z, X, N or D is pressed; moving the camera by hand also holds it. (v1.178)
 - Test-build tool: turn button (End turn / Roll) is now green; the APOC Recipe Book button is black. (v1.179)
+- Test-build tool: the turn panel now ends with an at-a-glance strip of the current player's resources, health, coins and items (so it stays visible when zoomed in or full screen). (v1.180)
