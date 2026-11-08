@@ -230,7 +230,8 @@ function setView(v) {
   V3.onLayout = L => { try { localStorage.setItem('apoc-tokenlayout', JSON.stringify(L)); } catch (e) {} render(); };
   fetch('data/tokenlayout.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null).then(def => {
     let loc = null; try { loc = JSON.parse(localStorage.getItem('apoc-tokenlayout') || 'null'); } catch (e) {}
-    V3.layout = loc || (def && def.layout) || {}; V3.defaultLayout = (def && def.layout) || {}; render();
+    V3.defaultLayout = (def && def.layout) || {}; V3.layout = JSON.parse(JSON.stringify(V3.defaultLayout)); for (const k in (loc || {})) V3.layout[k] = { ...(V3.layout[k] || {}), ...loc[k] };   // the built-in default, with any edits you made in this browser on top
+    render();
   });
   V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);

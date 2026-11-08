@@ -1,0 +1,117 @@
+{
+ "note": "APOC resource-pile layout: board pixel position (x, y) of the centre of each pile, per space and resource",
+ "version": "v1.169",
+ "layout": {
+  "bar": {
+   "chem": [2033, 1452]
+  },
+  "pizza": {
+   "food": [2163, 1460]
+  },
+  "pawn": {
+   "hardware": [2265, 1503]
+  },
+  "thrift": {
+   "hardware": [2188, 1185],
+   "chem": [2189, 1233],
+   "tech": [2190, 1283]
+  },
+  "music": {
+   "tech": [2194, 942]
+  },
+  "drugs": {
+   "chem": [2277, 928],
+   "meds": [2276, 880]
+  },
+  "grocery": {
+   "food": [2198, 702]
+  },
+  "pet": {
+   "food": [1996, 904]
+  },
+  "theater": {
+   "ducttape": [2205, 418]
+  },
+  "salvage": {
+   "hardware": [2100, 284],
+   "knowhow": [2200, 283],
+   "tech": [2148, 282]
+  },
+  "gas": {
+   "chem": [1988, 479]
+  },
+  "hospital": {
+   "meds": [1471, 363]
+  },
+  "autoshop": {
+   "hardware": [1235, 290],
+   "chem": [1236, 340]
+  },
+  "firestation": {
+   "chem": [928, 304]
+  },
+  "dental": {
+   "meds": [1156, 509]
+  },
+  "library": {
+   "knowhow": [939, 447]
+  },
+  "truckstop": {
+   "hardware": [681, 306],
+   "chem": [730, 307],
+   "knowhow": [628, 314]
+  },
+  "steel": {
+   "tech": [599, 497],
+   "hardware": [547, 497]
+  },
+  "hardwarestore": {
+   "tech": [465, 829],
+   "hardware": [465, 779],
+   "chem": [464, 729]
+  },
+  "cafe": {
+   "food": [379, 912]
+  },
+  "school": {
+   "chem": [614, 989],
+   "knowhow": [673, 988]
+  },
+  "gym": {
+   "food": [722, 1202],
+   "meds": [670, 1210]
+  },
+  "boatyard": {
+   "hardware": [666, 1363],
+   "chem": [720, 1362]
+  },
+  "citydump": {
+   "tech": [612, 1395],
+   "hardware": [565, 1389]
+  },
+  "deptstore": {
+   "knowhow": [1013, 1301],
+   "hardware": [914, 1302],
+   "tech": [962, 1301]
+  },
+  "bigstorage": {
+   "food": [1455, 1225],
+   "knowhow": [1508, 1225],
+   "chem": [1561, 1223],
+   "meds": [1610, 1239],
+   "tech": [1578, 1282],
+   "hardware": [1463, 1280],
+   "ducttape": [1520, 1282]
+  },
+  "offices": {
+   "hardware": [1693, 1244],
+   "tech": [1746, 1244]
+  },
+  "restaurant": {
+   "food": [1530, 1444]
+  },
+  "bookstore": {
+   "knowhow": [1683, 1408]
+  }
+ }
+}
