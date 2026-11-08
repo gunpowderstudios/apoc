@@ -213,3 +213,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: shortcut legend no longer glows. (v1.193)
 - Test-build tool: in the turn-panel info strip the health heart is green and the coin is a yellow disc. (v1.194)
 - Test-build tool: resource piles that an event places on a space (with no saved position) now take the nearest free spot beside the existing tokens instead of overlapping them; the footer "Gunpowder Studios" links to the website in #FCB040. (v1.195)
+- Test-build tool: footer link made clickable. (v1.196)
