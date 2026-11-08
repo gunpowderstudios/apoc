@@ -627,8 +627,9 @@ function renderLog() {
   if (last === lastLogSeq) return; lastLogSeq = last;
   const m = me(), names = S.players.map(q => [q.name, q]).sort((a, b) => b[0].length - a[0].length);
   const who = l => { if (l.pl !== null && l.pl !== undefined && S.players[l.pl]) return S.players[l.pl]; const f = names.find(([nm]) => l.t.startsWith(nm + ' ') || l.t.startsWith(nm + "'")); return f ? f[1] : null; };
-  let rr = null;
-  el.innerHTML = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; h = `<div class="rd">Round ${l.r}</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join(''); el.scrollTop = el.scrollHeight;
+  let rr = null, cc = null;
+  el.innerHTML = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; cc = null; h = `<div class="rd">Round ${l.r}</div>`; }
+    if (l.c !== undefined && l.c !== null && l.c !== cc && S.players[l.c]) { cc = l.c; const tp = S.players[l.c]; h += `<div class="td" style="color:${pcol(tp)}">${esc(tp.name)}'s turn</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join(''); el.scrollTop = el.scrollHeight;
 }
 function renderHand() {
   const p = S.players[me()], el = $('#hand'); if (!p) return;

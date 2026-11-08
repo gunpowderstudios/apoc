@@ -87,7 +87,7 @@ export function createGame(opts) {
 
 // ------------------------------------------------------------------ helpers
 export const cur = s => s.players[s.cur];
-export function logm(s, text, pl = null) { s.log.push({ n: ++s.seq, t: text, pl, r: s.round }); if (s.log.length > 600) s.log.splice(0, 100); }
+export function logm(s, text, pl = null) { s.log.push({ n: ++s.seq, t: text, pl, r: s.round, c: s.cur }); if (s.log.length > 600) s.log.splice(0, 100); }
 export function tally(p, k) { p.n = p.n || {}; p.n[k] = (p.n[k] || 0) + 1; }   // counts of what a player has done (used by AI goals)
 export const defc = s => D.cfg.defcon[s.defcon];
 export const nameOf = (s, i) => s.players[i].name;
