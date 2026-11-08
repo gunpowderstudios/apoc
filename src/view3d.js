@@ -485,12 +485,24 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  Z Figure  ·  X Card  ·  N News  ·  D DEFCON'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'C Recenter  ·  B Board  ·  Z Figure  ·  X Card  ·  N News  ·  D DEFCON'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
     if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
     this.hint.style.opacity = far ? '1' : '0.7';
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
+  fitBoard() {   // B: the board as large as the window allows, with a slight tilt
+    this.manual = false;
+    const el = 1.15, dir = new THREE.Vector3(0, Math.sin(el), Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.0, 0, -0.005);
+    const pts = []; for (const x of [-0.4, 0.4]) for (const z of [-0.2667, 0.2667]) pts.push(new THREE.Vector3(x, 0.01, z));
+    let lo = 0.1, hi = 2;
+    for (let i = 0; i < 24; i++) {
+      const d = (lo + hi) / 2; cam.position.copy(tg).addScaledVector(dir, d); cam.lookAt(tg); cam.updateMatrixWorld(true); cam.updateProjectionMatrix();
+      const fit = pts.every(v => { const q = v.clone().project(cam); return Math.abs(q.x) <= 0.98 && Math.abs(q.y) <= 0.98; });
+      if (fit) hi = d; else lo = d;
+    }
+    this.flyTo(tg.clone().addScaledVector(dir, hi), tg, 900);
+  }
   fitAll(hold) {
     this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
     const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);

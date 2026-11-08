@@ -215,6 +215,7 @@ window.addEventListener('keydown', e => {
   }
   if (e.key.toLowerCase() === 'h' && V3 && !$('#app').hidden) { window.toggleRes(); return; }   // H = hide / show the resources on the board
   if (e.key.toLowerCase() === 'n' && V3 && !$('#app').hidden) { V3.followNews(); return; }   // N = zoom to the three news event stands
+  if (e.key.toLowerCase() === 'b' && V3 && !$('#app').hidden) { V3.fitBoard(); return; }   // B = board as large as possible, slight tilt
   if (e.key.toLowerCase() === 'd' && V3 && !$('#app').hidden) { V3.followDefcon(); return; }   // D = zoom to the DEFCON chart
   const k = { s: 'select', r: 'rotate' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
