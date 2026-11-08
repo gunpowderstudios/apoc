@@ -431,6 +431,12 @@ export class View3D {
     const d = Math.max(0.25, Math.max((c.d / 2 + 0.06) / Math.tan(vf), (c.w / 2 + 0.06) / Math.tan(hf)) * 1.1);
     this.flyTo(new THREE.Vector3(c.x, Math.sin(el) * d, c.z + Math.cos(el) * d), new THREE.Vector3(c.x, 0, c.z), 900);
   }
+  followDice() {   // frame the dice landing area (and the throw from the mat) so the roll is always on screen
+    this.manual = false;
+    const vf = THREE.MathUtils.degToRad(this.cam.fov / 2), el = 1.05, d = Math.max(0.3, 0.2 / Math.tan(vf) * (this.cam.aspect < 1.2 ? 1.5 : 1));
+    const t = new THREE.Vector3(0, 0, 0.08);
+    this.flyTo(new THREE.Vector3(t.x, Math.sin(el) * d, t.z + Math.cos(el) * d), t, 600);
+  }
   flyTo(pos, target, ms = 1200) { this.fly = { p0: this.cam.position.clone(), t0: this.ctl.target.clone(), p1: pos, t1: target, start: performance.now(), ms }; }
   // ---- physical dice: thrown from the player's mat, tumble and bounce across the table, land showing the rolled face
   // spec: [{set:'day'|'night'|'news'|'num', face:0..5}]

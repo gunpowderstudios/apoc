@@ -473,7 +473,7 @@ function throwDice(r) {
   if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
   else if (r.kind === 'risk') sp = [{ set: 'num', face: Math.max(0, Math.min(5, (r.value || 1) - 1)) }];
   else if (r.kind === 'fight') sp = [r.a, r.d].map(x => ({ set: 'num', face: Math.max(0, Math.min(5, ((x && x.r) || 1) - 1)) }));
-  if (sp) V3.rollDice(sp, r.pl, S.players.length);
+  if (sp) { V3.rollDice(sp, r.pl, S.players.length); if (followArmed) V3.followDice(); }
 }
 function rollSound() {
   const k = S.lastRoll ? (S.lastRoll.rn || JSON.stringify(S.lastRoll)) : null;   // one throw per roll: keyed on the roll itself, not on the log length
@@ -801,8 +801,9 @@ function zoomCard(src) {   zoomFlipId = null;   // any face-up card clicked on t
 }
 function renderCraftBtn() {
   let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; $('#boardWrap').appendChild(b); }
-  const show = !setupHold && craftOk() && !S.players[actor()].ai; b.hidden = !show; if (!show) return;
-  const ts = S.ts; b.innerHTML = `APOC Recipe Book<small>Craft${ts.crafted ? ' ✓' : ''} - Recycle${ts.scrapped ? ' ✓' : ''}</small>`;
+  const show = !setupHold && !!S && !S.over; b.hidden = !show; if (!show) return;   // always on screen so the recipes can be checked at any time
+  const ts = S.ts || {}, live = craftOk() && !S.players[actor()].ai; b.classList.toggle('idle', !live);
+  b.innerHTML = `APOC Recipe Book<small>${live ? `Craft${ts.crafted ? ' ✓' : ''} - Recycle${ts.scrapped ? ' ✓' : ''}` : 'view recipes'}</small>`;
 }
 function shopModal() {
   const p = S.players[actor()];
