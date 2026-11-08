@@ -835,6 +835,11 @@ function err(msg) { return { ok: false, error: msg }; }
 const OK = { ok: true };
 
 export function dispatch(s, pl, cmd) {
+  const r = dispatch0(s, pl, cmd);
+  for (const p of s.players) if (!p.bunker && !p.canBuildNoted && canBuild(p)) { p.canBuildNoted = true; logm(s, `${p.name} has everything needed and can BUILD A BUNKER (take the Build action).`, p.id); }
+  return r;
+}
+function dispatch0(s, pl, cmd) {
   if (s.over) return err('Game over');
   // hand correction of a health cube (any player may do it, any time; always written to the log so it is clear the game didn't do it)
   if (cmd.t === 'manualHealth') {

@@ -526,7 +526,14 @@ function renderTurn() {
   if (!S || S.over) return;
   const pa = S.players[actor()], el = $('#turn');
   const items = pa.items.map(i => `<span class="gitem${i.broken ? ' brk' : ''}">${esc((E.D.item[i.id] || {}).name || i.id)}${i.broken ? ' (broken)' : ''}</span>`).join('') || '<span class="note">no items</span>';
-  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip">❤ ${pa.health}</span><span class="chip">🪙 ${pa.coin}</span></div><div class="gitems">${items}</div></div>`);
+  let bk = '';
+  if (pa.bunker) bk = '<div class="bunkerline ok">🏠 Bunker built</div>';
+  else {
+    const miss = E.RES.filter(r => pa.res[r] < 1), tape = pa.res.ducttape || 0, ready = miss.length <= tape;
+    bk = ready ? `<div class="bunkerline ok">🏠 Bunker: READY to build${miss.length ? ' (duct tape covers ' + miss.map(r => E.RES_LABEL[r]).join(', ') + ')' : ''}</div>`
+      : `<div class="bunkerline">🏠 Bunker: ${6 - miss.length} of 6 - need ${miss.map(r => E.RES_LABEL[r]).join(', ')}${tape ? ' (' + tape + ' duct tape)' : ''}</div>`;
+  }
+  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip">❤ ${pa.health}</span><span class="chip">🪙 ${pa.coin}</span></div><div class="gitems">${items}</div>${bk}</div>`);
 }
 function renderTurn0() {
   const el = $('#turn'); let h = '';
@@ -557,7 +564,7 @@ function renderTurn0() {
     h += '<div class="note">Day = safer. Night = more moves, more risk.</div>';
   } else if (ts.step === 'prep') {
     h += `<div>Moves <b>${ts.moves}</b> · Actions <b>${ts.actions}</b> ${ts.moveState === 'done' ? '<span class="note">(movement finished)</span>' : ''}</div><div class="btns">`;
-    for (const x of E.actionsAt(S, pa)) h += btn(esc(x.label), () => actionClick(x.a, pa));
+    for (const x of E.actionsAt(S, pa)) h += btn(esc(x.a === 'build' ? '🏠 ' + x.label : x.label), () => actionClick(x.a, pa), x.a === 'build' ? { cls: 'primary buildgo' } : {});
     
     const L = S.loc[pa.node], freeSpot = E.D.node[pa.node].kind !== 'building' || pa.node === E.D.board.churchNode;
     if (freeSpot) for (const r of E.ALLRES) if (L.res[r] > 0) h += btn(`Pick up ${E.RES_LABEL[r]}`, () => doCmd({ t: 'pickup', r }));

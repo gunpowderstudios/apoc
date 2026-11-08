@@ -204,3 +204,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the shortcut legend (C B Z X N D) is now a vertical list down the left of the screen. (v1.184)
 - Test-build tool: the dice re-roll pop-up no longer repeats earlier log lines (eat / news) - it only shows the roll and the Keep / Re-roll choice. (v1.185)
 - Test-build tool: the only way a character card turns to its bunker side is the Build action; the Flip button on the enlarged card is just a preview of the other side. Backpack limit stays 10; a bunker is unlimited. (v1.186)
+- Test-build tool: bunker progress shows in the turn panel (Bunker: n of 6, what is missing, duct tape cover / READY); the Build button turns big, green and pulsing; the log says when a player can build. (v1.187)
