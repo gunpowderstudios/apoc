@@ -210,3 +210,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: Space bar pauses / resumes the game. (v1.190)
 - Test-build tool: H (hide / show resources) added to the shortcut legend. (v1.191)
 - Test-build tool: shortcut legend hangs from the very top-left of the table view. (v1.192)
+- Test-build tool: shortcut legend no longer glows. (v1.193)
