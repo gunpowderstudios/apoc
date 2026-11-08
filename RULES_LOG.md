@@ -207,3 +207,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: bunker progress shows in the turn panel (Bunker: n of 6, what is missing, duct tape cover / READY); the Build button turns big, green and pulsing; the log says when a player can build. (v1.187)
 - Test-build tool: the shortcut legend sits tighter in the top-left corner. (v1.188)
 - Test-build tool: shortcut keys are now B Board (press again = centred overview), C character card, P player piece, R recipe book, F full screen, N news, D DEFCON, H hide resources; pause is button-only (Follow is a button too). (v1.189)
+- Test-build tool: Space bar pauses / resumes the game. (v1.190)
