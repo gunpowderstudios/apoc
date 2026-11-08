@@ -202,3 +202,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (AI): after its opening goal, each AI keeps a plan across turns (build bunker first, then food / craft / weapons / scavenge / steal) and logs "X plans to ...". (v1.182)
 - Test-build tool: B key zooms the camera to the board as large as it fits, with a slight tilt; legend now C Recenter · B Board · Z Figure · X Card · N News · D DEFCON. (v1.183)
 - Test-build tool: the shortcut legend (C B Z X N D) is now a vertical list down the left of the screen. (v1.184)
+- Test-build tool: the dice re-roll pop-up no longer repeats earlier log lines (eat / news) - it only shows the roll and the Keep / Re-roll choice. (v1.185)
