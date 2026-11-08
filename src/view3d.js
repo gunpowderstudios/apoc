@@ -485,8 +485,8 @@ export class View3D {
     this.hint.style.opacity = far ? '1' : '0.7';
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
-  fitAll() {
-    this.manual = false;
+  fitAll(hold) {
+    this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
     const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
