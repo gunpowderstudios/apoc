@@ -231,3 +231,4 @@ body.sidemin #sbx,body.fs #sbx{display:none}
 #craftbtn{z-index:30}#craftbtn.idle{opacity:.8}
 #chint{line-height:1.55;top:56px}
 .bunkerline{margin-top:5px;font-size:13px;color:#aab}.bunkerline.ok{color:#8fe28f;font-weight:700}#turn .btns button.buildgo{font-size:17px;padding:11px 18px;animation:buildpulse 1.2s ease-in-out infinite}@keyframes buildpulse{0%,100%{box-shadow:0 0 6px #6fd47f}50%{box-shadow:0 0 22px #b9ffc4}}
+#chint{top:46px;left:10px;line-height:1.35;font-size:13px}
