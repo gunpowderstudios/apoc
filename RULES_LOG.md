@@ -192,4 +192,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Board artwork updated: last leftover resource box removed at the Cafe. (v1.171)
 - Default resource-pile layout updated to Tim's revised positions (data/tokenlayout.json, 54 piles incl. both Duct Tape piles). (v1.172)
 - Test-build tool (sandbox): with Move piles on, click a space or pile to add/remove its starting tokens (−/+). The layout JSON now also holds the starting pile counts (setup), so changes can be baked in as the default. (v1.173)
-- Test-build tool: ITEMS deck label moved above the pile; DEFCON label nudged down; player names (and busted/tagged tokens) now sit below the character card, tokens and item cards. (v1.174)
+- Test-build tool: ITEMS deck label moved above the pile; DEFCON label nudged down. (v1.174; player names stay above the card, v1.175)
