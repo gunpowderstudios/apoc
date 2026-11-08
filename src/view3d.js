@@ -514,7 +514,9 @@ export class View3D {
       const fit = pts.every(v => { const q = v.clone().project(cam); return Math.abs(q.x) <= 0.98 && Math.abs(q.y) <= 0.98; });
       if (fit) hi = d; else lo = d;
     }
-    this.flyTo(tg.clone().addScaledVector(dir, hi * 0.9), tg, 900);   // 10% closer than an exact fit
+    const dF = hi * 0.9, half = dF * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
+    tg.z += 0.2 * half / Math.sin(el);   // slide the view so the board sits 10% of the window height higher
+    this.flyTo(tg.clone().addScaledVector(dir, dF), tg, 900);   // 10% closer than an exact fit
   }
   fitAll(hold) {
     this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
