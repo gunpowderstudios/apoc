@@ -183,3 +183,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Dumpsters (NE and SW) have no door: a player moves in from the junction for 1 move (the street piece in front of each dumpster no longer exists as a space). The gantry space below Prepper Joe's / Harbor Office at the bottom right (east end of Fairbrass Exchange) is removed: it is not a move space. Board artwork updated to match (door arrows removed). (v1.163)
 - Test-build tool: every resource token on the board spaces is now the same size (the Big Storage size); before, the small shops used smaller tokens. (v1.164)
 - Test-build tool: all resource tokens (board spaces, pool, player cards, held in hand) are 15 mm across at table scale. (v1.165)
+- Test-build tool: Frost's figure is 5% smaller (about 38 mm tall on the table). (v1.166)
