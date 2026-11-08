@@ -674,7 +674,14 @@ function renderApocBig() {   // the APOC event has triggered: big message on scr
   o.innerHTML = `<img src="assets/ui/ev-${S.apocEvent}.png"><div class="a1">THE APOC EVENT HAS TRIGGERED</div><div class="a2">${nm} APOCALYPSE</div><div class="a3">Click or press Esc to close</div>`;
   try { sirenSnd.currentTime = 0; sirenSnd.play().catch(() => {}); } catch (e) {}
 }
+const defSnd = new Audio('assets/sfx/defcon.mp3'); let defPrev = null;
+function defconSound() {   // plays when DEFCON rises (not on game load / new game / sandbox lowering)
+  const d = S ? S.defcon : null; if (d === null || d === undefined) { defPrev = null; return; }
+  if (defPrev !== null && d > defPrev) { try { defSnd.currentTime = 0; defSnd.play().catch(() => {}); } catch (e) {} }
+  defPrev = d;
+}
 function renderNewsPanel() {
+  defconSound();
   renderApocBig();
   let big = $('#newsbig'); if (!big) { big = document.createElement('div'); big.id = 'newsbig'; big.hidden = true; big.onclick = () => closeNewsBig(); $('#boardWrap').appendChild(big); }
   let bar = $('#evbar'); if (!bar) { bar = document.createElement('div'); bar.id = 'evbar'; $('#boardWrap').appendChild(bar); }
