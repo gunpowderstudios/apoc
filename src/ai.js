@@ -6,8 +6,31 @@ const { RES, ALLRES } = E;
 const chance = p => Math.random() < p;
 // ---- opening goals chosen on the start screen: the AI pursues its goal first, then plays balanced
 const WEAPONS = ['pistol', 'rifle', 'knife', 'bow', 'chainsaw'];
+// ---- persistent plan: once the opening goal is done (or none was set) an AI picks a plan and sticks to it until it is done or too old
+const PLAN_TXT = { bunker: 'build a bunker', food10: 'stock up on food', craft: 'craft items', weapons: 'collect weapons', scavenge: 'scavenge (burgle and dumpster dive)', steal: 'steal and loot' };
+function pickPlan(s, p) {
+  const w = {}, hasW = WEAPONS.filter(x => E.ownsItem(p, x)).length;
+  if (!p.bunker) { w.bunker = 9; if (p.res.food < 3) w.food10 = 3; }   // the bunker comes first
+  else {
+    w.food10 = p.res.food < 4 ? 4 : p.res.food < 8 ? 2 : 0.5;
+    w.craft = 3;
+    if (hasW < 2 && p.coin >= 4) w.weapons = 2 + (p.prepper === 'frost' ? 2 : 0);
+    w.scavenge = 2; if (!p.tagged) w.steal = 1;
+  }
+  let tot = 0; for (const k in w) tot += w[k]; let x = Math.random() * tot, pick = 'scavenge';
+  for (const k in w) { x -= w[k]; if (x <= 0) { pick = k; break; } }
+  return pick;
+}
 export function activeGoal(s, p) {
-  switch (p.goal) {
+  const base = goalFor(s, p, p.goal); if (base || !p.ai) return base;
+  const pl = p.plan;
+  if (pl && s.round - pl.round < 8 && goalFor(s, p, pl.g)) return pl.g;
+  const g = pickPlan(s, p); p.plan = { g, round: s.round };
+  E.logm(s, `${p.name} plans to ${PLAN_TXT[g]}.`);
+  return goalFor(s, p, g) ? g : null;
+}
+function goalFor(s, p, goal) {
+  switch (goal) {
     case 'weapons': return WEAPONS.filter(w => E.ownsItem(p, w)).length >= 2 ? null : 'weapons';
     case 'bunker': return p.bunker ? null : 'bunker';
     case 'craft': return p.items.length >= 3 ? null : 'craft';
@@ -204,6 +227,11 @@ function goalTarget(s, p) {   // where the opening goal wants to go next (null =
     return best;
   }
   if (g === 'gamble' && p.coin >= 1 && ok('casino')) return 'casino';
+  if (g === 'bunker') {   // head for the best place to pick up a resource the bunker still needs
+    let best = null, bv = 0;
+    for (const n of D.board.nodes) { if (!ok(n.id)) continue; const sc = scoreNode(s, p, n.id); if (sc.v >= 3 && sc.what) { const v = sc.v / (1 + E.pathTo(s, p.node, n.id).length * 0.3); if (v > bv) { bv = v; best = n.id; } } }
+    return best;
+  }
   if (g === 'food10') {
     let best = null, bd = 1e9;
     for (const n of D.board.nodes) { const f = s.loc[n.id].res.food || 0; if (!f || !ok(n.id)) continue; if (n.kind === 'building' && n.id !== D.board.churchNode && p.coin < E.defc(s).buy) continue; const d = E.pathTo(s, p.node, n.id).length / Math.min(f, 3); if (d < bd) { bd = d; best = n.id; } }

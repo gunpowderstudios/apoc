@@ -199,3 +199,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: turn button (End turn / Roll) is now green; the APOC Recipe Book button is black. (v1.179)
 - Test-build tool: the turn panel now ends with an at-a-glance strip of the current player's resources, health, coins and items (so it stays visible when zoomed in or full screen). (v1.180)
 - Test-build tool: the APOC Recipe Book button is always on screen (view-only when it is not your turn); the camera zooms to the dice on every roll. (v1.181)
+- Test-build tool (AI): after its opening goal, each AI keeps a plan across turns (build bunker first, then food / craft / weapons / scavenge / steal) and logs "X plans to ...". (v1.182)
