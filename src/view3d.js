@@ -538,8 +538,8 @@ export class View3D {
     let d = 1.5;
     for (let it = 0; it < 10; it++) {
       let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2 + ofs / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window
-      const q = box(d), cx = (q.x0 + q.x1) / 2, cy = (q.y0 + q.y1) / 2 - ofs / 2;   // then centre it evenly (a little higher when the event panels are showing)
-      const half = d * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
+      const dd = d * (hold ? 0.9 : 1), q = box(dd), cx = (q.x0 + q.x1) / 2 - (hold ? 0.06 : 0), cy = (q.y0 + q.y1) / 2 - (hold ? ofs * 0.3 : ofs) / 2;   // then centre it evenly (B: sits lower and a touch right, nearer the middle of the window)
+      const half = dd * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
       tg.x += Math.cos(az) * cx * half * this.cam.aspect; tg.z += Math.sin(az) * cx * half * this.cam.aspect;   // slide sideways along the screen
       tg.x -= hx * cy * half / Math.sin(el); tg.z -= hz * cy * half / Math.sin(el);                                 // and up/down the table
     }
