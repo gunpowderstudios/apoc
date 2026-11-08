@@ -129,7 +129,7 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
-      if (h && h.type === 'token') { if (this.editPiles) return; if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      if (h && h.type === 'token') { if (this.editPiles) { if (this.onPileClick && h.info && h.info.node !== undefined) this.onPileClick(h.info.node); return; } if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
       if (h && h.type === 'card') { if (this.onCard) this.onCard(h.img); return; }

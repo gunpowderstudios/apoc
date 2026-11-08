@@ -891,6 +891,7 @@ function sandbox(s, pl, cmd) {
   const p = cmd.p !== undefined ? s.players[cmd.p] : cur(s);
   if (cmd.t === 'sbxMove') { p.node = cmd.to; onEnter(s, p); }
   else if (cmd.t === 'sbxGive') { p.res[cmd.r] += cmd.n; s.supply[cmd.r] -= cmd.n; }
+  else if (cmd.t === 'sbxPile') { const L = s.loc[cmd.node]; if (L) { const d = cmd.n; if (d > 0) { const t = Math.min(d, s.supply[cmd.r]); L.res[cmd.r] = (L.res[cmd.r] || 0) + t; s.supply[cmd.r] -= t; } else { const t = Math.min(-d, L.res[cmd.r] || 0); L.res[cmd.r] -= t; s.supply[cmd.r] += t; } } }   // layout editor: add / remove tokens on a space (pool follows)
   else if (cmd.t === 'sbxCoin') p.coin += cmd.n;
   else if (cmd.t === 'sbxHealth') p.health = Math.max(0, Math.min(10, cmd.n));
   else if (cmd.t === 'sbxItem') { const c = takeCard(s, cmd.id); if (c) giveCard(s, p, c); }
