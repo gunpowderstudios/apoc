@@ -215,3 +215,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: resource piles that an event places on a space (with no saved position) now take the nearest free spot beside the existing tokens instead of overlapping them; the footer "Gunpowder Studios" links to the website in #FCB040. (v1.195)
 - Test-build tool: footer link made clickable. (v1.196)
 - Test-build tool: the side bar log is titled "Game Log", each line is coloured by the player who did it, and a "Round N" heading marks each new round. (v1.197)
+- Test-build tool: the B views (board / centred overview) are 10% closer than before. (v1.198)

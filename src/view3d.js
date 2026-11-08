@@ -514,7 +514,7 @@ export class View3D {
       const fit = pts.every(v => { const q = v.clone().project(cam); return Math.abs(q.x) <= 0.98 && Math.abs(q.y) <= 0.98; });
       if (fit) hi = d; else lo = d;
     }
-    this.flyTo(tg.clone().addScaledVector(dir, hi), tg, 900);
+    this.flyTo(tg.clone().addScaledVector(dir, hi * 0.9), tg, 900);   // 10% closer than an exact fit
   }
   fitAll(hold) {
     this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
@@ -544,7 +544,7 @@ export class View3D {
       tg.x -= hx * cy * half / Math.sin(el); tg.z -= hz * cy * half / Math.sin(el);                                 // and up/down the table
     }
     this.fitD = d; this.fitT = tg.clone();
-    this.flyTo(tg.clone().addScaledVector(dir, d), tg, 800);
+    this.flyTo(tg.clone().addScaledVector(dir, d * (hold ? 0.9 : 1)), tg, 800);   // held (B / second press) = 10% closer
   }
   reset() { this.flyTo(new THREE.Vector3(0, 1.15, 1.0), new THREE.Vector3(0, 0, 0.15), 800); }
   // left-mouse tool: select (default: original mouse controls), pan, zoom (drag), rotate. Select keeps the original mouse: left-drag rotates, right-drag pans, wheel zooms; pieces and tokens are still picked up first.
