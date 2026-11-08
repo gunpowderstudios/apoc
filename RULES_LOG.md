@@ -218,3 +218,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the B views (board / centred overview) are 10% closer than before. (v1.198)
 - Test-build tool: the centred overview (second B press) sits lower and slightly right, nearer the middle of the window. (v1.199)
 - Test-build tool: Game Log text is brighter. (v1.200)
+- Test-build tool: the Info side-bar tab sits at the top right, level with the top of the shortcut legend. (v1.201)

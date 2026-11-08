@@ -239,3 +239,4 @@ body.sidemin #sbx,body.fs #sbx{display:none}
 #copyr a{pointer-events:auto}
 #logh{margin:0;padding:6px 10px 2px;font-size:14px;border-top:1px solid #333;color:#fff}#log div.cur{font-weight:700}#log div.rd{margin-top:6px;padding:2px 0;border-bottom:1px solid #444;color:#ffd54f;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
 #log div{color:#f2f0ea}#log div[style]{filter:brightness(1.45) saturate(.9);font-weight:500}#log div.rd{filter:none}
+#sideTab{top:44px;transform:none}
