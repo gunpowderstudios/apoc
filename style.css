@@ -235,3 +235,4 @@ body.sidemin #sbx,body.fs #sbx{display:none}
 #chint{top:4px;left:8px}
 #chint{animation:none;text-shadow:0 1px 3px #000}
 .gheart{color:#3ddc5a;font-size:15px;margin:0 2px 0 4px}.gcoin{display:inline-block;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3a0,#ffd400 55%,#c99a00);border:1px solid #8a6a00;margin:0 2px 0 4px}
+#copyr a{color:#FCB040;text-decoration:none;font-weight:600}#copyr a:hover{text-decoration:underline}

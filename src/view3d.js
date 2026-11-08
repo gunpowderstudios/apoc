@@ -232,10 +232,23 @@ export class View3D {
         if (L.coin) piles.push({ coin: true, c: L.coin });
         const PER = { thrift: 2 }[n.id] || (piles.length > 6 ? 3 : 6), rowsN = Math.ceil(piles.length / PER);   // lots of piles (Big Storage at the start): rows of 3 so they stay inside the building
         const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016) - (PER <= 3 ? (rowsN - 1) * SP / 2 : 0);
+        // piles with a saved position keep it; any other pile (e.g. a resource an event just placed here) takes its default spot, or the nearest free spot beside the existing tokens if that would overlap
+        const spot = piles.map(pl => { const o = this.layout && this.layout[n.id] && this.layout[n.id][pl.coin ? 'coin' : pl.r]; return o ? this.w({ x: o[0], y: o[1] }) : null; }), placed = spot.filter(Boolean), DMIN = 0.0165;
+        piles.forEach((pl, i) => {
+          if (spot[i]) return;
+          const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
+          let px = cx + (col - (colN - 1) / 2) * SP, pz = z0 + row * SP;
+          const free = (x, z) => placed.every(q => Math.hypot(q[0] - x, q[1] - z) >= DMIN);
+          if (!free(px, pz)) {
+            const bx = placed.reduce((a, q) => a + q[0], 0) / placed.length, bz = placed.reduce((a, q) => a + q[1], 0) / placed.length; let bd = 1e9;
+            for (let ring = 1; ring <= 10 && bd === 1e9; ring++) for (let k = 0; k < 16; k++) { const x = bx + Math.cos(k * Math.PI / 8) * ring * SP, z = bz + Math.sin(k * Math.PI / 8) * ring * SP, d = Math.hypot(x - px, z - pz); if (d < bd && free(x, z)) { bd = d; spot[i] = [x, z]; } }
+            if (!spot[i]) spot[i] = [px, pz];
+          } else spot[i] = [px, pz];
+          placed.push(spot[i]);
+        });
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
-          let px = cx + (col - (colN - 1) / 2) * SP, pz = z0 + row * SP;   // default spot; a saved layout (data/tokenlayout.json or your sandbox edits) overrides it per pile
-          const ov = this.layout && this.layout[n.id] && this.layout[n.id][pl.coin ? 'coin' : pl.r]; if (ov) [px, pz] = this.w({ x: ov[0], y: ov[1] });
+          const [px, pz] = spot[i];   // saved layout position, or the default / free spot worked out above
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
           if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(px, 0.0006, pz); this.tokens.add(ring); }
           for (let k = 0; k < pl.c; k++) {
