@@ -1300,7 +1300,8 @@
    "setup": {
     "hardware": 1,
     "chem": 1,
-    "tech": 1
+    "tech": 1,
+    "ducttape": 1
    },
    "acts": [
     "buy"

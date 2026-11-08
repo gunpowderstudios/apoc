@@ -1,6 +1,6 @@
 {
  "note": "APOC resource-pile layout: board pixel position (x, y) of the centre of each pile, per space and resource",
- "version": "v1.169",
+ "version": "v1.170",
  "layout": {
   "bar": {
    "chem": [2033, 1452]
@@ -68,7 +68,8 @@
   "hardwarestore": {
    "tech": [465, 829],
    "hardware": [465, 779],
-   "chem": [464, 729]
+   "chem": [464, 729],
+   "ducttape": [415, 779]
   },
   "cafe": {
    "food": [379, 912]
