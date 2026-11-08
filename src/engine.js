@@ -786,7 +786,7 @@ export function actionsAt(s, p) {   // list of available action descriptors at t
 export function canBuild(p) {
   const need = RES.filter(r => p.res[r] < 1);
   if (need.length === 0) return true;
-  return need.length === 1 && p.res.ducttape >= 1;
+  return need.length <= (p.res.ducttape || 0);   // each duct tape is wild: it stands in for one missing resource
 }
 export function craftable(s, p) {
   const out = []; if (s.ts && s.ts.crafted) return out;

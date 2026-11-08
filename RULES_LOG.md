@@ -65,7 +65,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 
 - Items that need a bunker to craft or keep: Bed, Hazmat Suit, Med Lab, Drone, Solar Panel, Hydroponics Lab. Chain: the Hydroponics Lab also needs you to own a Solar Panel; the Med Lab needs you to own both a Solar Panel and a Hydroponics Lab (you keep them, nothing is used up). The recipe book shows these requirements. These conditions only apply to crafting: item cards you are simply given (deck draws, bonus cards) can be kept without them. Drawn item cards are never skipped: a burglar can find any item, with or without a bunker. (Confirmed by Tim, v1.122.)
 
-- Building a bunker: take the Build action (1 action, any place) when you hold at least one of each of the six resources (Food, Know-how, Chem, Hardware, Tech, Meds). One DUCT TAPE can stand in for one missing resource. The resources are NOT used up. Your character card turns over to the bunker side (unlimited resources, no backpack limit). The first player to build also receives a bonus item card. (As built in v1.122: please confirm, see Still to confirm.)
+- Building a bunker: take the Build action (1 action, any place) when you hold at least one of each of the six resources (Food, Know-how, Chem, Hardware, Tech, Meds). DUCT TAPE is wild: each duct tape you hold can stand in for one missing resource (v1.186). Nothing is used up: you keep every resource you collected (including the duct tape). Your character card turns over to the bunker side (unlimited resources, no backpack limit). The first player to build also receives a bonus item card. (As built in v1.122: please confirm, see Still to confirm.)
 
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
@@ -203,3 +203,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: B key zooms the camera to the board as large as it fits, with a slight tilt; legend now C Recenter · B Board · Z Figure · X Card · N News · D DEFCON. (v1.183)
 - Test-build tool: the shortcut legend (C B Z X N D) is now a vertical list down the left of the screen. (v1.184)
 - Test-build tool: the dice re-roll pop-up no longer repeats earlier log lines (eat / news) - it only shows the roll and the Keep / Re-roll choice. (v1.185)
+- Test-build tool: the only way a character card turns to its bunker side is the Build action; the Flip button on the enlarged card is just a preview of the other side. Backpack limit stays 10; a bunker is unlimited. (v1.186)
