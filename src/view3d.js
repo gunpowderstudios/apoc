@@ -313,7 +313,7 @@ export class View3D {
     const edge = new THREE.Mesh(new THREE.BoxGeometry(this.chart.w + 0.004, 0.0012, this.chart.d + 0.004), new THREE.MeshStandardMaterial({ color: 0x111111 })); edge.position.set(this.chart.x, 0.0004, this.chart.z); edge.receiveShadow = true; this.furniture.add(edge);
     const sideM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 }), topM = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/shtf.webp'), transparent: true, roughness: 0.4 }); this.defMark = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.004, 40), [sideM, topM, sideM]); this.defMark.rotation.y = Math.PI / 2; this.defMark.castShadow = true; this.furniture.add(this.defMark);
     { const lw = 0.19, ld = lw * 226 / 500, lx = 0.51, lz = this.H / 2 - ld / 2, lg = this.flat(lw, ld, 'assets/ui/logo.png', lx, 0.002, lz, { transparent: true }); lg.castShadow = false; lg.material = new THREE.MeshBasicMaterial({ map: this.tex('assets/ui/logo.png'), transparent: true }); this.furniture.add(lg); }   // game logo + copyright, right of the board, base level with the board's base
-    const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.02); this.furniture.add(lb);
+    const lb = this.label('DEFCON', '#ffd54f'); lb.position.set(this.chart.x, 0.03, this.chart.z + this.chart.d / 2 + 0.036); this.furniture.add(lb);
     // news + item piles in one row along the top edge of the board: face-down pack on the left, the turned-over papers spread to the right
     const tz = -(hb + 0.03 + 0.0955), x0 = -W + 0.0675, gap = 0.165;
     // thin dotted white outlines mark where the news cards are (or will be) laid
@@ -355,7 +355,7 @@ export class View3D {
       if (itemN > 0) {   // face-down shuffled ITEM deck (portrait cards 63x88 mm, drawn bigger so it reads like the news piles)
         const [x, z] = this.newsPos.items, h = Math.max(0.001, itemN * 0.0007), side = new THREE.MeshStandardMaterial({ color: 0xe9e4d6 }), top = new THREE.MeshStandardMaterial({ map: this.tex('assets/items/back.jpg'), roughness: 0.8 });
         const m = new THREE.Mesh(new THREE.BoxGeometry(0.0945, h, 0.132), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = 'items'; this.piles.add(m);
-        const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z + 0.085); this.piles.add(lb);
+        const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z - 0.085); this.piles.add(lb);
       }
       for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? ((s.spent || []).includes(a[a.length - 1]) ? 'assets/news/back.jpg' : `assets/news/${a[a.length - 1]}.jpg`) : '', ty.toUpperCase()); }
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
@@ -380,11 +380,11 @@ export class View3D {
           const ed = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: 0x111111 })); cube.add(ed);
           cube.userData.matId = p.id; cube.userData.cardImg = url; cube.userData.healthCube = { pid: p.id, x, zc, y: cube.position.y }; this.mats.add(cube);
         }
-        const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
-        // busted tokens (1-2) / tagged token sit beside the name above the card; 3 busts = tagged
+        const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc + 0.2125); this.mats.add(nm);
+        // busted tokens (1-2) / tagged token sit beside the name below the cards; 3 busts = tagged
         { const tk = p.tagged ? [['tagged', 'tagged']] : Array.from({ length: p.busted || 0 }, () => ['busted']), bg = new THREE.CylinderGeometry(0.0085, 0.0085, 0.0028, 24);
           tk.forEach((t, k) => { const f = t[1] || t[0], tm = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/' + f + '.webp'), transparent: true, roughness: 0.5 }), sm = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.6 });
-            const m = new THREE.Mesh(bg, [sm, tm, sm]); m.rotation.y = Math.PI / 2; m.position.set(x + 0.092 - k * 0.019, 0.0015, zc - 0.0745 - 0.014); m.castShadow = true; this.mats.add(m); }); }
+            const m = new THREE.Mesh(bg, [sm, tm, sm]); m.rotation.y = Math.PI / 2; m.position.set(x + 0.092 - k * 0.019, 0.0015, zc + 0.2125); m.castShadow = true; this.mats.add(m); }); }
         // resource piles
         const piles = []; for (const r of Object.keys(RCOL)) if (p.res[r]) piles.push({ r, c: p.res[r] }); if (p.coin) piles.push({ r: 'coin', c: p.coin });
         const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), pz = zc + 0.0745 + 0.02;
