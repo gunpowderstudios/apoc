@@ -48,7 +48,7 @@ async function boot() {
   origSetup = Object.fromEntries(D.board.nodes.map(n => [n.id, { ...(n.setup || {}) }]));   // the board.json starting piles, for Reset
   try { tokDef = await (await fetch('data/tokenlayout.json?v=' + Date.now())).json(); } catch (e) { tokDef = null; }
   applySetup({ ...(tokDef && tokDef.setup || {}), ...(JSON.parse(localStorage.getItem('apoc-setup') || 'null') || {}) });
-  boardImg = await img('assets/board/board.jpg?v=171'); icons.coin = await img('assets/counters/prepcoin.webp');
+  boardImg = await img('assets/board/board.jpg?v=176'); icons.coin = await img('assets/counters/prepcoin.webp');
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }

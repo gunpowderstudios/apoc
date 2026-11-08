@@ -194,3 +194,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (sandbox): with Move piles on, click a space or pile to add/remove its starting tokens (−/+). The layout JSON now also holds the starting pile counts (setup), so changes can be baked in as the default. (v1.173)
 - Test-build tool: ITEMS deck label moved above the pile; DEFCON label nudged down. (v1.174; player names stay above the card, v1.175)
 - Test-build tool: DEFCON rise sound effect (assets/sfx/defcon.mp3) plays whenever DEFCON goes up. (v1.176)
+- Board art updated (duplicate Pet Store door arrow removed; one south door onto Coin Street remains, matching the board data). (v1.177)
