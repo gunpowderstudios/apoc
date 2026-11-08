@@ -1,41 +1,41 @@
 {
  "note": "APOC resource-pile layout: board pixel position (x, y) of the centre of each pile, per space and resource",
- "version": "v1.170",
+ "version": "v1.171",
  "layout": {
   "bar": {
-   "chem": [2033, 1452]
+   "chem": [2023, 1452]
   },
   "pizza": {
-   "food": [2163, 1460]
+   "food": [2143, 1457]
   },
   "pawn": {
-   "hardware": [2265, 1503]
+   "hardware": [2271, 1516]
   },
   "thrift": {
-   "hardware": [2188, 1185],
-   "chem": [2189, 1233],
-   "tech": [2190, 1283]
+   "hardware": [2182, 1207],
+   "chem": [2181, 1267],
+   "tech": [2192, 1334]
   },
   "music": {
-   "tech": [2194, 942]
+   "tech": [2202, 952]
   },
   "drugs": {
    "chem": [2277, 928],
    "meds": [2276, 880]
   },
   "grocery": {
-   "food": [2198, 702]
+   "food": [2188, 725]
   },
   "pet": {
    "food": [1996, 904]
   },
   "theater": {
-   "ducttape": [2205, 418]
+   "ducttape": [2202, 419]
   },
   "salvage": {
-   "hardware": [2100, 284],
-   "knowhow": [2200, 283],
-   "tech": [2148, 282]
+   "hardware": [2098, 308],
+   "knowhow": [2188, 287],
+   "tech": [2139, 268]
   },
   "gas": {
    "chem": [1988, 479]
@@ -44,17 +44,17 @@
    "meds": [1471, 363]
   },
   "autoshop": {
-   "hardware": [1235, 290],
-   "chem": [1236, 340]
+   "hardware": [1240, 295],
+   "chem": [1239, 356]
   },
   "firestation": {
-   "chem": [928, 304]
+   "chem": [1097, 362]
   },
   "dental": {
    "meds": [1156, 509]
   },
   "library": {
-   "knowhow": [939, 447]
+   "knowhow": [969, 449]
   },
   "truckstop": {
    "hardware": [681, 306],
@@ -62,57 +62,57 @@
    "knowhow": [628, 314]
   },
   "steel": {
-   "tech": [599, 497],
-   "hardware": [547, 497]
+   "tech": [514, 464],
+   "hardware": [457, 489]
   },
   "hardwarestore": {
-   "tech": [465, 829],
+   "tech": [456, 836],
    "hardware": [465, 779],
-   "chem": [464, 729],
-   "ducttape": [415, 779]
+   "chem": [465, 723],
+   "ducttape": [402, 695]
   },
   "cafe": {
-   "food": [379, 912]
+   "food": [382, 950]
   },
   "school": {
-   "chem": [614, 989],
-   "knowhow": [673, 988]
+   "chem": [591, 975],
+   "knowhow": [652, 977]
   },
   "gym": {
    "food": [722, 1202],
    "meds": [670, 1210]
   },
   "boatyard": {
-   "hardware": [666, 1363],
-   "chem": [720, 1362]
+   "hardware": [688, 1386],
+   "chem": [734, 1354]
   },
   "citydump": {
-   "tech": [612, 1395],
-   "hardware": [565, 1389]
+   "tech": [527, 1385],
+   "hardware": [470, 1386]
   },
   "deptstore": {
-   "knowhow": [1013, 1301],
-   "hardware": [914, 1302],
-   "tech": [962, 1301]
+   "knowhow": [1139, 1295],
+   "hardware": [1018, 1293],
+   "tech": [1078, 1295]
   },
   "bigstorage": {
-   "food": [1455, 1225],
-   "knowhow": [1508, 1225],
-   "chem": [1561, 1223],
-   "meds": [1610, 1239],
-   "tech": [1578, 1282],
-   "hardware": [1463, 1280],
-   "ducttape": [1520, 1282]
+   "food": [1439, 1233],
+   "knowhow": [1489, 1216],
+   "chem": [1547, 1209],
+   "meds": [1604, 1221],
+   "tech": [1626, 1276],
+   "hardware": [1449, 1292],
+   "ducttape": [1569, 1273]
   },
   "offices": {
    "hardware": [1693, 1244],
    "tech": [1746, 1244]
   },
   "restaurant": {
-   "food": [1530, 1444]
+   "food": [1544, 1447]
   },
   "bookstore": {
-   "knowhow": [1683, 1408]
+   "knowhow": [1709, 1402]
   }
  }
 }

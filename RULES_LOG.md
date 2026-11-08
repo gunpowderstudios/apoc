@@ -190,3 +190,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Default resource-pile layout on the board is now Tim's layout (data/tokenlayout.json, 52 piles). The Big Storage duct tape pile was not in his file so it was placed between Hardware and Tech there; move it if needed. Sandbox edits in a browser sit on top of the default. (v1.169)
 - Board artwork updated again: the printed resource placement boxes are removed (the game's tokens show the starting resources instead); small label changes (Prepper Jack's). Hardware Store now starts with 1 Duct Tape as well (Hardware, Chem, Tech + Duct Tape), which comes out of the Duct Tape supply (10 to 9 in the pool). (v1.170)
 - Board artwork updated: last leftover resource box removed at the Cafe. (v1.171)
+- Default resource-pile layout updated to Tim's revised positions (data/tokenlayout.json, 53 piles incl. both Duct Tape piles). (v1.172)
