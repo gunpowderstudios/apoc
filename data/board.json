@@ -1679,8 +1679,8 @@
   {
    "id": "casino",
    "kind": "building",
-   "x": 1960,
-   "y": 1330,
+   "x": 2045,
+   "y": 1285,
    "name": "Casino",
    "setup": {},
    "acts": [
@@ -1701,8 +1701,8 @@
   {
    "id": "thrift",
    "kind": "building",
-   "x": 2170,
-   "y": 1230,
+   "x": 2215,
+   "y": 1270,
    "name": "Thrift Store",
    "setup": {
     "hardware": 1,

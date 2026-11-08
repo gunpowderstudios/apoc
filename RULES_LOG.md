@@ -184,3 +184,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: every resource token on the board spaces is now the same size (the Big Storage size); before, the small shops used smaller tokens. (v1.164)
 - Test-build tool: all resource tokens (board spaces, pool, player cards, held in hand) are 15 mm across at table scale. (v1.165)
 - Test-build tool: Frost's figure is 5% smaller (about 38 mm tall on the table). (v1.166)
+- Test-build tool: the Casino and Thrift Store move spaces (rings, tokens, figures) are now nearer the centre of their buildings. (v1.167)
+- Test-build tool: Thrift Store piles are laid out two per row so they stay inside the narrow building. (v1.167)

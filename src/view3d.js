@@ -220,8 +220,8 @@ export class View3D {
         const SP = 0.0175 * F, piles = [];
         for (const r of Object.keys(RCOL)) if (L.res[r]) piles.push({ r, c: L.res[r] });
         if (L.coin) piles.push({ coin: true, c: L.coin });
-        const PER = piles.length > 6 ? 3 : 6, rowsN = Math.ceil(piles.length / PER);   // lots of piles (Big Storage at the start): rows of 3 so they stay inside the building
-        const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016) - (PER === 3 ? (rowsN - 1) * SP / 2 : 0);
+        const PER = { thrift: 2 }[n.id] || (piles.length > 6 ? 3 : 6), rowsN = Math.ceil(piles.length / PER);   // lots of piles (Big Storage at the start): rows of 3 so they stay inside the building
+        const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016) - (PER <= 3 ? (rowsN - 1) * SP / 2 : 0);
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
