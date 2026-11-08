@@ -77,11 +77,17 @@ export class View3D {
       if (e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'cube' && !this.heldG && this.canAdjustHealth) { const hc = h.mesh.userData.healthCube; this.cdrag = { ...hc, mesh: h.mesh, hp: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
+      if (h && h.type === 'token' && this.editPiles && h.info && h.info.node !== undefined) { this.pdrag = { node: h.info.node, r: h.info.r }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
     el.addEventListener('pointermove', e => {
       if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; this.updateDrop(e); }
       if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
+      if (this.pdrag) {   // layout editor: dragging a whole pile of tokens on the board
+        if (!down || !down.moved) return; const pt = this.boardPoint(e); if (!pt) return; const d = this.pdrag; d.bx = pt.bx; d.by = pt.by;
+        for (const m of this.tokens.children) if (m.userData.tok && m.userData.tok.node === d.node && m.userData.tok.r === d.r) { m.position.x = pt.x; m.position.z = pt.z; }
+        el.style.cursor = 'grabbing'; return;
+      }
       if (this.cdrag) {   // sliding a health cube along its track
         if (!down || !down.moved) return; this.ndc(e);
         const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.004), pt)) {
@@ -107,6 +113,10 @@ export class View3D {
     });
     const up = e => {
       if (this._leftWas !== undefined) { this.ctl.mouseButtons.LEFT = this._leftWas; this._leftWas = undefined; }
+      if (this.pdrag) {
+        const d = this.pdrag; this.pdrag = null; this.ctl.enabled = true;
+        if (down && down.moved && d.bx !== undefined) { down = null; this.layout = this.layout || {}; (this.layout[d.node] = this.layout[d.node] || {})[d.r] = [Math.round(d.bx), Math.round(d.by)]; if (this.onLayout) this.onLayout(this.layout); return; }
+      }
       if (this.cdrag) {
         const c = this.cdrag; this.cdrag = null; this.ctl.enabled = true;
         if (down && down.moved && c.hp !== null) { down = null; if (this.onHealth) this.onHealth(c.pid, c.hp); return; }
@@ -119,7 +129,7 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
-      if (h && h.type === 'token') { if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
+      if (h && h.type === 'token') { if (this.editPiles) return; if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
       if (h && h.type === 'card') { if (this.onCard) this.onCard(h.img); return; }
@@ -207,14 +217,14 @@ export class View3D {
     this.syncTable(s);
     this.setGlow(s.glow ? s.glow.nodes : [], { nuclear: 0xffc107, pandemic: 0xff3b30, ai: 0x2e8bff }[s.glow && s.glow.type] || 0xffffff);
     // resource tokens
-    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null]);
+    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null, this.layout || null]);
     if (sig !== this.sig) {
       this.sig = sig; this.tokens.clear();
       const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), coinMat = new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 });
       for (const n of this.board.nodes) {
         const L = s.loc[n.id]; if (!L || (this.hide && this.hide.has(n.id))) continue;
         const list = []; for (const r of Object.keys(RCOL)) for (let i = 0; i < (L.res[r] || 0); i++) list.push(r);
-        const NUDGE = { drugs: [-20, 0], thrift: [63, 0], hardwarestore: [15, 0], bigstorage: [65, 0] }, nu = NUDGE[n.id] || [0, 0], [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w({ x: n.x + nu[0], y: n.y + nu[1] });
+        const NUDGE = { drugs: [-20, 0], hardwarestore: [15, 0], bigstorage: [65, 0] }, nu = NUDGE[n.id] || [0, 0], [cx, cz] = L.at ? this.w({ x: L.at[0], y: L.at[1] }) : this.w({ x: n.x + nu[0], y: n.y + nu[1] });
         const F = 1;   // every resource token on the board is the same size (15 mm across, like the pool and player-card tokens)
         // one pile per resource type (stacked upwards); piles sit side by side so they never overlap
         const SP = 0.0175 * F, piles = [];
@@ -224,11 +234,13 @@ export class View3D {
         const z0 = cz + (n.kind === 'building' ? 0.012 : 0.016) - (PER <= 3 ? (rowsN - 1) * SP / 2 : 0);
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
+          let px = cx + (col - (colN - 1) / 2) * SP, pz = z0 + row * SP;   // default spot; a saved layout (data/tokenlayout.json or your sandbox edits) overrides it per pile
+          const ov = this.layout && this.layout[n.id] && this.layout[n.id][pl.coin ? 'coin' : pl.r]; if (ov) [px, pz] = this.w({ x: ov[0], y: ov[1] });
           const hot = this.hl && this.hl.node === n.id && this.hl.r === (pl.coin ? 'coin' : pl.r);
-          if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0006, z0 + row * SP); this.tokens.add(ring); }
+          if (hot) { const ring = new THREE.Mesh(new THREE.RingGeometry(0.0095, 0.0125, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, side: THREE.DoubleSide })); ring.rotation.x = -Math.PI / 2; ring.position.set(px, 0.0006, pz); this.tokens.add(ring); }
           for (let k = 0; k < pl.c; k++) {
             const m = new THREE.Mesh(geo, this.tokenMat(pl.coin ? 'coin' : pl.r)); m.scale.set(F, 1, F);
-            m.position.set(cx + (col - (colN - 1) / 2) * SP, 0.0015 + k * 0.003, z0 + row * SP); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
+            m.position.set(px, 0.0015 + k * 0.003, pz); m.castShadow = true; m.userData.tok = { node: n.id, r: pl.coin ? 'coin' : pl.r }; this.tokens.add(m);
           }
         });
       }

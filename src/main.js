@@ -227,6 +227,11 @@ function setView(v) {
     if (mode === 'guest') net.send({ cmd: c }); else runCmd(iAct() ? actor() : Math.max(0, S.players.findIndex((q, i) => mine(i))), c);
     V3.matSig = ''; render();
   };
+  V3.onLayout = L => { try { localStorage.setItem('apoc-tokenlayout', JSON.stringify(L)); } catch (e) {} render(); };
+  fetch('data/tokenlayout.json?v=' + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null).then(def => {
+    let loc = null; try { loc = JSON.parse(localStorage.getItem('apoc-tokenlayout') || 'null'); } catch (e) {}
+    V3.layout = loc || (def && def.layout) || {}; V3.defaultLayout = (def && def.layout) || {}; render();
+  });
   V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }
@@ -850,14 +855,19 @@ function sandboxPanel() {   // compact test tools, shown in the side bar (own bo
   <div class="sr"><span class="sl">Quick</span>${mini('+3 coin', () => doCmd({ t: 'sbxCoin', p: t, n: 3 }))}${mini('+1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health + 1 }))}${mini('−1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health - 1 }))}${mini('+4 moves', () => doCmd({ t: 'sbxMoves', n: 4 }))}</div>
   <div class="sr"><span class="sl">DEFCON</span>${[0, 1, 2].map(i => mini(['Green', 'Yellow', 'Orange'][i], () => doCmd({ t: 'sbxDefcon', n: i }), { cls: S.defcon === i ? 'on' : '' })).join('')}${mini('Trigger APOC', () => doCmd({ t: 'sbxApoc' }))}</div>
   <div class="sr"><span class="sl">Move</span>${mini(sbxMove ? '✔ click board' : 'Teleport…', () => { sbxMove = !sbxMove; render(); }, { cls: sbxMove ? 'on' : '' })}</div>
+  <div class="sr"><span class="sl">Layout</span>${mini(V3 && V3.editPiles ? '✔ drag piles on board' : 'Move piles…', () => { V3.editPiles = !V3.editPiles; render(); }, { cls: V3 && V3.editPiles ? 'on' : '' })}${mini('Download', () => downloadLayout(), { title: 'Download the token layout as JSON to send back' })}${mini('Load…', () => $('#layoutFile').click())}${mini('Reset', () => { if (!confirm('Put every pile back to the default layout?')) return; try { localStorage.removeItem('apoc-tokenlayout'); } catch (e) {} V3.layout = JSON.parse(JSON.stringify(V3.defaultLayout || {})); render(); })}<input type="file" id="layoutFile" accept=".json" hidden></div>
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
+}
+function downloadLayout() {
+  const out = { note: 'APOC resource-pile layout: board pixel position (x, y) of the centre of each pile, per space and resource', version: VERSION, layout: V3.layout || {} };
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1).replace(/\[\s+(-?\d+),\s+(-?\d+)\s+\]/g, '[$1, $2]')], { type: 'application/json' })); a.download = 'apoc-token-layout.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 let sbxKeep = null;
 function renderSandbox() {
   const el = $('#sbx'); if (!el) return;
   if (!S || !S.sandbox) { el.innerHTML = ''; return; }
   if (document.activeElement && document.activeElement.id === 'sbxItem') return;   // don't rebuild while the item list is open
-  const sel = sbxKeep; el.innerHTML = sandboxPanel(); const si = $('#sbxItem'); if (si && sel) si.value = sel; if (si) si.onchange = () => { sbxKeep = si.value; };
+  const sel = sbxKeep; el.innerHTML = sandboxPanel(); { const lf = $('#layoutFile'); if (lf) lf.onchange = () => { const f = lf.files[0]; if (!f) return; f.text().then(t => { const j = JSON.parse(t); V3.layout = j.layout || j; try { localStorage.setItem('apoc-tokenlayout', JSON.stringify(V3.layout)); } catch (e) {} render(); }).catch(() => alert('That file is not a layout JSON')); }; } const si = $('#sbxItem'); if (si && sel) si.value = sel; if (si) si.onchange = () => { sbxKeep = si.value; };
   if (!renderSandbox.opened) { renderSandbox.opened = true; if (window.setSide) window.setSide(false); }   // sandbox games open the side bar once
 }
 

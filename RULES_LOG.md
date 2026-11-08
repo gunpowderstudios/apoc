@@ -186,3 +186,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: Frost's figure is 5% smaller (about 38 mm tall on the table). (v1.166)
 - Test-build tool: the Casino and Thrift Store move spaces (rings, tokens, figures) are now nearer the centre of their buildings. (v1.167)
 - Test-build tool: Thrift Store piles are laid out two per row so they stay inside the narrow building. (v1.167)
+- Test-build tool (sandbox): "Layout" row in the sandbox box. "Move piles…" lets you drag any resource pile on the board to where you want it, "Download" saves the layout as JSON (board pixel position of each pile, per space and resource), "Load…" reads one back, "Reset" returns to the default. Edits are remembered in your browser; the default layout every player gets comes from data/tokenlayout.json (Tim sends the downloaded file and it is built in). (v1.168)
