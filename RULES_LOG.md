@@ -223,3 +223,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the Game Log shows a coloured "<player>'s turn" heading each time a turn starts, under the Round heading. (v1.203)
 - Test-build tool (AI): an AI player with no food left switches its plan to finding food (until it holds 3), whatever its other plan, and logs it. (v1.204)
 - Test-build tool: every shortcut key (B C P R F N D H Space) plays the pop-up sound. (v1.205)
+- Test-build tool: the Info side bar is gone. Top right shows the round number (big) with a live move log (newest line glowing green, older lines fading; click to open the full log). All top-menu buttons and the sandbox tools are under a cog menu (Pause stays on the bar). The turn box stays bottom right. (v1.206)

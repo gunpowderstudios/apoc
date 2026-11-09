@@ -160,10 +160,11 @@ function toggleMusic() { musicOn = !musicOn; try { localStorage.setItem('apoc-mu
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
-  { const tab = document.createElement('button'); tab.id = 'sideTab'; document.body.appendChild(tab);
-    window.setSide = min => setSide(min, false); const setSide = (min, save = true) => { document.body.classList.toggle('sidemin', min); tab.textContent = min ? '◀ Info' : 'Info ▶'; tab.title = min ? 'Expand the info bar (players, log)' : 'Collapse the info bar'; if (save) try { localStorage.setItem('apoc-sidemin', min ? '1' : '0'); } catch (e) {} setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 60); };
-    tab.onclick = () => setSide(!document.body.classList.contains('sidemin'));
-    setSide(localStorage.getItem('apoc-sidemin') !== '0'); }
+  document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+    const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
+    document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
+    $('#loglive').onclick = () => { $('#topinfo').classList.toggle('open'); lastLogSeq = -1; render(); }; }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
@@ -180,7 +181,7 @@ function enterApp() {
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
   $('#bRulesTab').onclick = () => { modalFn = rulesModal; render(); };
-  const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('header').insertBefore(ex, $('#bGraph'));
+  const ex = document.createElement('button'); ex.id = 'bExp'; ex.textContent = 'Export board.json'; ex.hidden = true; ex.onclick = exportBoard; $('#cogmenu').appendChild(ex);
   document.addEventListener('click', e => {
     const z = e.target.closest('img[data-zoom]'); if (z) zoomCard(z.dataset.zoom);
   }, true);
@@ -509,6 +510,7 @@ function render() {
 }
 function renderStatus() {
   const df = E.defc(S);
+  $('#rnd').innerHTML = `<b>ROUND ${S.round}</b> <span class="defc ${df.id}">${df.name}</span>`;
   $('#status').innerHTML = `<div>Round <b>${S.round}</b> · <span class="defc ${df.id}">${df.name}</span> <span class="note">buy ${df.buy} · sell ${df.sell} · ${[df.steal && 'steal', df.loot && 'loot', df.burgle && 'burgle'].filter(Boolean).join('/') || 'no crime'}${df.hospital ? '' : ' · hospital closed'}</span></div>
   <div class="note">Stand: ${['ai', 'pandemic', 'nuclear'].map(t => `${t} ${S.stand[t].length}/5`).join(' · ')} · Thugs in bar ${S.thugsBar} · Busted tokens ${S.bustedLeft}</div>
   <div class="res">${E.ALLRES.map(r => chip(r, S.supply[r])).join('')}<span class="note">supply</span></div>`;
@@ -555,7 +557,7 @@ function renderTurn0() {
   h += `<h3>${esc(pa.name)}'s turn <span class="note">(${E.D.prepper[pa.prepper].name})</span></h3>`;
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
   if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>`; return; }
-  if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>' + (S.sandbox ? sandboxPanel() : ''); return; }
+  if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>'; return; }
   if (ts.step === 'eat') {
     h += `<div class="btns">${btn('🍽 Eat (1 food)', () => doCmd({ t: 'eat' }), { cls: 'primary' })}</div><div class="note">Press when you are ready. No food = lose 1 health.</div>`;
   } else if (ts.step === 'news') {
@@ -629,8 +631,13 @@ function renderLog() {
   const m = me(), names = S.players.map(q => [q.name, q]).sort((a, b) => b[0].length - a[0].length);
   const who = l => { if (l.pl !== null && l.pl !== undefined && S.players[l.pl]) return S.players[l.pl]; const f = names.find(([nm]) => l.t.startsWith(nm + ' ') || l.t.startsWith(nm + "'")); return f ? f[1] : null; };
   let rr = null, cc = null;
-  el.innerHTML = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; cc = null; h = `<div class="rd">Round ${l.r}</div>`; }
-    if (l.c !== undefined && l.c !== null && l.c !== cc && S.players[l.c]) { cc = l.c; const tp = S.players[l.c]; h += `<div class="td" style="color:${pcol(tp)}">${esc(tp.name)}'s turn</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join(''); el.scrollTop = el.scrollHeight;
+  const rows = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; cc = null; h = `<div class="rd">Round ${l.r}</div>`; }
+    if (l.c !== undefined && l.c !== null && l.c !== cc && S.players[l.c]) { cc = l.c; const tp = S.players[l.c]; h += `<div class="td" style="color:${pcol(tp)}">${esc(tp.name)}'s turn</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; });
+  el.innerHTML = rows.join(''); el.scrollTop = el.scrollHeight;
+  // top-right live log: newest line glows green, older ones fade away below it; click to open the whole log
+  const open = $('#topinfo').classList.contains('open'), ll = $('#loglive');
+  if (open) { ll.innerHTML = rows.join(''); ll.scrollTop = ll.scrollHeight; }
+  else ll.innerHTML = S.log.slice(-8).reverse().map((l, i) => { const q = who(l); return `<div class="ll l${i}"${q && i ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join('');
 }
 function renderHand() {
   const p = S.players[me()], el = $('#hand'); if (!p) return;

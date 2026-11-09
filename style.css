@@ -241,3 +241,23 @@ body.sidemin #sbx,body.fs #sbx{display:none}
 #log div{color:#f2f0ea}#log div[style]{filter:brightness(1.45) saturate(.9);font-weight:500}#log div.rd{filter:none}
 #sideTab{top:44px;transform:none}
 #log div.td{margin-top:4px;padding-left:6px;border-left:3px solid currentColor;font-weight:700;font-size:12.5px;filter:brightness(1.45)}
+
+#cog{font-size:18px;padding:2px 10px}
+#cogmenu{position:fixed;top:42px;right:8px;z-index:40;width:270px;max-height:calc(100vh - 60px);overflow:auto;display:flex;flex-direction:column;gap:5px;padding:10px;background:#1b1e22;border:1px solid #555;border-radius:10px;box-shadow:0 8px 30px #000c}
+#cogmenu[hidden]{display:none}
+#cogmenu button,#cogmenu select{width:100%;text-align:left}
+#cogmenu #sbx{display:block !important;margin-top:6px;border-top:1px solid #444;padding-top:6px}
+#topinfo{position:fixed;top:44px;right:14px;width:330px;max-width:40vw;z-index:14;pointer-events:none;text-align:right}
+#rnd{font-size:15px;color:#fff;text-shadow:0 2px 6px #000}#rnd b{font-size:40px;letter-spacing:.03em;margin-right:6px}
+#loglive{pointer-events:auto;cursor:pointer;margin-top:4px}
+#loglive .ll{font-size:14px;line-height:1.3;margin:0 0 5px;text-shadow:0 1px 4px #000,0 0 8px #000;color:#e8e6e0}
+#loglive .l0{color:#4cd964;font-size:16px;font-weight:700;text-shadow:0 0 10px #2ecc40,0 1px 4px #000}
+#loglive .l1{opacity:.85}#loglive .l2{opacity:.7}#loglive .l3{opacity:.55}#loglive .l4{opacity:.42}#loglive .l5{opacity:.3}#loglive .l6{opacity:.2}#loglive .l7{opacity:.12}
+#topinfo.open #loglive{max-height:62vh;overflow:auto;text-align:left;background:#1b1e22ee;border:1px solid #555;border-radius:10px;padding:8px 10px;box-shadow:0 8px 30px #000c}
+#topinfo.open #loglive div{font-size:13px;color:#f2f0ea}
+#sideTab{display:none !important}
+body.sidemin #evbar{right:330px}
+#loglive div.rd{margin-top:6px;padding:2px 0;border-bottom:1px solid #444;color:#ffd54f;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+#loglive div.td{margin-top:4px;padding-left:6px;border-left:3px solid currentColor;font-weight:700;font-size:12.5px;filter:brightness(1.45)}
+#loglive div[style]{filter:brightness(1.45)}
+#loglive.ll{filter:none}
