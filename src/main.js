@@ -163,7 +163,7 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bWhole', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
@@ -179,7 +179,7 @@ function enterApp() {
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
-  { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Whole game view: ' + (whole ? 'on' : 'off'); wb.classList.toggle('on', whole); };
+  { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Watch it played'; wb.classList.toggle('on', whole); };
     paint(); wb.onclick = () => { whole = !whole; try { localStorage.setItem('apoc-whole', whole ? '1' : '0'); } catch (e) {} paint(); if (whole && V3) V3.fitAll(true); }; }   // whole game view: board centred, no auto zoom in/out
   $('#bFollow').classList.toggle('on', follow); $('#bFollow').onclick = () => { follow = !follow; followArmed = true; try { localStorage.setItem('apoc-follow', follow ? '1' : '0'); } catch (e) {} $('#bFollow').classList.toggle('on', follow); if (!follow && V3) V3.fitAll(); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
