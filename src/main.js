@@ -867,19 +867,19 @@ function buildingPicker() {
 let rulesMd = null;
 const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 function mdToSections(md) {
-  const secs = []; let cur = null, list = null, tbl = null;
+  const secs = []; let cur = null, list = null, tbl = null, ask = false;
   const close = () => { if (cur) { if (list) { cur.h += `</${list}>`; list = null; } if (tbl) { cur.h += '</table>'; tbl = null; } } };
   for (const raw of md.split('\n')) {
     const l = raw.trimEnd();
     if (/^# /.test(l) || /^What the game does/.test(l) || /^Format:/.test(l)) { continue; }
     let m;
-    if ((m = l.match(/^## (.*)/))) { close(); cur = { t: m[1], h: '' }; secs.push(cur); continue; }
+    if ((m = l.match(/^## (.*)/))) { close(); ask = /Still to confirm/i.test(m[1]); cur = { t: m[1], h: '', ask }; if (!/Board facts from Tim/i.test(m[1])) secs.push(cur); continue; }   // the 'Board facts from Tim' notes stay in the log file but are not shown in the game
     if (!cur) continue;
-    if ((m = l.match(/^### (.*)/))) { close(); cur.h += `<h4>${inl(m[1])}</h4>`; continue; }
+    if ((m = l.match(/^### (.*)/))) { close(); ask = /Open questions|Still to confirm/i.test(m[1]); cur.h += `<h4${ask ? ' class="ask"' : ''}>${inl(m[1])}</h4>`; continue; }
     if (/^\|/.test(l)) { if (/^\|[-| ]+\|$/.test(l)) continue; const cells = l.split('|').slice(1, -1).map(c => c.trim()); if (!tbl) { close(); cur.h += '<table class="rtbl">'; tbl = 1; cur.h += '<tr>' + cells.map(c => `<th>${inl(c)}</th>`).join('') + '</tr>'; } else cur.h += '<tr>' + cells.map(c => `<td>${inl(c)}</td>`).join('') + '</tr>'; continue; }
     if (tbl) { cur.h += '</table>'; tbl = null; }
-    if ((m = l.match(/^- (.*)/))) { if (list !== 'ul') { close(); cur.h += '<ul>'; list = 'ul'; } cur.h += `<li>${inl(m[1])}</li>`; continue; }
-    if ((m = l.match(/^\d+\. (.*)/))) { if (list !== 'ol') { close(); cur.h += '<ol>'; list = 'ol'; } cur.h += `<li>${inl(m[1])}</li>`; continue; }
+    if ((m = l.match(/^- (.*)/))) { if (list !== 'ul') { close(); cur.h += ask ? '<ul class="ask">' : '<ul>'; list = 'ul'; } cur.h += `<li>${inl(m[1])}</li>`; continue; }
+    if ((m = l.match(/^\d+\. (.*)/))) { if (list !== 'ol') { close(); cur.h += ask ? '<ol class="ask">' : '<ol>'; list = 'ol'; } cur.h += `<li>${inl(m[1])}</li>`; continue; }
     if (!l.trim()) { if (list) { cur.h += `</${list}>`; list = null; } continue; }
     if (list) { cur.h += `</${list}>`; list = null; }
     cur.h += `<p>${inl(l)}</p>`;
@@ -889,7 +889,7 @@ function mdToSections(md) {
 function rulesModal() {
   if (rulesMd === null) { rulesMd = ''; fetch('RULES_LOG.md?v=' + Date.now()).then(r => r.text()).then(t => { rulesMd = t; render(); }).catch(() => { rulesMd = 'Could not load the rules.'; render(); }); }
   const secs = rulesMd ? mdToSections(rulesMd) : [];
-  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details ${i === 0 ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
+  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details class="${s.ask ? 'ask' : ''}" ${i === 0 ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {

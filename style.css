@@ -349,3 +349,7 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 /* v1.226: bigger collapse arrows */
 #logArrow{width:38px;height:30px;font-size:22px;line-height:30px;border-radius:8px}
 #turn h3::after{font-size:24px !important;line-height:1;vertical-align:-3px;color:#cfd6d9 !important;margin-left:4px}
+
+/* v1.227: items still to be confirmed are red in the in-game rules */
+.rules details.ask{border-color:#c0392b}.rules details.ask summary,.rules details.ask[open] summary{color:#ff6b5e}
+.rules h4.ask{color:#ff6b5e}.rules ul.ask,.rules ol.ask,.rules details.ask li{color:#ff8a7e}
