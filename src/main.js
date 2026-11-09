@@ -15,7 +15,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
 let D, boardImg, icons = {}, V2, V3, view = '2d';
 let S = null, mode = 'local', net = null, mySeat = null, peerSeat = new Map(), guestNames = new Map(), remoteSeats = new Set();
-let paused = false, stepOnce = false, speed = 'normal', follow = localStorage.getItem('apoc-follow') !== '0', lastActorKey = null, followArmed = false;   // the camera starts on the straight C view and stays there until you move it
+let paused = false, stepOnce = false, speed = 'normal', follow = localStorage.getItem('apoc-follow') !== '0', lastActorKey = null, followArmed = false, whole = localStorage.getItem('apoc-whole') === '1', wholeDone = false;   // the camera starts on the straight C view and stays there until you move it
 let sbxNode = null, hist = [], sbxMove = false, sbxTarget = 0, busy = false, modalFn = null, H = [], targets = {}, lastSeq = 0, aiRejects = 0, lobbyMode = 'solo', appUp = false, lastLogSeq = -1;
 
 // ---------------------------------------------------------------- boot + lobby
@@ -163,7 +163,7 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bWhole', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
@@ -179,6 +179,8 @@ function enterApp() {
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
+  { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Whole game view: ' + (whole ? 'on' : 'off'); wb.classList.toggle('on', whole); };
+    paint(); wb.onclick = () => { whole = !whole; try { localStorage.setItem('apoc-whole', whole ? '1' : '0'); } catch (e) {} paint(); if (whole && V3) V3.fitAll(true); }; }   // whole game view: board centred, no auto zoom in/out
   $('#bFollow').classList.toggle('on', follow); $('#bFollow').onclick = () => { follow = !follow; followArmed = true; try { localStorage.setItem('apoc-follow', follow ? '1' : '0'); } catch (e) {} $('#bFollow').classList.toggle('on', follow); if (!follow && V3) V3.fitAll(); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
@@ -484,7 +486,7 @@ function throwDice(r) {
   if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
   else if (r.kind === 'risk') sp = [{ set: 'num', face: Math.max(0, Math.min(5, (r.value || 1) - 1)) }];
   else if (r.kind === 'fight') sp = [r.a, r.d].map(x => ({ set: 'num', face: Math.max(0, Math.min(5, ((x && x.r) || 1) - 1)) }));
-  if (sp) { V3.rollDice(sp, r.pl, S.players.length); if (followArmed) V3.followDice(); }
+  if (sp) { V3.rollDice(sp, r.pl, S.players.length); if (followArmed && !whole) V3.followDice(); }
 }
 function rollSound() {
   const k = S.lastRoll ? (S.lastRoll.rn || JSON.stringify(S.lastRoll)) : null;   // one throw per roll: keyed on the roll itself, not on the log length
@@ -509,8 +511,8 @@ function render() {
   if (V3 && view === '3d') {
     V3.sync(S, { targets });
     const ap = S.players.find(p => p.id === actor()), key = S.over ? 'over' : S.stage + ':' + actor() + ':' + (ap && ap.node);
-    if (follow && key !== lastActorKey && !S.over && !(lastActorKey === null && !followArmed)) setTimeout(() => { if (V3.manual) return; if (!V3.followPawn(actor())) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length); }, 60);
-    lastActorKey = key; followArmed = true;
+    if (follow && !whole && key !== lastActorKey && !S.over && !(lastActorKey === null && !followArmed)) setTimeout(() => { if (V3.manual) return; if (!V3.followPawn(actor())) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length); }, 60);
+    lastActorKey = key; followArmed = true; if (whole && !wholeDone) { wholeDone = true; setTimeout(() => V3.fitAll(true), 150); }
   }
 }
 function renderStatus() {

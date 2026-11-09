@@ -261,3 +261,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: an expandable "Tips for playing" (top 10 things you might need to do) sits under the shortcut legend, top left. (v1.228)
 - Test-build tool: every item in the Recipe Book has an "I want this" tick box. Ticked items appear as a shopping list under the bunker line in the player panel (bottom right) showing what resources are still needed, or READY to craft. The list is remembered per character on this computer. (v1.229)
 - Test-build tool: Recycle now asks "Recycle the X?" (Yes, recycle it / No, keep it) before it does anything. (v1.230)
+- Test-build tool: cog menu has "Whole game view": the board stays centred in the overview and the camera stops zooming to the dice and the active player, for watching the AI play. Keys (B, C, P, N, D) still work. Remembered. (v1.231)
