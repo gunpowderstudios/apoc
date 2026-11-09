@@ -4,8 +4,8 @@
   "n": 1,
   "paper": "Daily Post",
   "type": "nuclear",
-  "title": "West Side Panic!",
-  "text": "Preppers in the area: combat roll 4+ or lose 2 HEALTH",
+  "title": "Bomb Threat",
+  "text": "Preppers in the west side area: combat roll 4+ or lose 2 HEALTH",
   "effect": "westCombat",
   "img": "assets/news/n01.jpg"
  },
@@ -14,8 +14,8 @@
   "n": 2,
   "paper": "Daily Post",
   "type": "ai",
-  "title": "Stray dog sniffing around",
-  "text": "Roll RISK DICE. 1-2: Bitten, lose 1 HEALTH; 3-6: spend 1 FOOD to tame and keep the dog",
+  "title": "Dog escapes data center",
+  "text": "Roll RISK DICE. 1-2: Bitten - lose 1 HEALTH; 3-6: spend 1 FOOD to tame and keep the dog",
   "effect": "strayDog",
   "img": "assets/news/n02.jpg"
  },
@@ -24,8 +24,8 @@
   "n": 3,
   "paper": "Daily Post",
   "type": "pandemic",
-  "title": "Hospital worker offers contraband meds",
-  "text": "You may swap any 2 resources for 3 MEDS",
+  "title": "Medical worker offers contraband meds",
+  "text": "You may swap any 1 resource for 3 MEDS at the hospital while this event remains",
   "effect": "contrabandMeds",
   "img": "assets/news/n03.jpg"
  },
@@ -35,7 +35,7 @@
   "paper": "The Patriot Times",
   "type": "nuclear",
   "title": "Stab vest at pawn shop!",
-  "text": "First to get there pays 1 PREPCOIN or 1 TECH to acquire",
+  "text": "First to get there pays 1 DOOMCOIN or 1 TECH to acquire",
   "effect": "offerStabVest",
   "img": "assets/news/n04.jpg"
  },
@@ -45,7 +45,7 @@
   "paper": "The Patriot Times",
   "type": "ai",
   "title": "Crypto price soars!",
-  "text": "Any prepper with TECH may exchange each for 2 PREPCOIN",
+  "text": "Any prepper with TECH may sell each for 2 DOOMCOIN",
   "effect": "cryptoSoars",
   "img": "assets/news/n05.jpg"
  },
@@ -64,8 +64,8 @@
   "n": 7,
   "paper": "The Tribune",
   "type": "nuclear",
-  "title": "Have hazmat suit - need food",
-  "text": "First prepper to reach the bar may acquire for 1 FOOD",
+  "title": "Have hazmat suit - need food!",
+  "text": "First prepper to the bar may acquire for 1 FOOD",
   "effect": "offerHazmat",
   "img": "assets/news/n07.jpg"
  },
@@ -75,8 +75,8 @@
   "paper": "The Tribune",
   "type": "ai",
   "title": "Anti-tech rioters hit East Side!",
-  "text": "Any prepper in the east area loses 1 TECH",
-  "effect": "eastTech",
+  "text": "Any prepper in the east boxed in until card is covered OR 5+ combat to escape the area",
+  "effect": "eastTrap",
   "img": "assets/news/n08.jpg"
  },
  {
@@ -85,7 +85,7 @@
   "paper": "The Tribune",
   "type": "pandemic",
   "title": "Airborne outbreak!",
-  "text": "All preppers pay 1 MED or lose 2 HEALTH",
+  "text": "All preppers pay 1 MED or lose 2 HEALTH (hazmat owners shielded)",
   "effect": "outbreak",
   "img": "assets/news/n09.jpg"
  },
@@ -95,7 +95,7 @@
   "paper": "The Inquirer",
   "type": "nuclear",
   "title": "Emergency curfew imposed!",
-  "text": "No night-time movement until this card is covered",
+  "text": "No night-time movement until this card is covered (place night dice here)",
   "effect": "curfew",
   "img": "assets/news/n10.jpg"
  },
@@ -104,9 +104,9 @@
   "n": 11,
   "paper": "The Inquirer",
   "type": "ai",
-  "title": "Rogue AI devalues all crypto!",
-  "text": "All players lose 2 PREPCOIN",
-  "effect": "devalue",
+  "title": "'Robin Hood' AI forces crypto redistribution!",
+  "text": "Poorest prepper receives 1 DOOMCOIN from all other preppers (if tied for poorest, prepper donors choose their recipient)",
+  "effect": "robinHood",
   "img": "assets/news/n11.jpg"
  },
  {
@@ -125,7 +125,7 @@
   "paper": "The Courier",
   "type": "nuclear",
   "title": "Powerplant pollution!",
-  "text": "Preppers on or adjacent to river lose 1 MED or 1 HEALTH",
+  "text": "Preppers on or adjacent to river lose 1 MED or 1 HEALTH (hazmat owners shielded)",
   "effect": "riverPollution",
   "img": "assets/news/n13.jpg"
  },
@@ -144,8 +144,8 @@
   "n": 15,
   "paper": "The Courier",
   "type": "pandemic",
-  "title": "Bug-out test simulation",
-  "text": "Roll a dice. 1-2: lose 1 KNOW-HOW; 3-6: lose 1 KNOW-HOW (as printed - check)",
+  "title": "Bug-out drill test",
+  "text": "Current prepper missing any resource type must scrap one item",
   "effect": "bugOut",
   "img": "assets/news/n15.jpg"
  },
@@ -164,9 +164,9 @@
   "n": 17,
   "paper": "The Chronicle",
   "type": "ai",
-  "title": "Turn all tech off and on again",
-  "text": "Lose 1 TECH unless you have 2 or more KNOW-HOW",
-  "effect": "techOffOn",
+  "title": "Hacker attack: all CCTV disabled",
+  "text": "Caught on a 1 only when stealing or looting while this card is active",
+  "effect": "cctv",
   "img": "assets/news/n17.jpg"
  },
  {
@@ -184,9 +184,9 @@
   "n": 19,
   "paper": "The Daily News",
   "type": "nuclear",
-  "title": "Citizens trade old hard drives to buy canned food",
-  "text": "Place 3 TECH in pawn shop",
-  "effect": "hardDrives",
+  "title": "Ultimate dumpster dive",
+  "text": "All preppers may trade all TECH for top ITEM card at recycling depot",
+  "effect": "ultimateDive",
   "img": "assets/news/n19.jpg"
  },
  {
@@ -194,9 +194,9 @@
   "n": 20,
   "paper": "The Daily News",
   "type": "ai",
-  "title": "Crypto-geek's hideout found!",
-  "text": "Place 3 PREPCOIN and 3 TECH in the boat yard",
-  "effect": "cryptoGeek",
+  "title": "PJ's yard sale",
+  "text": "Buy any gun shop or hardware store item at half price (rounded down)",
+  "effect": "yardSale",
   "img": "assets/news/n20.jpg"
  },
  {
@@ -224,9 +224,9 @@
   "n": 23,
   "paper": "The Gazette",
   "type": "ai",
-  "title": "You get drunk and throw up on your short-wave radio",
-  "text": "Lose 1 TECH and 1 HEALTH",
-  "effect": "drunk",
+  "title": "Out-of-date food",
+  "text": "Current prepper gets sick: lose 2 HEALTH or 1 MED",
+  "effect": "oldFood",
   "img": "assets/news/n23.jpg"
  },
  {
@@ -234,9 +234,9 @@
   "n": 24,
   "paper": "The Gazette",
   "type": "pandemic",
-  "title": "Thugs asleep on the job!",
-  "text": "All preppers lose 1 resource for each thug they employ",
-  "effect": "thugsAsleep",
+  "title": "Thugs show up late for work",
+  "text": "Do not feed/pay thugs while this card is active",
+  "effect": "thugsLate",
   "img": "assets/news/n24.jpg"
  },
  {
@@ -245,7 +245,7 @@
   "paper": "The Herald",
   "type": "nuclear",
   "title": "Truck dumps chemical waste",
-  "text": "Any prepper in central area loses 2 HEALTH",
+  "text": "Any prepper in central area loses 2 HEALTH (hazmat owners shielded)",
   "effect": "chemWaste",
   "img": "assets/news/n25.jpg"
  },
@@ -254,9 +254,9 @@
   "n": 26,
   "paper": "The Herald",
   "type": "ai",
-  "title": "Brain boil or boffin boost?",
-  "text": "Each roll a dice: 1-2 lose 2 HEALTH; 3-6 gain 1 KNOW-HOW",
-  "effect": "brainBoil",
+  "title": "Weapon mastery",
+  "text": "Any prepper with a bow or knife: spend 1 turn training and add +2 token to chosen ITEM card",
+  "effect": "weaponMastery",
   "img": "assets/news/n26.jpg"
  },
  {
@@ -264,9 +264,141 @@
   "n": 27,
   "paper": "The Herald",
   "type": "pandemic",
-  "title": "Daring dumpster dive",
-  "text": "First prepper to reach a dumpster takes top ITEM card",
+  "title": "Dumpster dive dash",
+  "text": "First prepper to reach SW dumpster takes top ITEM card",
   "effect": "offerDive",
   "img": "assets/news/n27.jpg"
+ },
+ {
+  "id": "n28",
+  "n": 28,
+  "paper": "Jack Prepper's The End Times",
+  "type": "ai",
+  "title": "Civil unrest: anti-AI demonstration outside Big Data Inc",
+  "text": "Place a MOB token on Bourbon Street, Park View and Riverside View. No movement on these streets unless carrying a weapon",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n28.jpg"
+ },
+ {
+  "id": "n29",
+  "n": 29,
+  "paper": "Jack Prepper's The End Times",
+  "type": "ai",
+  "title": "Civil unrest: truckers set light to new driverless truck",
+  "text": "Place a MOB token on Diesel Drive and Commercial Way. No movement on these streets unless carrying a weapon",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n29.jpg"
+ },
+ {
+  "id": "n30",
+  "n": 30,
+  "paper": "Jack Prepper's The End Times",
+  "type": "pandemic",
+  "title": "Civil unrest: looting at the department store",
+  "text": "Place a MOB token on Retail Road. To pass, combat 5+ (-2 HEALTH on fail) before continuing move",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n30.jpg"
+ },
+ {
+  "id": "n31",
+  "n": 31,
+  "paper": "Jack Prepper's The End Times",
+  "type": "pandemic",
+  "title": "Civil unrest: anti big pharma protest at health clinic",
+  "text": "Place a MOB token on Green Park Avenue and Drill Street. Combat 4+ to pass (fail: -2 HEALTH; succeed: take pistol ITEM OR avoid combat, join the mob and gain 2 MEDS)",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n31.jpg"
+ },
+ {
+  "id": "n32",
+  "n": 32,
+  "paper": "Jack Prepper's The End Times",
+  "type": "nuclear",
+  "title": "Civil unrest: protest against planned oligarch bunker",
+  "text": "Place a MOB token on six streets surrounding park. Bribe cops (3 DOOMCOIN) on these streets or weapon ITEM confiscated",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n32.jpg"
+ },
+ {
+  "id": "n33",
+  "n": 33,
+  "paper": "Jack Prepper's The End Times",
+  "type": "nuclear",
+  "title": "Civil unrest: citizens recycling depot over nuclear waste plan",
+  "text": "Place a MOB token on Turbine Drive, Rust Road, Justice Way and Fisher Street. No movement on these streets without a bolt cutters",
+  "effect": "none",
+  "endTimes": "yellow",
+  "img": "assets/news/n33.jpg"
+ },
+ {
+  "id": "n34",
+  "n": 34,
+  "paper": "Jack Prepper's The End Times",
+  "type": "ai",
+  "title": "Rogue robot prototypes attack police station",
+  "text": "Place a MOB token on Hill Street and Law Street. Combat 5+ to defeat robots and gain drone ITEM; fail: reduce HEALTH by half (rounded up)",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n34.jpg"
+ },
+ {
+  "id": "n35",
+  "n": 35,
+  "paper": "Jack Prepper's The End Times",
+  "type": "ai",
+  "title": "'Unplugged': anti-AI festival in the park",
+  "text": "Place a MOB token in the park. No entry/exit to park unless you own no TECH resource",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n35.jpg"
+ },
+ {
+  "id": "n36",
+  "n": 36,
+  "paper": "Jack Prepper's The End Times",
+  "type": "pandemic",
+  "title": "'Furry friends' march against animal testing",
+  "text": "Place a MOB token on Bourbon Street, Hill Street and Gasoline Grove. May not pass through these streets without a dog ITEM",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n36.jpg"
+ },
+ {
+  "id": "n37",
+  "n": 37,
+  "paper": "Jack Prepper's The End Times",
+  "type": "pandemic",
+  "title": "Hospital workers walk out over defective PPE",
+  "text": "Place a MOB token in hospital. It is closed until card is covered. If 0 HEALTH, use MEDS or place prepper at health clinic and pay: 1 DOOMCOIN = 1 HEALTH",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n37.jpg"
+ },
+ {
+  "id": "n38",
+  "n": 38,
+  "paper": "Jack Prepper's The End Times",
+  "type": "nuclear",
+  "title": "Dirty bomb threat: town-wide military lockdown",
+  "text": "Each turn until this card is covered, if moving, roll RISK dice. 1-2: shot by National Guard (-3 HEALTH). Ignore if you own walkie-talkie ITEM",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n38.jpg"
+ },
+ {
+  "id": "n39",
+  "n": 39,
+  "paper": "Jack Prepper's The End Times",
+  "type": "nuclear",
+  "title": "Turbine drive rooftop sniper takes law into own hands",
+  "text": "Any movement on streets in south, central or north area risks being shot. Roll RISK dice. 1-2 = hit; roll again for amount of HEALTH loss taken minus armor bonuses",
+  "effect": "none",
+  "endTimes": "orange",
+  "img": "assets/news/n39.jpg"
  }
 ]

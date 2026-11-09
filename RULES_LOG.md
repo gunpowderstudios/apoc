@@ -5,7 +5,7 @@ Format: **rule**, then (version it went in). Items marked "ASK" are guesses that
 
 ## Object of the game
 You are a prepper in Hope Falls, a town on the edge of collapse. Race your rivals to grab the essential resources (FOOD, KNOW-HOW, CHEM, HARDWARE, TECH, MEDS) and the DUCT TAPE that holds everything together, and stay alive.
-- You start in Central Park with a backpack, 2 PREPCOIN and 3 FOOD. PREPCOIN is portable crypto: use it to buy resources and items.
+- You start in Central Park with a backpack, 2 DOOMCOIN and 3 FOOD. DOOMCOIN is portable crypto: use it to buy resources and items.
 - Short of coin? Steal, loot or dumpster dive, and risk a stretch in jail or hospital.
 - Soon you need a **bunker** to keep your gear in and other players out.
 - Every turn a news headline points at one of three looming APOC events: AI uprising, nuclear strike or global pandemic. As DEFCON rises, easy pickings disappear, the town gets meaner and law and order fails.
@@ -70,14 +70,14 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
 - **Everything spent, crafted away, sold, lost, robbed or paid goes back to the pool.** (v1.68)
-- The pool also holds **30 PrepCoin** (a row at the bottom of the pool). The count shown is 30 minus the coin players hold or have left on the board, so coin earned and spent moves in and out of it. The rules still treat PrepCoin as unlimited if the pool runs out. (v1.71)
+- The pool also holds **30 DoomCoin** (a row at the bottom of the pool). The count shown is 30 minus the coin players hold or have left on the board, so coin earned and spent moves in and out of it. The rules still treat DoomCoin as unlimited if the pool runs out. (v1.71)
 - Busted and can't pay the 1-coin fine: 1 resource goes back to the pool (not the church). (v1.69, fine cut to 1 in v1.92)
 - Taken from another player (fight / Black Friday): goes to the winner, not the pool.
 
 ## 5. Stealing, looting, busted
 - **Steal:** roll to steal, pick a resource, may push your luck. **If you are caught, everything stolen in that steal action goes back to the place it came from**, then you are busted. (v1.69)
 - **Loot:** a failed loot loses everything looted that action back to the place and you are shot (2 damage) and crawl into the nearest dumpster.
-- Busted: pay a 1 PrepCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing) until the DEFCON next rises, then the tagged token is discarded (v1.132; before this it only cleared at DEFCON 1).
+- Busted: pay a 1 DoomCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing) until the DEFCON next rises, then the tagged token is discarded (v1.132; before this it only cleared at DEFCON 1).
 
 ## 6. Buying and selling
 - **Sell resources** only at the purple coin places: Truck Stop, Salvage Yard, Prison, Pawn Shop.
@@ -119,9 +119,9 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Each door joins the road its arrow points across. The two corner dumpsters sit at the end of a road.
 - Central Park has six doors and is its own block. Blocks (for Bolt Cutters) follow the street grid; the river row is the bottom row.
 - Pet Store: currently shares the Music Store's door on Coin Street. To be fixed when Tim's new map arrives (own door, south facing onto Coin Street).
-- Subway = the "S" markers (junctions). You can walk onto an S junction like any other junction without using the subway. Using the subway costs 1 move and 1 PrepCoin and takes you to any other S station. (Confirmed by Tim, v1.117.) Bridges for the boat are not modelled.
+- Subway = the "S" markers (junctions). You can walk onto an S junction like any other junction without using the subway. Using the subway costs 1 move and 1 DoomCoin and takes you to any other S station. (Confirmed by Tim, v1.117.) Bridges for the boat are not modelled.
 ### Rules I had to guess
-- PrepCoin is an unlimited bank. Resource tokens are limited to the supply counts.
+- DoomCoin is an unlimited bank. Resource tokens are limited to the supply counts.
 - Combat modifiers stack.
 - Night dice are blocked by the Curfew event. Tagged preppers must use the day dice.
 - Jessica re-rolls the day dice once (keeps the new result).
@@ -136,9 +136,9 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Online: the host opens a room and others join with the 5-letter code (peer-to-peer via the PeerJS broker). Unfilled remote seats become AI.
 
 ## Test-build tools (not game rules)
-- AI opening goals (start screen, per AI seat): Balanced (plays like a human); or first collect weapons (2 of pistol/rifle/knife/bow/chainsaw), build a bunker, craft items only (until it holds 3 items), recruit a thug, collect 10 food (backpack only holds 10, so the AI rarely manages it), gamble at the casino (2 sessions), steal and loot (3 times), burgle and dumpster dive (3 times), hoard 8 PrepCoin (sells surplus, buys nothing), or raid a bunker (once one exists; no one can speed up DEFCON, so there is no DEFCON-rush goal). Once the goal is met the AI plays balanced. (v1.92)
+- AI opening goals (start screen, per AI seat): Balanced (plays like a human); or first collect weapons (2 of pistol/rifle/knife/bow/chainsaw), build a bunker, craft items only (until it holds 3 items), recruit a thug, collect 10 food (backpack only holds 10, so the AI rarely manages it), gamble at the casino (2 sessions), steal and loot (3 times), burgle and dumpster dive (3 times), hoard 8 DoomCoin (sells surplus, buys nothing), or raid a bunker (once one exists; no one can speed up DEFCON, so there is no DEFCON-rush goal). Once the goal is met the AI plays balanced. (v1.92)
 - Character cards: the table shows the bunker side once a player has a bunker; click a card to enlarge it and press Flip (or F) to view the other side. (v1.90)
-- Busted fine cut to 1 PrepCoin (v1.92).
+- Busted fine cut to 1 DoomCoin (v1.92).
 - All-AI games: the news paper is shown for 3 seconds then closes by itself (stays up for human players). At game over you can download the whole game log as a text file (round-tagged) or the JSON. (v1.96)
 - When the APOC event triggers (AI, Pandemic or Nuclear) a big full-screen message shows with a siren sound; click or Esc to close. (v1.97)
 - The C (recentre) view leaves room at the bottom for the event panels so they don't cover the player cards. (v1.98)
@@ -236,3 +236,15 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the right-hand column sits clear of the Log tab and the footer. (v1.214)
 - Test-build tool: the Log tab is replaced by a small arrow next to the round number: collapsed shows only the newest (green) line, expanded stretches the log down to the turn box. (v1.215)
 - Test-build tool: click the green log line to expand the log, click the expanded log to collapse it; expanded log fades in behind and reaches the player box; recipe button now same translucent black as the player box. (v1.216)
+
+## News cards revision 2 (News_cards_2.pdf) - v1.217
+- All money is now called **DoomCoin** everywhere (name may change later).
+- Cards replaced/changed: Bomb Threat (west side, as before); Dog escapes data center (as before); **Contraband meds**: while uncovered, a prepper at the hospital may swap 1 resource for 3 MEDS (an action; repeatable); Stab vest, Crypto soars, Hospital closed, Hazmat (as before); **Anti-tech rioters**: anyone in the east is boxed in while uncovered and must roll combat 5+ at the start of their move to get out, else no movement that turn (retry next turn, no damage); **Airborne outbreak / Powerplant pollution / Chemical waste**: Hazmat Suit owners are shielded; **Curfew**: day dice only (night dice placed on the card) - the printed card says "no daytime movement / place day dice here", Tim confirmed day dice only, so the card text needs fixing; **Robin Hood AI**: poorest prepper (least DoomCoin) gets 1 DoomCoin from each other prepper, tied poorest = each donor chooses; **Bug-out drill**: current prepper missing any of the 6 resources (duct tape stands in for any) must scrap one item; **Hacker attack (CCTV)**: stealing/looting only fails on a natural 1 while uncovered; **Ultimate dumpster dive**: while uncovered, at the recycling depot (currently the City Dump space) a prepper may trade ALL their TECH for the top ITEM card; **PJ's yard sale** (Prepper Jack's): gun shop and hardware store items half price rounded down while uncovered; **Out-of-date food**: current prepper pays 1 MED or loses 2 HEALTH; **Thugs show up late**: no feeding/paying thugs while uncovered; **Weapon mastery**: prepper with a bow or knife may spend the whole turn training for +2 tokens on a chosen item (what tokens do is still to be decided); **Dumpster dive dash**: SW dumpster only.
+- End Times cards (6 yellow, 6 orange) are in the game: shuffled into the news deck when DEFCON reaches Yellow / Orange, drawn and played like normal news (type icon decides the stand). Their MOB-token events have NO EFFECT yet (see questions).
+- New component: MOB token, 25 mm red circle with white MOB text (assets/counters/mob.png, print file supplied).
+### Open questions for Tim / Paul (new)
+- Curfew card text: should read night dice / night-time movement?
+- Hospital Closed + Contraband meds both live: currently contraband works at the hospital regardless. Which card is the hospital closure on?
+- Weapon mastery: what do the +2 tokens do (ammo/uses)?
+- Robin Hood: poorest tied donors - confirm only the non-poorest give.
+- End Times MOB events: exact streets, MOB supply, combat/bribe rules, pistol/drone item sources, which park, health clinic = Dental Clinic?, sniper damage dice, what "armor bonuses" are.

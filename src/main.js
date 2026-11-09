@@ -52,7 +52,7 @@ async function boot() {
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
-const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino'], ['steal', 'First: steal and loot'], ['scavenge', 'First: burgle and dumpster dive'], ['hoard', 'First: hoard 8 PrepCoin'], ['raid', 'First: raid a bunker']];
+const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino'], ['steal', 'First: steal and loot'], ['scavenge', 'First: burgle and dumpster dive'], ['hoard', 'First: hoard 8 DoomCoin'], ['raid', 'First: raid a bunker']];
 function buildSeats() {
   const types = lobbyMode === 'host' ? [['human', 'Human (this device)'], ['remote', 'Remote player'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
   const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value, g: $('#sg' + i).value } : null);
@@ -416,7 +416,7 @@ function onToken(info) {
   const myTurn = iAct() && !S.pending;
   if (!myTurn && info.mat !== undefined) return toast(S.pending ? 'Make the pending decision first' : 'It is not your turn');
   if (S.pending && info.mat === undefined && !iAct()) return;
-  const p = S.players[actor()], label = E.RES_LABEL[info.r] || (info.r === 'coin' ? 'PrepCoin' : info.r);
+  const p = S.players[actor()], label = E.RES_LABEL[info.r] || (info.r === 'coin' ? 'DoomCoin' : info.r);
   const ic = info.r === 'coin' ? 'assets/counters/prepcoin.webp' : `assets/counters/${ICON[info.r]}.webp`;
   const room = E.holdLimit(p) - E.resTotal(p), done = () => { closePop(); };
   const pop = $('#pop'); let html = '', acts = [];
@@ -425,9 +425,9 @@ function onToken(info) {
   if (info.mat !== undefined) {   // one of your own piles: sell
     const have = info.r === 'coin' ? p.coin : p.res[info.r], A = E.actionsAt(S, p), canSell = E.D.cfg.sellNodes.includes(p.node) && A.some(a => a.a === 'market');
     if (info.mat !== p.id) return toast(`That is ${S.players[info.mat].name}'s pile`);
-    if (info.r === 'coin') return toast(`You have ${p.coin} PrepCoin`);
+    if (info.r === 'coin') return toast(`You have ${p.coin} DoomCoin`);
     html = `<h4><img src="${ic}">${esc(label)} <span class="note">you have ${have}</span></h4>`;
-    if (canSell) { html += `<div class="row">Sell ${qtySel(have)} for ${E.defc(S).sell} PrepCoin each</div><div class="row"><button class="primary" id="popGo">Sell</button></div>`; acts = [() => { const n = +$('#popQty').value; doCmd({ t: 'market', sell: { [info.r]: n } }); done(); }]; }
+    if (canSell) { html += `<div class="row">Sell ${qtySel(have)} for ${E.defc(S).sell} DoomCoin each</div><div class="row"><button class="primary" id="popGo">Sell</button></div>`; acts = [() => { const n = +$('#popQty').value; doCmd({ t: 'market', sell: { [info.r]: n } }); done(); }]; }
     else html += `<div class="note">You can only sell at a place with a sell icon (e.g. the Pawn Shop), and you need an action.</div>`;
   } else {
     const L = S.loc[info.node], count = info.r === 'coin' ? L.coin : L.res[info.r], away = !myTurn || p.node !== info.node;
@@ -445,7 +445,7 @@ function onToken(info) {
       const A = E.actionsAt(S, p), price = E.marketPrice(S), canBuy = A.some(a => a.a === 'market');
       if (canBuy) {
         const max = Math.min(count, room, Math.floor(p.coin / price));
-        html += `<div class="note">Belongs to the location: buy at ${price} PrepCoin each (uses an action), or take it by crime.</div>`;
+        html += `<div class="note">Belongs to the location: buy at ${price} DoomCoin each (uses an action), or take it by crime.</div>`;
         if (max >= 1) { html += `<div class="row">Buy ${qtySel(max)} <span class="note">of ${count}</span></div><div class="row"><button class="primary" id="popGo">Buy</button></div>`; acts.push(() => { const n = +$('#popQty').value; doCmd({ t: 'market', buy: { [info.r]: n } }); done(); }); }
         else html += `<div class="note">You can't afford or carry any (${p.coin} coin, room ${room}).</div>`;
         for (const a of A.filter(x => ['steal', 'loot'].includes(x.a))) { html += `<div class="row"><button id="popA${acts.length}">${esc(a.label)}</button></div>`; const k = a.a; acts.push(() => { doCmd({ t: k }); done(); }); }
@@ -607,6 +607,8 @@ function actionClick(a, p) {
     modalFn = () => box(`<h2>${a === 'fight' ? 'Fight which prepper?' : 'Raid whose bunker?'}</h2><div class="btns">${list.map(q => btn(esc(q.name), () => { modalFn = null; doCmd({ t: a, target: q.id }); })).join('')}</div>${closeBtn()}`);
     return render();
   }
+  if (a === 'contra') { const have = E.ALLRES.filter(r => p.res[r] > 0); modalFn = () => box(`<h2>Contraband meds</h2><p class="note">Swap 1 resource for 3 MEDS. Which resource do you give?</p><div class="btns">${have.map(r => btn(`${E.RES_LABEL[r]} (${p.res[r]})`, () => { modalFn = null; doCmd({ t: 'contra', r }); })).join('')}</div>${closeBtn()}`); return render(); }
+  if (a === 'train') { modalFn = () => box(`<h2>Weapon mastery</h2><p class="note">Spend this whole turn training. Which item gets the +2 tokens?</p><div class="btns">${p.items.map(i => btn(esc(E.D.item[i.id].name), () => { modalFn = null; doCmd({ t: 'train', uid: i.uid }); })).join('')}</div>${closeBtn()}`); return render(); }
   if (a === 'drone') { modalFn = () => tokenPicker('Drone: take which resource?', (node, r) => { modalFn = null; doCmd({ t: 'drone', node, r }); }); return render(); }
   doCmd({ t: a });
 }

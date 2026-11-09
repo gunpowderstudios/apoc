@@ -11,11 +11,11 @@ BOARD (checked against the board PDF)
 - Central Park has six doors (two on each long side's ends and one at each end) and is its own block.
 - Blocks (for Bolt Cutters) follow the street grid; the river row is the bottom row.
 - Press "Graph" once to see the movement graph over the board, twice to EDIT: drag nodes, "Export board.json" and send it to me.
-- Orange/yellow outlines on buildings: meaning still guessed (kept as a note only). Bridges for the Boat are not modelled. Subway = the "S" markers; 1 PrepCoin to any other station.
+- Orange/yellow outlines on buildings: meaning still guessed (kept as a note only). Bridges for the Boat are not modelled. Subway = the "S" markers; 1 DoomCoin to any other station.
 - Every step (road segment, junction, door) costs 1 move. Tell me if doors or junctions should be free.
 
 RULES I HAD TO GUESS
-- PrepCoin is an unlimited bank; resource tokens are limited to the supply counts.
+- DoomCoin is an unlimited bank; resource tokens are limited to the supply counts.
 - Bunkered preppers' resources can't be robbed in fights (only coin).
 - Kevlar vest: auto-used (4 tokens, then goes back to the deck). Hazmat suit: 3 charges.
 - Moonshine = ignore health loss until your next turn.

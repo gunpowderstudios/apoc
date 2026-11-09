@@ -112,6 +112,9 @@ function activeEffects(s) {
 export const hospitalOpen = s => defc(s).hospital && !activeEffects(s).has('hospitalClosed');
 export const subwayOpen = s => !activeEffects(s).has('subwayClosed');
 export const nightBlocked = s => activeEffects(s).has('curfew');
+export const effectOn = (s, e) => activeEffects(s).has(e);
+const shielded = (s, q, why) => { if (hasItem(q, 'hazmat-suit')) { logm(s, `${q.name}'s Hazmat Suit shields them from the ${why}.`); return true; } return false; };
+const shopPrice = (s, node, base) => (effectOn(s, 'yardSale') && ['gunshop', 'hardwarestore'].includes(node)) ? Math.floor(base / 2) : base;
 function sectorOf(nodeId) { return D.node[nodeId].sector; }
 const WEST = ['NW', 'WC', 'SW'], EAST = ['NE', 'EC', 'SE'];
 
@@ -224,7 +227,7 @@ RESOLVE.thugJob = (s, pd, o) => {
   if (!p.thug) return;
   p.thug.job = o;
   if (o === 'bouncer' && p.thug.post) {
-    if (p.coin >= 1) { p.coin -= 1; logm(s, `${p.name} pays 1 PREPCOIN to keep the bouncer posted.`); }
+    if (p.coin >= 1) { p.coin -= 1; logm(s, `${p.name} pays 1 DOOMCOIN to keep the bouncer posted.`); }
     else { p.thug.post = null; logm(s, `${p.name} cannot pay: the bouncer goes home.`); }
   } else if (o !== 'bouncer') p.thug.post = null;
 };
@@ -265,7 +268,7 @@ function lootRoll(s, p, mode) {
   const r = d6(s), m = mods(s, p, mode), total = r + m;
   logm(s, `${p.name} rolls ${r}${m ? ' +' + m : ''} to ${mode}.`, p.id);
   s.lastRoll = { rn: ++s.seq, pl: p.id, kind: 'risk', value: r, mod: m, total, why: mode };
-  if (total >= 3) {
+  if (effectOn(s, 'cctv') ? r !== 1 : total >= 3) {   // Hacker attack: with the CCTV off you are only caught on a natural 1
     const avail = RES.concat(['ducttape']).filter(x => L.res[x] > 0);
     if (!avail.length) return;
     ask(s, { pl: p.id, kind: 'lootPick', title: `Success! ${mode === 'steal' ? 'Steal' : 'Loot'} which resource?`, options: avail.map(x => opt(x, `${RES_LABEL[x]} (${L.res[x]})`)), ctx: { mode } });
@@ -302,12 +305,12 @@ RESOLVE.lootAgain = (s, pd, o) => { if (o === 'again') lootRoll(s, s.players[pd.
 function arrest(s, p) {
   logm(s, `${p.name} is BUSTED!`, p.id);
   p.node = D.board.policeNode;
-  if (p.coin >= 1) { p.coin -= 1; logm(s, `${p.name} pays a 1 PREPCOIN fine.`); }
+  if (p.coin >= 1) { p.coin -= 1; logm(s, `${p.name} pays a 1 DOOMCOIN fine.`); }
   else {
     const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
     let n = 0;
     for (const r of have) { while (p.res[r] > 0 && n < 1) { spend(s, p, r, 1); n++; } }
-    if (n === 0) { p.coin += 1; logm(s, `The Police Chief gives ${p.name} 1 PREPCOIN gate money.`); }
+    if (n === 0) { p.coin += 1; logm(s, `The Police Chief gives ${p.name} 1 DOOMCOIN gate money.`); }
     else logm(s, `${p.name} does community service: ${n} resource goes back to the pool.`);
   }
   if (s.bustedLeft > 0) { s.bustedLeft--; p.busted++; logm(s, `${p.name} receives a BUSTED token (${p.busted} of 3). Three busted tokens means TAGGED.`, p.id); }
@@ -365,7 +368,7 @@ function gambleThrow(s, p) {
 }
 RESOLVE.gambleNext = (s, pd, o) => {
   const p = s.players[pd.pl], g = s.ts.gamble;
-  if (o === 'cash') { p.coin += g.pot; logm(s, `${p.name} cashes out ${g.pot} PREPCOIN.`, p.id); s.ts.gamble = null; }
+  if (o === 'cash') { p.coin += g.pot; logm(s, `${p.name} cashes out ${g.pot} DOOMCOIN.`, p.id); s.ts.gamble = null; }
   else gambleThrow(s, p);
 };
 
@@ -401,14 +404,14 @@ function robOptions(from) {
   return opts;
 }
 function robTake(s, from, to, pick) {
-  if (pick === 'coin') { from.coin--; to.coin++; logm(s, `${to.name} takes 1 PREPCOIN from ${from.name}.`); }
+  if (pick === 'coin') { from.coin--; to.coin++; logm(s, `${to.name} takes 1 DOOMCOIN from ${from.name}.`); }
   else if (resTotal(to) < holdLimit(to)) { from.res[pick]--; to.res[pick]++; logm(s, `${to.name} takes 1 ${RES_LABEL[pick]} from ${from.name}.`); }
 }
 function robOne(s, from, to) {      // `to` takes 1 resource or coin from `from` (not from a bunker)
   const opts = robOptions(from);
   if (!opts.length) return;
   if (to.ai) { robTake(s, from, to, opts.includes('coin') && from.coin > 1 ? 'coin' : [...opts].sort((a, b) => (from.res[b] || 0) - (from.res[a] || 0))[0]); return; }
-  ask(s, { pl: to.id, kind: 'robPick', title: `Take 1 from ${from.name}:`, options: opts.map(r => opt(r, r === 'coin' ? `PREPCOIN (${from.coin})` : `${RES_LABEL[r]} (${from.res[r]})`)), ctx: { from: from.id } });
+  ask(s, { pl: to.id, kind: 'robPick', title: `Take 1 from ${from.name}:`, options: opts.map(r => opt(r, r === 'coin' ? `DOOMCOIN (${from.coin})` : `${RES_LABEL[r]} (${from.res[r]})`)), ctx: { from: from.id } });
 }
 RESOLVE.robPick = (s, pd, o) => robTake(s, s.players[pd.ctx.from], s.players[pd.pl], o);
 function adjacentOpen(s, nodeId) {
@@ -485,7 +488,7 @@ function onEnter(s, p) {
   if (i >= 0) {
     const of = s.offers.splice(i, 1)[0];
     const options = [];
-    if (of.cost.coin && p.coin >= 1) options.push(opt('coin', `Pay ${of.cost.coin} PREPCOIN`));
+    if (of.cost.coin && p.coin >= 1) options.push(opt('coin', `Pay ${of.cost.coin} DOOMCOIN`));
     if (of.cost.tech && p.res.tech >= of.cost.tech) options.push(opt(of.cost.tech === 2 ? 'tech2' : 'tech', `Pay ${of.cost.tech} TECH`));
     if (of.cost.food && p.res.food >= 1) options.push(opt('food', `Pay ${of.cost.food} FOOD`));
     if (of.kind === 'free') options.push(opt('take', 'Take it'));
@@ -494,7 +497,7 @@ function onEnter(s, p) {
   }
   if (here === D.board.churchNode) {
     const L = s.loc[here];
-    if (L.coin > 0) { p.coin += L.coin; logm(s, `${p.name} collects ${L.coin} PREPCOIN from the church collection plate.`, p.id); L.coin = 0; }
+    if (L.coin > 0) { p.coin += L.coin; logm(s, `${p.name} collects ${L.coin} DOOMCOIN from the church collection plate.`, p.id); L.coin = 0; }
   }
   if (here === D.board.startNode) {
     if (p.prepper === 'jessica' && !s.ts.forager) { s.ts.forager = true; gain(s, p, 'food', 1); logm(s, 'Jessica forages 1 food in the park.', p.id); }
@@ -506,40 +509,49 @@ function onEnter(s, p) {
 const EVT = {
   westCombat(s, p) { for (const q of s.players) if (WEST.includes(sectorOf(q.node))) { const c = combatRoll(s, q); if (c.total < 4) { logm(s, `${q.name} rolls ${c.r}${c.m ? '+' + c.m : ''}: caught in the panic.`); hurt(s, q, 2, 'west side panic'); } else logm(s, `${q.name} rolls ${c.total}: slips away.`); } },
   strayDog(s, p) { const r = d6(s); logm(s, `Stray dog: ${p.name} rolls ${r}.`); if (r <= 2) hurt(s, p, 1, 'dog bite'); else if (p.res.food >= 1 && stockOf(s, 'dog') > 0) ask(s, { pl: p.id, kind: 'offer', title: 'Spend 1 FOOD to tame and keep the dog?', options: [opt('food', 'Spend 1 food'), opt('decline', 'Leave it')], ctx: { offer: { kind: 'item', item: 'dog', cost: { food: 1 } } } }); },
-  contrabandMeds(s, p) { if (resTotal(p) >= 2) ask(s, { pl: p.id, kind: 'contraband', title: 'Swap 2 resources for 3 MEDS?', options: [opt('yes', 'Swap'), opt('no', 'No')] }); },
-  offerStabVest(s) { s.offers.push({ nodes: ['pawn'], kind: 'item', item: 'kevlar-vest', cost: { coin: 1, tech: 1 }, text: 'Stab vest: pay 1 PREPCOIN or 1 TECH to acquire a Kevlar Vest?' }); },
-  cryptoSoars(s) { for (const q of s.players) if (q.res.tech > 0) { const n = q.res.tech; const options = [opt('all', `Exchange ${n} TECH for ${2 * n} PREPCOIN`), opt('none', 'Keep tech')]; ask(s, { pl: q.id, kind: 'crypto', title: 'Crypto price soars!', options }); } },
+  contrabandMeds() { }, eastTrap() { }, cctv() { }, ultimateDive() { }, yardSale() { }, thugsLate() { }, weaponMastery() { },   // these stay in force while the card is uncovered (see actionsAt, shopPrice, rollPhase etc.)
+  offerStabVest(s) { s.offers.push({ nodes: ['pawn'], kind: 'item', item: 'kevlar-vest', cost: { coin: 1, tech: 1 }, text: 'Stab vest: pay 1 DOOMCOIN or 1 TECH to acquire a Kevlar Vest?' }); },
+  cryptoSoars(s) { for (const q of s.players) if (q.res.tech > 0) { const n = q.res.tech; const options = [opt('all', `Exchange ${n} TECH for ${2 * n} DOOMCOIN`), opt('none', 'Keep tech')]; ask(s, { pl: q.id, kind: 'crypto', title: 'Crypto price soars!', options }); } },
   hospitalClosed() { }, curfew() { }, subwayClosed() { },
+  robinHood(s) {
+    const min = Math.min(...s.players.map(q => q.coin)), poor = s.players.filter(q => q.coin === min), donors = s.players.filter(q => q.coin > min && q.coin >= 1);
+    if (!donors.length) { logm(s, 'Robin Hood AI: everyone is equally poor - nothing moves.'); return; }
+    for (const d of donors) {
+      if (poor.length === 1) { d.coin--; poor[0].coin++; logm(s, `${d.name} gives 1 DOOMCOIN to ${poor[0].name} (Robin Hood AI).`); }
+      else if (d.ai) { const r = poor[Math.floor(rnd(s) * poor.length)]; d.coin--; r.coin++; logm(s, `${d.name} gives 1 DOOMCOIN to ${r.name} (Robin Hood AI).`); }
+      else ask(s, { pl: d.id, kind: 'robinHood', title: 'Robin Hood AI: give 1 DOOMCOIN to which of the poorest?', options: poor.map(q => opt(String(q.id), q.name)) });
+    }
+  },
+  oldFood(s, p) { if (p.res.meds > 0) ask(s, { pl: p.id, kind: 'outbreak', title: 'Out-of-date food!', options: [opt('pay', 'Pay 1 MEDS'), opt('hurt', 'Lose 2 HEALTH')], ctx: { dmg: 2 } }); else hurt(s, p, 2, 'bad food'); },
   offerHazmat(s) { s.offers.push({ nodes: ['bar'], kind: 'item', item: 'hazmat-suit', cost: { food: 1 }, text: 'Hazmat suit for 1 FOOD?' }); },
-  eastTech(s) { for (const q of s.players) if (EAST.includes(sectorOf(q.node)) && q.res.tech > 0) { spend(s, q, 'tech', 1); logm(s, `${q.name} loses 1 TECH to rioters.`); } },
-  outbreak(s) { for (const q of s.players) { if (q.res.meds > 0) ask(s, { pl: q.id, kind: 'outbreak', title: 'Airborne outbreak!', options: [opt('pay', 'Pay 1 MEDS'), opt('hurt', 'Lose 2 HEALTH')] }); else hurt(s, q, 2, 'outbreak'); } },
-  devalue(s) { for (const q of s.players) { const l = Math.min(2, q.coin); q.coin -= l; logm(s, `${q.name} loses ${l} PREPCOIN.`); } },
+  outbreak(s) { for (const q of s.players) { if (shielded(s, q, 'outbreak')) continue; if (q.res.meds > 0) ask(s, { pl: q.id, kind: 'outbreak', title: 'Airborne outbreak!', options: [opt('pay', 'Pay 1 MEDS'), opt('hurt', 'Lose 2 HEALTH')] }); else hurt(s, q, 2, 'outbreak'); } },
   offerSolar(s) { s.offers.push({ nodes: ['steel'], kind: 'item', item: 'solar-panel', cost: { tech: 2 }, text: 'Swap 2 TECH for a Solar Panel?' }); },
-  riverPollution(s) { for (const q of s.players) if (D.river.has(q.node)) { if (q.res.meds > 0) ask(s, { pl: q.id, kind: 'outbreak', title: 'Powerplant pollution!', options: [opt('pay', 'Pay 1 MEDS'), opt('hurt', 'Lose 1 HEALTH')], ctx: { dmg: 1 } }); else hurt(s, q, 1, 'pollution'); } },
+  riverPollution(s) { for (const q of s.players) if (D.river.has(q.node) && !shielded(s, q, 'pollution')) { if (q.res.meds > 0) ask(s, { pl: q.id, kind: 'outbreak', title: 'Powerplant pollution!', options: [opt('pay', 'Pay 1 MEDS'), opt('hurt', 'Lose 1 HEALTH')], ctx: { dmg: 1 } }); else hurt(s, q, 1, 'pollution'); } },
   brewBeer(s, p) { gain(s, p, 'food', 2); gain(s, p, 'knowhow', 2); },
-  bugOut(s, p) { const r = d6(s); logm(s, `Bug-out test: ${p.name} rolls ${r}.`); if (p.res.knowhow > 0) { spend(s, p, 'knowhow', 1); logm(s, `${p.name} loses 1 KNOW-HOW.`); } },
+  bugOut(s, p) {
+    const missing = RES.filter(r => p.res[r] < 1);
+    if (missing.length <= (p.res.ducttape || 0)) { logm(s, `Bug-out drill: ${p.name} has every resource type (duct tape stands in for the rest) - passed.`); return; }
+    logm(s, `Bug-out drill: ${p.name} is missing ${missing.map(r => RES_LABEL[r]).join(', ')}.`);
+    if (!p.items.length) { logm(s, `${p.name} has no item to scrap.`); return; }
+    if (p.ai || p.items.length === 1) { scrapItem(s, p, p.items[0].uid); return; }
+    ask(s, { pl: p.id, kind: 'bugScrap', title: 'Bug-out drill: scrap which item?', options: p.items.map(i => opt(String(i.uid), D.item[i.id].name + (i.broken ? ' (broken)' : ''))) });
+  },
   bagsBurst(s) { placeOnStreet(s, 'H2_0', 'meds', 2); placeOnStreet(s, 'H1_4', 'food', 3); },
-  techOffOn(s) { for (const q of s.players) if (q.res.tech > 0 && q.res.knowhow < 2) { spend(s, q, 'tech', 1); logm(s, `${q.name} loses 1 TECH.`); } },
   blackout(s) { for (const q of s.players) if (!hasItem(q, 'flashlight') && resTotal(q) > 0) loseOneRes(s, q); },
-  hardDrives(s) { place(s, 'pawn', 'tech', 3); },
-  cryptoGeek(s) { place(s, 'boatyard', 'tech', 3); s.loc.boatyard.coin += 3; },
   aidPackage(s) { for (const r of ALLRES) place(s, 'trainstation', r, 1); },
-  drunk(s, p) { if (p.res.tech > 0) spend(s, p, 'tech', 1); hurt(s, p, 1, 'drunk'); },
-  thugsAsleep(s) { for (const q of s.players) if (q.thug && resTotal(q) > 0) loseOneRes(s, q); },
-  chemWaste(s) { for (const q of s.players) if (['N', 'C', 'S'].includes(sectorOf(q.node))) hurt(s, q, 2, 'chemical waste'); },
-  brainBoil(s) { for (const q of s.players) { const r = d6(s); logm(s, `${q.name} rolls ${r}.`); if (r <= 2) hurt(s, q, 2, 'brain boil'); else gain(s, q, 'knowhow', 1); } },
-  offerDive(s) { s.offers.push({ nodes: D.dumpsters, kind: 'free', cost: {}, text: 'First to a dumpster takes the top ITEM card.' }); },
+  chemWaste(s) { for (const q of s.players) if (['N', 'C', 'S'].includes(sectorOf(q.node)) && !shielded(s, q, 'chemical waste')) hurt(s, q, 2, 'chemical waste'); },
+  offerDive(s) { s.offers.push({ nodes: ['dumpsterSW'], kind: 'free', cost: {}, text: 'First to the SW dumpster takes the top ITEM card.' }); },
   none() { },
 };
 // which places an event card affects (for the map glow)
 export function glowNodes(card) {
   const ids = f => D.board.nodes.filter(f).map(n => n.id), sect = L => ids(n => L.includes(n.sector));
   switch (card.effect) {
-    case 'westCombat': return sect(WEST); case 'eastTech': return sect(EAST); case 'chemWaste': return sect(['N', 'C', 'S']);
+    case 'westCombat': return sect(WEST); case 'eastTrap': return sect(EAST); case 'contrabandMeds': return ['hospital']; case 'ultimateDive': return ['citydump']; case 'chemWaste': return sect(['N', 'C', 'S']);
     case 'riverPollution': return [...D.river];
-    case 'offerStabVest': case 'hardDrives': return ['pawn']; case 'offerHazmat': return ['bar']; case 'offerSolar': return ['steel'];
-    case 'offerDive': return D.dumpsters; case 'hospitalClosed': return ['hospital']; case 'bagsBurst': return ['H2_0', 'H1_4'];
-    case 'cryptoGeek': return ['boatyard']; case 'aidPackage': return ['trainstation'];
+    case 'offerStabVest': return ['pawn']; case 'offerHazmat': return ['bar']; case 'offerSolar': return ['steel'];
+    case 'offerDive': return ['dumpsterSW']; case 'hospitalClosed': return ['hospital']; case 'bagsBurst': return ['H2_0', 'H1_4'];
+    case 'yardSale': return ['gunshop', 'hardwarestore']; case 'aidPackage': return ['trainstation'];
     case 'subwayClosed': return (D.board.subway || []).flat().filter(x => typeof x === 'string' && D.node[x]);
     default: return [];
   }
@@ -552,14 +564,16 @@ function loseOneRes(s, q) {
   if (q.ai || have.length === 1) { have.sort((a, b) => q.res[b] - q.res[a]); spend(s, q, have[0], 1); logm(s, `${q.name} loses 1 ${RES_LABEL[have[0]]}.`); }
   else pickRes(s, q, 'loseOne', 'Lose 1 resource: which?', have);
 }
-RESOLVE.contraband = (s, pd, o) => {
-  const p = s.players[pd.pl]; if (o !== 'yes') return;
-  if (!p.ai) { pickRes(s, p, 'contra', 'Swap for 3 MEDS: give resource 1 of 2', ALLRES.filter(r => p.res[r] > 0), { n: 2 }); return; }   // people choose which 2 resources to give
-  let n = 0; const have = ALLRES.filter(r => p.res[r] > 0).sort((a, b) => p.res[b] - p.res[a]);
-  for (const r of have) while (p.res[r] > 0 && n < 1) { spend(s, p, r, 1); n++; }
-  gain(s, p, 'meds', 3); logm(s, `${p.name} swaps 2 resources for 3 MEDS.`, p.id);
-};
-RESOLVE.crypto = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'all') { const n = p.res.tech; spend(s, p, 'tech', n); p.coin += 2 * n; logm(s, `${p.name} cashes in ${n} TECH for ${2 * n} PREPCOIN.`, p.id); } };
+RESOLVE.crypto = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'all') { const n = p.res.tech; spend(s, p, 'tech', n); p.coin += 2 * n; logm(s, `${p.name} cashes in ${n} TECH for ${2 * n} DOOMCOIN.`, p.id); } };
+RESOLVE.robinHood = (s, pd, o) => { const d = s.players[pd.pl], r = s.players[+o]; if (d.coin >= 1 && r) { d.coin--; r.coin++; logm(s, `${d.name} gives 1 DOOMCOIN to ${r.name} (Robin Hood AI).`); } };
+RESOLVE.bugScrap = (s, pd, o) => scrapItem(s, s.players[pd.pl], +o);
+function scrapItem(s, p, uid) {   // forced scrap (bug-out drill): same as scrapping, but does not use up the once-a-turn scrap
+  const i = p.items.findIndex(x => x.uid === uid); if (i < 0) return;
+  const it = D.item[p.items[i].id], back = {}; for (const r of it.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
+  const [c] = p.items.splice(i, 1); s.itemDeck.push({ uid: c.uid, id: c.id }); shuffle(s, s.itemDeck);
+  for (const [r, n] of Object.entries(back)) gain(s, p, r, Math.min(n, s.supply[r]));
+  logm(s, `${p.name} scraps the ${it.name} (bug-out drill).`, p.id);
+}
 RESOLVE.outbreak = (s, pd, o) => { const p = s.players[pd.pl]; if (o === 'pay') { spend(s, p, 'meds', 1); logm(s, `${p.name} pays 1 MEDS.`); } else hurt(s, p, pd.ctx.dmg || 2, 'outbreak'); };
 
 function doEat(s, p) {
@@ -651,10 +665,11 @@ export function advance(s) {
         if (p.thug) {
           const opts = [];
           if (p.res.food >= 1) opts.push(opt('food', 'Pay 1 food'));
-          if (p.coin >= 1) opts.push(opt('coin', 'Pay 1 PREPCOIN'));
+          if (p.coin >= 1) opts.push(opt('coin', 'Pay 1 DOOMCOIN'));
           opts.push(opt('dismiss', 'Let the thug go'));
-          ask(s, { pl: p.id, kind: 'thugPay', title: 'Keep your thug?', options: opts });
-          ask(s, { pl: p.id, kind: 'thugJob', title: 'Choose your thug\'s job this turn', options: [opt('muscle', 'MUSCLE: +1 to combat'), opt('thief', 'THIEF: free action, take 1 resource from any location'), opt('bouncer', 'BOUNCER: guard a location entrance (1 PREPCOIN/turn)')] });
+          if (effectOn(s, 'thugsLate')) logm(s, `${p.name}'s thug turned up late - no need to feed or pay them this turn.`, p.id);
+          else ask(s, { pl: p.id, kind: 'thugPay', title: 'Keep your thug?', options: opts });
+          ask(s, { pl: p.id, kind: 'thugJob', title: 'Choose your thug\'s job this turn', options: [opt('muscle', 'MUSCLE: +1 to combat'), opt('thief', 'THIEF: free action, take 1 resource from any location'), opt('bouncer', 'BOUNCER: guard a location entrance (1 DOOMCOIN/turn)')] });
         }
         ts.step = 'news'; break;
       }
@@ -775,12 +790,15 @@ export function actionsAt(s, p) {   // list of available action descriptors at t
   if (n.acts.includes('buy')) out.push({ a: 'shop', label: 'Buy items' });
   if (n.acts.includes('burgle') && df.burgle) out.push({ a: 'burgle', label: 'Burgle this residence' });
   if (n.acts.includes('dive')) out.push({ a: 'dive', label: 'Dumpster dive' });
-  if (n.acts.includes('gamble') && p.coin >= 1) out.push({ a: 'gamble', label: 'Gamble (1 PREPCOIN)' });
+  if (n.acts.includes('gamble') && p.coin >= 1) out.push({ a: 'gamble', label: 'Gamble (1 DOOMCOIN)' });
   if (D.cfg.tradeNodes.includes(p.node)) out.push({ a: 'swap', label: 'Trade resources' });
   if (!p.bunker && canBuild(p)) out.push({ a: 'build', label: 'Build your bunker' });
   if (!ts.raided && s.players.some(q => q.id !== p.id && q.bunker)) out.push({ a: 'raid', label: 'Raid a bunker' });
-  if (!p.thug && s.thugsBar > 0 && p.coin >= 2 && p.res.food >= 1 && (p.node === D.board.barNode || hasItem(p, 'walkie-talkie'))) out.push({ a: 'recruit', label: 'Recruit a thug (2 PREPCOIN + 1 FOOD)' });
+  if (!p.thug && s.thugsBar > 0 && p.coin >= 2 && p.res.food >= 1 && (p.node === D.board.barNode || hasItem(p, 'walkie-talkie'))) out.push({ a: 'recruit', label: 'Recruit a thug (2 DOOMCOIN + 1 FOOD)' });
   if (!ts.fought && s.players.some(q => q.id !== p.id && q.node === p.node)) out.push({ a: 'fight', label: 'Fight a prepper here' });
+  if (effectOn(s, 'contrabandMeds') && p.node === D.board.hospitalNode && resTotal(p) >= 1) out.push({ a: 'contra', label: 'Contraband meds: swap 1 resource for 3 MEDS' });
+  if (effectOn(s, 'ultimateDive') && p.node === 'citydump' && p.res.tech >= 1) out.push({ a: 'depot', label: `Recycling depot: trade all ${p.res.tech} TECH for the top ITEM card` });
+  if (effectOn(s, 'weaponMastery') && (hasItem(p, 'bow') || hasItem(p, 'knife')) && p.items.length && !ts.trained) out.push({ a: 'train', label: 'Weapon mastery: spend this turn training (+2 tokens on an item)' });
   if (hasItem(p, 'drone') && p.bunker && !ts.droneUsed) out.push({ a: 'drone', label: 'Launch drone (take 1 resource anywhere)' });
   return out;
 }
@@ -811,7 +829,7 @@ export function craftCost(s, p, it) {
   return { cost, note };
 }
 export function marketPrice(s) { return defc(s).buy; }
-export function shopList(s, p) { return (D.cfg.shops[p.node] || []).map(([id, price]) => ({ id, price, stock: id === 'DUCT' ? s.supply.ducttape : stockOf(s, id), name: id === 'DUCT' ? 'Duct tape' : D.item[id].name })); }
+export function shopList(s, p) { return (D.cfg.shops[p.node] || []).map(([id, price0]) => ({ id, price: shopPrice(s, p.node, price0), stock: id === 'DUCT' ? s.supply.ducttape : stockOf(s, id), name: id === 'DUCT' ? 'Duct tape' : D.item[id].name })); }
 export function reachable(s, p, maxDist = 12) {   // BFS for the UI/AI: node -> {dist, path}
   const dist = { [p.node]: 0 }, prev = {}; const q = [p.node];
   while (q.length) {
@@ -876,7 +894,7 @@ function moveStack(s, pl, cmd) {
   const A = s.loc[cmd.from]; if (!A) return err('Pick a stack');
   const have = cmd.r === 'coin' ? A.coin : (A.res[cmd.r] || 0);
   const n = Math.min(have, Math.max(1, cmd.n || have)); if (!n) return err('Nothing to move');
-  const who = s.players[pl] ? s.players[pl].name : 'Player', lab = cmd.r === 'coin' ? 'PrepCoin' : RES_LABEL[cmd.r], from = D.node[cmd.from].name || cmd.from;
+  const who = s.players[pl] ? s.players[pl].name : 'Player', lab = cmd.r === 'coin' ? 'DoomCoin' : RES_LABEL[cmd.r], from = D.node[cmd.from].name || cmd.from;
   if (cmd.mat !== undefined) {   // dropped on a character card: into that prepper's inventory
     const p = s.players[cmd.mat]; if (!p) return err('No such player');
     let take = n;
@@ -977,7 +995,7 @@ function turnCmd(s, p, cmd) {
       if (!L.res[cmd.r]) return err('None there'); if (resTotal(p) >= holdLimit(p)) return err('You cannot carry any more');
       L.res[cmd.r]--; p.res[cmd.r]++; logm(s, `${p.name} picks up 1 ${RES_LABEL[cmd.r]}.`, p.id); return OK;
     }
-    case 'pickupCoin': { const L = s.loc[p.node]; if (L.coin < 1) return err('No coin here'); p.coin += L.coin; logm(s, `${p.name} picks up ${L.coin} PREPCOIN.`, p.id); L.coin = 0; return OK; }
+    case 'pickupCoin': { const L = s.loc[p.node]; if (L.coin < 1) return err('No coin here'); p.coin += L.coin; logm(s, `${p.name} picks up ${L.coin} DOOMCOIN.`, p.id); L.coin = 0; return OK; }
     case 'pickupItem': { const L = s.loc[p.node]; const i = L.items.findIndex(c => c.uid === cmd.uid); if (i < 0) return err('No item'); const [c] = L.items.splice(i, 1); giveCard(s, p, c); return OK; }
     case 'hunt': {
       if (!hasItem(p, 'bow') || ts.hunted) return err('Cannot hunt'); ts.hunted = true;
@@ -990,7 +1008,7 @@ function turnCmd(s, p, cmd) {
     }
     case 'postThug': {
       if (!p.thug || p.thug.job !== 'bouncer') return err('No bouncer');
-      if (p.coin < 1) return err('Need 1 PREPCOIN'); const nd = D.node[cmd.node]; if (!nd || nd.kind !== 'building') return err('Pick a building');
+      if (p.coin < 1) return err('Need 1 DOOMCOIN'); const nd = D.node[cmd.node]; if (!nd || nd.kind !== 'building') return err('Pick a building');
       p.coin -= 1; p.thug.post = cmd.node; logm(s, `${p.name}'s thug stands guard at ${nd.name}.`, p.id); return OK;
     }
     case 'moonshine': {
@@ -1009,7 +1027,7 @@ function turnCmd(s, p, cmd) {
       ts.actions--; tally(p, mode); ts.moveState = ts.moveState === 'moving' ? 'done' : ts.moveState; ts.looted = [];
       lootRoll(s, p, mode); return OK;
     }
-    case 'burgle': case 'dive': case 'gamble': case 'build': case 'recruit': case 'drone': case 'swap': case 'raid': case 'fight': case 'shop':
+    case 'burgle': case 'dive': case 'gamble': case 'build': case 'recruit': case 'drone': case 'swap': case 'raid': case 'fight': case 'shop': case 'contra': case 'depot': case 'train':
       return doAction(s, p, cmd);
   }
   return err('Unknown command');
@@ -1039,7 +1057,7 @@ function doMove(s, p, to) {
       break;
     }
   }
-  if (opts.subway) { p.coin -= 1; logm(s, `${p.name} pays 1 PREPCOIN and takes the subway to ${D.node[to].name}.`, p.id); }
+  if (opts.subway) { p.coin -= 1; logm(s, `${p.name} pays 1 DOOMCOIN and takes the subway to ${D.node[to].name}.`, p.id); }
   if (opts.cutters) logm(s, `${p.name} cuts through to ${D.node[to].name}.`, p.id);
   ts.moves--; ts.moveState = 'moving';
   p.node = to;
@@ -1061,7 +1079,7 @@ function rollPhase3(s, p, kind) {
 }
 export function diceText(kind, face) {
   const f = (kind === 'day' ? D.cfg.dayDie : D.cfg.nightDie)[face];
-  const m = { food: n => `+${n} food`, foodcoin: n => `+${n} food & PREPCOIN`, moves: n => `+${n} moves`, found: n => `found ${n} resource`, bitten: n => `BITTEN! -${n} health`, robbed: n => `ROBBED! -${n} resource`, action: n => `+${n} action` };
+  const m = { food: n => `+${n} food`, foodcoin: n => `+${n} food & DOOMCOIN`, moves: n => `+${n} moves`, found: n => `found ${n} resource`, bitten: n => `BITTEN! -${n} health`, robbed: n => `ROBBED! -${n} resource`, action: n => `+${n} action` };
   return m[f[0]](f[1]);
 }
 RESOLVE.reroll = (s, pd, o) => {
@@ -1082,6 +1100,11 @@ RESOLVE.applyDice = (s, pd) => {
     case 'action': ts.actions += 1; break;
   }
   ts.step = 'prep';
+  if (effectOn(s, 'eastTrap') && EAST.includes(sectorOf(p.node)) && ts.moves > 0) {   // anti-tech rioters: boxed in until you beat them in combat
+    const c = combatRoll(s, p);
+    if (!c.nat1 && c.total >= 5) logm(s, `${p.name} rolls ${c.total} and breaks out past the rioters.`, p.id);
+    else { logm(s, `${p.name} rolls ${c.total} and is boxed in by the rioters - no movement this turn.`, p.id); ts.moves = 0; }
+  }
 };
 
 // ---- actions
@@ -1102,6 +1125,8 @@ function doAction(s, p, cmd) {
     for (const [r, n] of Object.entries(cmd.get)) if (s.supply[r] < n) return err('Not in the supply');
   }
   if (a === 'build' && !canBuild(p)) return err('Missing resources');
+  if (a === 'contra' && !(cmd.r && p.res[cmd.r] > 0)) return err('Pick a resource to swap');
+  if (a === 'train' && !p.items.some(i => i.uid === cmd.uid)) return err('Pick an item');
   ts.actions--; finishMove(s); tally(p, a);
   if (a === 'shop') { ts.shop = p.node; logm(s, `${p.name} browses the shop.`); return OK; }
   if (a === 'burgle') { doBurgle(s, p); return OK; }
@@ -1111,6 +1136,17 @@ function doAction(s, p, cmd) {
     p.bunker = true; logm(s, `${p.name} BUILDS A BUNKER! Home sweet home.`, p.id);
     if (!s.bunkerBonusTaken) { s.bunkerBonusTaken = true; const c = drawTop(s); if (c) { giveCard(s, p, c); logm(s, `Bunker bonus: ${p.name} receives a ${D.item[c.id].name}.`, p.id); } }
     return OK;
+  }
+  if (a === 'contra') { spend(s, p, cmd.r, 1); gain(s, p, 'meds', 3); logm(s, `${p.name} swaps 1 ${RES_LABEL[cmd.r]} for 3 MEDS (contraband).`, p.id); return OK; }
+  if (a === 'depot') {
+    const n = p.res.tech, c = drawTop(s); spend(s, p, 'tech', n);
+    if (c) { giveCard(s, p, c); logm(s, `${p.name} trades ${n} TECH at the recycling depot for a ${D.item[c.id].name}.`, p.id); } else logm(s, `${p.name} trades ${n} TECH but there is no item left.`, p.id);
+    return OK;
+  }
+  if (a === 'train') {
+    const it = p.items.find(i => i.uid === cmd.uid); it.tokens = (it.tokens || 0) + 2; ts.trained = true;
+    logm(s, `${p.name} spends the turn training: +2 tokens on the ${D.item[it.id].name}.`, p.id);
+    ts.moves = 0; ts.actions = 0; ts.step = 'endturn'; return OK;
   }
   if (a === 'recruit') { p.coin -= 2; spend(s, p, 'food', 1); s.thugsBar--; p.thug = { job: 'muscle', post: null }; logm(s, `${p.name} recruits a thug.`, p.id); return OK; }
   if (a === 'drone') { takeFromLoc(s, p, cmd.node, cmd.r); ts.droneUsed = true; logm(s, `${p.name}'s drone takes 1 ${RES_LABEL[cmd.r]} from ${D.node[cmd.node].name}.`, p.id); return OK; }
@@ -1149,7 +1185,7 @@ function doMarket(s, p, cmd) {
   if (nSell && !isSell) return err('You cannot sell here');
   for (const [r, n] of Object.entries(sell)) if (p.res[r] < n) return err('You do not have that to sell');
   for (const [r, n] of Object.entries(buy)) if ((L.res[r] || 0) < n) return err('Not enough there');
-  if (p.coin + nSell < nBuy * price) return err(`Not enough PREPCOIN (price ${price} each)`);
+  if (p.coin + nSell < nBuy * price) return err(`Not enough DOOMCOIN (price ${price} each)`);
   if (resTotal(p) - nSell + nBuy > holdLimit(p)) return err('You cannot carry that much');
   ts.actions--; finishMove(s);
   for (const [r, n] of Object.entries(sell)) { spend(s, p, r, n); p.coin += n; }
@@ -1162,8 +1198,8 @@ function doBuyItem(s, p, id) {
   const shop = (D.cfg.shops[p.node] || []).find(x => x[0] === id);
   if (!shop) return err('Not sold here');
   if (ts.shop !== p.node) { if (!useAction(s, p, 'shop')) return err('No action available'); ts.shop = p.node; }
-  const price = shop[1];
-  if (p.coin < price) return err('Not enough PREPCOIN');
+  const price = shopPrice(s, p.node, shop[1]);
+  if (p.coin < price) return err('Not enough DOOMCOIN');
   if (id === 'DUCT') { if (s.supply.ducttape < 1) return err('Out of stock'); if (resTotal(p) >= holdLimit(p)) return err('Full'); p.coin -= price; gain(s, p, 'ducttape', 1); logm(s, `${p.name} buys duct tape.`, p.id); return OK; }
   const c = takeCard(s, id);
   if (!c) return err('Out of stock');
