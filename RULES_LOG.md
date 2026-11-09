@@ -267,3 +267,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the DEFCON-rising sound plays 3 times in a row. (v1.234)
 - Test-build tool: when DEFCON rises, a banner "DEFCON RISES TO PANIC/MAYHEM/SHTF!" pops up top centre for a few seconds, coloured yellow / orange / red for the new level. (v1.235)
 - Fixed: v1.235 accidentally blanked the version file and the page would not load; restored. (v1.236)
+- Test-build tool: the app icon now shows above the title on the game setup screen. (v1.237)
