@@ -329,3 +329,10 @@ body.sidemin #evbar,body.fs #evbar{right:296px}
 #topinfo.logmin #loglive .ll:not(.l0),#topinfo.logmin #loglive div.rd,#topinfo.logmin #loglive div.td{display:none}
 #topinfo:not(.logmin) #loglive{overflow-y:auto;flex:1 1 auto;min-height:0;pointer-events:auto}
 #topinfo.logmin #loglive{flex:none;pointer-events:none}
+/* v1.216: expanded log fills all the way down to the player box, with a faint panel so you can see it */
+#topinfo:not(.logmin){flex:1 1 auto;min-height:0}
+#topinfo:not(.logmin) #loglive{flex:1 1 auto;min-height:0;max-height:none;height:auto;background:rgba(0,0,0,.35);border-radius:10px;padding:8px 10px;margin-bottom:0}
+/* v1.216: expanded log = faded panel reaching the player box; recipe button matches the player box */
+#topinfo:not(.logmin) #loglive{background:linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,.5) 40px,rgba(0,0,0,.5) calc(100% - 50px),rgba(0,0,0,.1) 100%) !important;padding:6px 10px 14px !important;cursor:pointer}
+#topinfo.logmin #loglive{pointer-events:auto;cursor:pointer}
+#craftbtn{background:rgba(27,30,34,.5) !important;border:1px solid rgba(255,255,255,.12) !important;box-shadow:none !important;backdrop-filter:blur(2px)}

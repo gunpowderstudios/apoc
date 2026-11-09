@@ -235,3 +235,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the top-right log collapses to the right edge with a "Log" tab (click again to bring it back; remembered). (v1.213)
 - Test-build tool: the right-hand column sits clear of the Log tab and the footer. (v1.214)
 - Test-build tool: the Log tab is replaced by a small arrow next to the round number: collapsed shows only the newest (green) line, expanded stretches the log down to the turn box. (v1.215)
+- Test-build tool: click the green log line to expand the log, click the expanded log to collapse it; expanded log fades in behind and reaches the player box; recipe button now same translucent black as the player box. (v1.216)

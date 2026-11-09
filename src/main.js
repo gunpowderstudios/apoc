@@ -202,7 +202,7 @@ function setTool(tool) {
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 let zoomStep = 0, zoomAt = 0, bOn = false;
-document.addEventListener('click', e => { if (!(e.target.closest && e.target.closest('#logArrow'))) return; const t = $('#topinfo'); t.classList.toggle('logmin'); try { localStorage.setItem('apoc-logmin', t.classList.contains('logmin') ? '1' : '0'); } catch (x) {} });
+document.addEventListener('click', e => { if (!(e.target.closest && e.target.closest('#logArrow, #loglive'))) return; const t = $('#topinfo'); t.classList.toggle('logmin'); try { localStorage.setItem('apoc-logmin', t.classList.contains('logmin') ? '1' : '0'); } catch (x) {} });
 let turnMin = false; try { turnMin = localStorage.getItem('apoc-turnmin') === '1'; } catch (e) {}
 document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('#turn h3'); if (!h) return; turnMin = !turnMin; try { localStorage.setItem('apoc-turnmin', turnMin ? '1' : '0'); } catch (x) {} $('#turn').classList.toggle('min', turnMin); });
 window.addEventListener('keydown', e => {
