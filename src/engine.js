@@ -113,6 +113,11 @@ export const hospitalOpen = s => defc(s).hospital && !activeEffects(s).has('hosp
 export const subwayOpen = s => !activeEffects(s).has('subwayClosed');
 export const nightBlocked = s => activeEffects(s).has('curfew');
 export const effectOn = (s, e) => activeEffects(s).has(e);
+export function mobNodes(s) {   // End Times civil unrest: MOB tokens sit on the named streets while the card is uncovered (placement only - their blocking rules are still to be decided)
+  const out = [];
+  for (const t of APOC_TYPES) { const top = s.stand[t][s.stand[t].length - 1], c = top && (s.spent || []).includes(top) && D.newsById[top]; if (c && c.mob) out.push(...c.mob); }
+  return out;
+}
 const shielded = (s, q, why) => { if (hasItem(q, 'hazmat-suit')) { logm(s, `${q.name}'s Hazmat Suit shields them from the ${why}.`); return true; } return false; };
 const shopPrice = (s, node, base) => (effectOn(s, 'yardSale') && ['gunshop', 'hardwarestore'].includes(node)) ? Math.floor(base / 2) : base;
 function sectorOf(nodeId) { return D.node[nodeId].sector; }

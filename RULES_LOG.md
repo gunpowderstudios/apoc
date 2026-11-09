@@ -248,3 +248,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Weapon mastery: what do the +2 tokens do (ammo/uses)?
 - Robin Hood: poorest tied donors - confirm only the non-poorest give.
 - End Times MOB events: exact streets, MOB supply, combat/bribe rules, pistol/drone item sources, which park, health clinic = Dental Clinic?, sniper damage dice, what "armor bonuses" are.
+- Test-build tool: MOB tokens (red 25 mm, white MOB text; art assets/counters/mob.png) now appear on the streets named by an uncovered End Times civil-unrest card and disappear when it is covered. They do nothing yet - blocking rules are still to be decided. (v1.218)

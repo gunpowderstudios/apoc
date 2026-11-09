@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
+import { mobNodes } from './engine.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
 const PIECE_H = { frost: 0.0399, jessica: 0.0386232, naomi: 0.038, sam: 0.038 };
@@ -169,6 +170,15 @@ export class View3D {
       mesh.rotation.x = -Math.PI / 2; mesh.scale.set(r.w, r.d, 1); mesh.position.set(r.x, 0.005, r.z); mesh.renderOrder = 4; this.glowG.add(mesh); this.glowMats.push(m);
     }
   }
+  setMobs(ids) {   // red MOB tokens on the streets named by an uncovered End Times card
+    const key = ids.join(','); if (key === this.mobKey) return; this.mobKey = key;
+    if (!this.mobG) { this.mobG = new THREE.Group(); this.scene.add(this.mobG); } this.mobG.clear();
+    const top = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/mob.png'), transparent: true, roughness: 0.5 }), side = new THREE.MeshStandardMaterial({ color: 0xd61e24, roughness: 0.5 });
+    for (const id of ids) {
+      const r = this.nodeRect(id); if (!r) continue;
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.0125, 0.003, 32), [side, top, side]); m.position.set(r.x, 0.002, r.z); this.mobG.add(m);
+    }
+  }
   setDrop(f) {
     if (!this.dropFx) { this.dropFx = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.38, depthWrite: false, side: THREE.DoubleSide })); this.dropFx.rotation.x = -Math.PI / 2; this.dropFx.renderOrder = 5; this.scene.add(this.dropFx); }
     this.dropFx.visible = !!f; if (!f) return;
@@ -215,6 +225,7 @@ export class View3D {
   }
   sync(s, ui) {
     this.syncTable(s);
+    this.setMobs(mobNodes(s));
     this.setGlow(s.glow ? s.glow.nodes : [], { nuclear: 0xffc107, pandemic: 0xff3b30, ai: 0x2e8bff }[s.glow && s.glow.type] || 0xffffff);
     // resource tokens
     const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null, this.layout || null]);

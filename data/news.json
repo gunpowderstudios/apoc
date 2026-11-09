@@ -278,7 +278,12 @@
   "text": "Place a MOB token on Bourbon Street, Park View and Riverside View. No movement on these streets unless carrying a weapon",
   "effect": "none",
   "endTimes": "yellow",
-  "img": "assets/news/n28.jpg"
+  "img": "assets/news/n28.jpg",
+  "mob": [
+   "V3_2",
+   "H2_3",
+   "H3_2"
+  ]
  },
  {
   "id": "n29",
@@ -289,7 +294,11 @@
   "text": "Place a MOB token on Diesel Drive and Commercial Way. No movement on these streets unless carrying a weapon",
   "effect": "none",
   "endTimes": "yellow",
-  "img": "assets/news/n29.jpg"
+  "img": "assets/news/n29.jpg",
+  "mob": [
+   "H0_1",
+   "H1_1"
+  ]
  },
  {
   "id": "n30",
@@ -300,7 +309,10 @@
   "text": "Place a MOB token on Retail Road. To pass, combat 5+ (-2 HEALTH on fail) before continuing move",
   "effect": "none",
   "endTimes": "yellow",
-  "img": "assets/news/n30.jpg"
+  "img": "assets/news/n30.jpg",
+  "mob": [
+   "H2_2"
+  ]
  },
  {
   "id": "n31",
@@ -311,7 +323,11 @@
   "text": "Place a MOB token on Green Park Avenue and Drill Street. Combat 4+ to pass (fail: -2 HEALTH; succeed: take pistol ITEM OR avoid combat, join the mob and gain 2 MEDS)",
   "effect": "none",
   "endTimes": "yellow",
-  "img": "assets/news/n31.jpg"
+  "img": "assets/news/n31.jpg",
+  "mob": [
+   "H1_2",
+   "V2_0"
+  ]
  },
  {
   "id": "n32",
@@ -333,7 +349,12 @@
   "text": "Place a MOB token on Turbine Drive, Rust Road, Justice Way and Fisher Street. No movement on these streets without a bolt cutters",
   "effect": "none",
   "endTimes": "yellow",
-  "img": "assets/news/n33.jpg"
+  "img": "assets/news/n33.jpg",
+  "mob": [
+   "V0_2",
+   "H2_1",
+   "V1_2"
+  ]
  },
  {
   "id": "n34",
@@ -344,7 +365,11 @@
   "text": "Place a MOB token on Hill Street and Law Street. Combat 5+ to defeat robots and gain drone ITEM; fail: reduce HEALTH by half (rounded up)",
   "effect": "none",
   "endTimes": "orange",
-  "img": "assets/news/n34.jpg"
+  "img": "assets/news/n34.jpg",
+  "mob": [
+   "V3_1",
+   "H1_4"
+  ]
  },
  {
   "id": "n35",
@@ -355,7 +380,10 @@
   "text": "Place a MOB token in the park. No entry/exit to park unless you own no TECH resource",
   "effect": "none",
   "endTimes": "orange",
-  "img": "assets/news/n35.jpg"
+  "img": "assets/news/n35.jpg",
+  "mob": [
+   "park"
+  ]
  },
  {
   "id": "n36",
@@ -366,7 +394,12 @@
   "text": "Place a MOB token on Bourbon Street, Hill Street and Gasoline Grove. May not pass through these streets without a dog ITEM",
   "effect": "none",
   "endTimes": "orange",
-  "img": "assets/news/n36.jpg"
+  "img": "assets/news/n36.jpg",
+  "mob": [
+   "V3_2",
+   "V3_1",
+   "V3_0"
+  ]
  },
  {
   "id": "n37",
@@ -377,7 +410,10 @@
   "text": "Place a MOB token in hospital. It is closed until card is covered. If 0 HEALTH, use MEDS or place prepper at health clinic and pay: 1 DOOMCOIN = 1 HEALTH",
   "effect": "none",
   "endTimes": "orange",
-  "img": "assets/news/n37.jpg"
+  "img": "assets/news/n37.jpg",
+  "mob": [
+   "hospital"
+  ]
  },
  {
   "id": "n38",
