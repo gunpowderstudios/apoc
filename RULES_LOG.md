@@ -250,3 +250,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - End Times MOB events: exact streets, MOB supply, combat/bribe rules, pistol/drone item sources, which park, health clinic = Dental Clinic?, sniper damage dice, what "armor bonuses" are.
 - Test-build tool: MOB tokens (red 25 mm, white MOB text; art assets/counters/mob.png) now appear on the streets named by an uncovered End Times civil-unrest card and disappear when it is covered. They do nothing yet - blocking rules are still to be decided. (v1.218)
 - Test-build tool: the APOC yellow mushroom-cloud logo is now the browser tab icon and home-screen app icon. (v1.219)
+- Test-build tool: turn box, recipe button and the expanded log panel are now 70% black. (v1.220)
