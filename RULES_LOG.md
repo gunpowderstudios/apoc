@@ -254,3 +254,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: each DEFCON rise now puts a 15 mm token on the Panic Index of the DEFCON chart in the 3D view (blue = AI, red = Pandemic, yellow = Nuclear), in spaces 1-3. The rule itself is unchanged. (v1.222)
 - Test-build tool: the APOC logo sits left of the title in the top bar, same height as the text. (v1.223)
 - Test-build tool: new APOC mushroom-cloud logo (shaded version) replaces the tab / app / header icon. (v1.224)
+- Test-build tool: the Rules button is back on the top bar (next to Pause and the cog); the cog menu no longer holds it. (v1.225)

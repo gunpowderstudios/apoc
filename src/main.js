@@ -163,7 +163,7 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
