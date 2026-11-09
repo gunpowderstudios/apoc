@@ -351,6 +351,14 @@ export class View3D {
     const df = s.defcon, ys = [590, 440, 270, 78];   // pixel rows of the four DEFCON lights on the chart image (400x866)
     const fx = this.chart.x - this.chart.w / 2 + this.chart.w * (330 / 400), fz = this.chart.z - this.chart.d / 2 + this.chart.d * (ys[Math.min(3, df)] / 866);
     this.defMark.position.set(fx + 0.0, 0.004, fz + 0.0); this.defMark.scale.set(2.0, 1, 2.0); 
+    // Panic Index: one 15 mm token per DEFCON rise on spaces 1-3 of the chart (blue = AI, red = Pandemic, yellow = Nuclear)
+    { const pk = (s.panic || []).join(','); if (pk !== this.panicKey) {
+      this.panicKey = pk; if (!this.panicG) { this.panicG = new THREE.Group(); this.scene.add(this.panicG); } this.panicG.clear();
+      const col = { ai: 0x2e8bff, pandemic: 0xe0301e, nuclear: 0xffc107 }, slots = [[78, 795], [197, 755], [322, 718]];
+      (s.panic || []).slice(0, 3).forEach((t, i) => {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(0.0075, 0.0075, 0.003, 32), new THREE.MeshStandardMaterial({ color: col[t] || 0xffffff, roughness: 0.4 }));
+        m.position.set(this.chart.x - this.chart.w / 2 + this.chart.w * (slots[i][0] / 400), 0.0045, this.chart.z - this.chart.d / 2 + this.chart.d * (slots[i][1] / 866)); m.castShadow = true; this.panicG.add(m);
+      }); } }
     // the POOL: resources on the table that are not in play (crafted-away, sold and lost resources come back here), in stacks of 5 on the right of the board
     const held = s.players.reduce((a, q) => a + (q.coin || 0), 0) + Object.values(s.loc || {}).reduce((a, L) => a + (L.coin || 0), 0);
     const sup = { ...(s.supply || {}), coin: Math.max(0, POOL_COINS - held) }, ssig = JSON.stringify(sup);   // DoomCoin pool: 30 on the table minus the coin players hold or have left on the board
