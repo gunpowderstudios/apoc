@@ -161,8 +161,7 @@ function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   $('aside').prepend($('#topinfo'));
-  { const tabL = $('#logTab'), setLog = off => { $('#topinfo').classList.toggle('logoff', off); tabL.textContent = off ? '◂ Log' : 'Log ▸'; try { localStorage.setItem('apoc-logoff', off ? '1' : '0'); } catch (e) {} };
-    let lo = false; try { lo = localStorage.getItem('apoc-logoff') === '1'; } catch (e) {} setLog(lo); tabL.onclick = () => setLog(!$('#topinfo').classList.contains('logoff')); }
+  { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
   { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
@@ -203,6 +202,7 @@ function setTool(tool) {
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 let zoomStep = 0, zoomAt = 0, bOn = false;
+document.addEventListener('click', e => { if (!(e.target.closest && e.target.closest('#logArrow'))) return; const t = $('#topinfo'); t.classList.toggle('logmin'); try { localStorage.setItem('apoc-logmin', t.classList.contains('logmin') ? '1' : '0'); } catch (x) {} });
 let turnMin = false; try { turnMin = localStorage.getItem('apoc-turnmin') === '1'; } catch (e) {}
 document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('#turn h3'); if (!h) return; turnMin = !turnMin; try { localStorage.setItem('apoc-turnmin', turnMin ? '1' : '0'); } catch (x) {} $('#turn').classList.toggle('min', turnMin); });
 window.addEventListener('keydown', e => {
@@ -515,7 +515,7 @@ function render() {
 }
 function renderStatus() {
   const df = E.defc(S);
-  $('#rnd').innerHTML = `<b>ROUND ${S.round}</b> <span class="defc ${df.id}">${df.name}</span>`;
+  $('#rnd').innerHTML = `<b>ROUND ${S.round}</b> <span class="defc ${df.id}">${df.name}</span><button id="logArrow" title="Expand / collapse the log"></button>`;
   $('#status').innerHTML = `<div>Round <b>${S.round}</b> · <span class="defc ${df.id}">${df.name}</span> <span class="note">buy ${df.buy} · sell ${df.sell} · ${[df.steal && 'steal', df.loot && 'loot', df.burgle && 'burgle'].filter(Boolean).join('/') || 'no crime'}${df.hospital ? '' : ' · hospital closed'}</span></div>
   <div class="note">Stand: ${['ai', 'pandemic', 'nuclear'].map(t => `${t} ${S.stand[t].length}/5`).join(' · ')} · Thugs in bar ${S.thugsBar} · Busted tokens ${S.bustedLeft}</div>
   <div class="res">${E.ALLRES.map(r => chip(r, S.supply[r])).join('')}<span class="note">supply</span></div>`;

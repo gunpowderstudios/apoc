@@ -234,3 +234,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the bottom-right turn box is the same width as the log, 50% transparent, ordered name / big button / smaller options; the log has no background. (v1.212)
 - Test-build tool: the top-right log collapses to the right edge with a "Log" tab (click again to bring it back; remembered). (v1.213)
 - Test-build tool: the right-hand column sits clear of the Log tab and the footer. (v1.214)
+- Test-build tool: the Log tab is replaced by a small arrow next to the round number: collapsed shows only the newest (green) line, expanded stretches the log down to the turn box. (v1.215)

@@ -319,3 +319,13 @@ body.sidemin aside,body.fs aside{right:36px}
 body.sidemin #evbar,body.fs #evbar{right:318px}
 #topinfo{right:auto}#loglive{title:''}
 body.sidemin aside,body.fs aside{bottom:62px}
+
+/* v1.215: no Log tab - a small arrow by the round number expands / collapses the log; collapsed shows just the newest (green) line */
+#logTab{display:none !important}
+body.sidemin aside,body.fs aside{right:14px}
+body.sidemin #evbar,body.fs #evbar{right:296px}
+#logArrow{pointer-events:auto;background:rgba(0,0,0,.45);color:#fff;border:0;border-radius:6px;margin-left:6px;width:26px;height:22px;padding:0;cursor:pointer;vertical-align:top;font-size:13px;line-height:22px}
+#logArrow::after{content:'\25B4'}#topinfo.logmin #logArrow::after{content:'\25BE'}
+#topinfo.logmin #loglive .ll:not(.l0),#topinfo.logmin #loglive div.rd,#topinfo.logmin #loglive div.td{display:none}
+#topinfo:not(.logmin) #loglive{overflow-y:auto;flex:1 1 auto;min-height:0;pointer-events:auto}
+#topinfo.logmin #loglive{flex:none;pointer-events:none}
