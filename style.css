@@ -262,3 +262,8 @@ body.sidemin #evbar{right:330px}
 #loglive div[style]{filter:brightness(1.45)}
 #loglive.ll{filter:none}
 #topinfo{width:264px}body.sidemin aside,body.fs aside{width:240px}
+#rnd b{font-size:20px !important;letter-spacing:.03em}
+#rnd .defc{text-shadow:none !important;vertical-align:top;margin-left:4px;line-height:1.1}
+#rnd{line-height:1.1}
+#turn h3{cursor:pointer;user-select:none}#turn h3::after{content:' ▾';color:#9aa;font-size:12px}#turn.min h3::after{content:' ▸'}
+#turn.min > *:not(h3):not(.btns){display:none !important}

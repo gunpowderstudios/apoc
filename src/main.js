@@ -200,6 +200,8 @@ function setTool(tool) {
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 let zoomStep = 0, zoomAt = 0, bOn = false;
+let turnMin = false; try { turnMin = localStorage.getItem('apoc-turnmin') === '1'; } catch (e) {}
+document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('#turn h3'); if (!h) return; turnMin = !turnMin; try { localStorage.setItem('apoc-turnmin', turnMin ? '1' : '0'); } catch (x) {} $('#turn').classList.toggle('min', turnMin); });
 window.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
   const kk = e.key.toLowerCase(), appOn = !$('#app').hidden;
@@ -528,7 +530,7 @@ function renderPlayers() {
   document.querySelectorAll('.lnk').forEach(b => { b.style.cssText = 'background:none;border:0;padding:0;text-align:left'; });
 }
 function renderTurn() {
-  renderTurn0();
+  renderTurn0(); $('#turn').classList.toggle('min', turnMin);
   if (!S || S.over) return;
   const pa = S.players[actor()], el = $('#turn');
   const items = pa.items.map(i => `<span class="gitem${i.broken ? ' brk' : ''}">${esc((E.D.item[i.id] || {}).name || i.id)}${i.broken ? ' (broken)' : ''}</span>`).join('') || '<span class="note">no items</span>';
@@ -554,7 +556,7 @@ function renderTurn0() {
     el.innerHTML = h; return;
   }
   const ts = S.ts;
-  h += `<h3>${esc(pa.name)}'s turn <span class="note">(${pa.ai ? 'AI' : esc(pa.owner || '')})</span></h3>`;
+  h += `<h3>${esc(pa.name)}'s turn </h3>`;
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
   if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>`; return; }
   if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>'; return; }
