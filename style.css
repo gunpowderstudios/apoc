@@ -341,3 +341,11 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 #craftbtn{background:rgba(0,0,0,.7) !important}
 #topinfo:not(.logmin) #loglive{background:linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,.7) 40px,rgba(0,0,0,.7) calc(100% - 50px),rgba(0,0,0,.15) 100%) !important}
 #craftbtn.idle{opacity:1 !important}
+
+/* v1.226: collapsed log also shows the next 4 older moves, fading away down to about a fifth of the screen depth */
+#topinfo.logmin #loglive .ll.n1,#topinfo.logmin #loglive .ll.n2,#topinfo.logmin #loglive .ll.n3,#topinfo.logmin #loglive .ll.n4{display:block}
+#topinfo.logmin #loglive .ll.n1{opacity:.8 !important}#topinfo.logmin #loglive .ll.n2{opacity:.6 !important}#topinfo.logmin #loglive .ll.n3{opacity:.4 !important}#topinfo.logmin #loglive .ll.n4{opacity:.22 !important}
+#topinfo.logmin #loglive{max-height:20vh;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}
+/* v1.226: bigger collapse arrows */
+#logArrow{width:38px;height:30px;font-size:22px;line-height:30px;border-radius:8px}
+#turn h3::after{font-size:24px !important;line-height:1;vertical-align:-3px;color:#cfd6d9 !important;margin-left:4px}

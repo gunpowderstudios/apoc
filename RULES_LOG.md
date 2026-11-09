@@ -255,3 +255,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the APOC logo sits left of the title in the top bar, same height as the text. (v1.223)
 - Test-build tool: new APOC mushroom-cloud logo (shaded version) replaces the tab / app / header icon. (v1.224)
 - Test-build tool: the Rules button is back on the top bar (next to Pause and the cog); the cog menu no longer holds it. (v1.225)
+- Test-build tool: the collapsed log now also shows the previous 4 moves under the green line, fading out, reaching about a fifth of the way down the screen. (v1.226)
+- Test-build tool: the collapse arrows (log and player box) are larger. (v1.226)

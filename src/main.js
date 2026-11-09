@@ -644,7 +644,7 @@ function renderLog() {
   el.innerHTML = rows.map(r => r.h + r.d).join(''); el.scrollTop = el.scrollHeight;
   // top-right live log: transparent black panel, newest line on top (glowing green), scroll down for the older ones
   const ll = $('#loglive'), keep = ll.scrollTop;
-  ll.innerHTML = rows.slice().reverse().map((r, i) => (i === 0 ? r.d.replace('<div class="', '<div class="ll l0 ') : r.d.replace('<div class="', '<div class="ll ')) + r.h).join('');
+  ll.innerHTML = rows.slice().reverse().map((r, i) => (i === 0 ? r.d.replace('<div class="', '<div class="ll l0 ') : r.d.replace('<div class="', `<div class="ll n${Math.min(i, 9)} `)) + r.h).join('');
   ll.scrollTop = keep;
 }
 function renderHand() {
