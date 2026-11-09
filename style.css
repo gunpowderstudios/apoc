@@ -309,3 +309,13 @@ body.sidemin #turn .btns button:not(.primary){font-size:12.5px;padding:4px 9px}
 body.sidemin #turn .note{font-size:11.5px;margin:0;text-align:center}
 #loglive{background:none !important;max-height:40vh}
 #loglive .ll,#loglive div{text-shadow:0 1px 3px #000,0 0 6px #000}
+
+#logTab{position:fixed;right:0;top:96px;z-index:16;writing-mode:vertical-rl;background:rgba(0,0,0,.55);color:#fff;border:0;border-radius:8px 0 0 8px;padding:12px 5px;cursor:pointer;font-size:13px;letter-spacing:1px}
+#logTab:hover{background:rgba(0,0,0,.8)}
+body.fs #logTab{top:12px}
+#topinfo{right:34px}
+#topinfo.logoff #loglive{display:none}
+body.sidemin aside,body.fs aside{right:36px}
+body.sidemin #evbar,body.fs #evbar{right:318px}
+#topinfo{right:auto}#loglive{title:''}
+body.sidemin aside,body.fs aside{bottom:62px}

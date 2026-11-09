@@ -161,6 +161,8 @@ function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
   $('aside').prepend($('#topinfo'));
+  { const tabL = $('#logTab'), setLog = off => { $('#topinfo').classList.toggle('logoff', off); tabL.textContent = off ? '◂ Log' : 'Log ▸'; try { localStorage.setItem('apoc-logoff', off ? '1' : '0'); } catch (e) {} };
+    let lo = false; try { lo = localStorage.getItem('apoc-logoff') === '1'; } catch (e) {} setLog(lo); tabL.onclick = () => setLog(!$('#topinfo').classList.contains('logoff')); }
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
   { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
