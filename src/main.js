@@ -202,6 +202,7 @@ let zoomStep = 0, zoomAt = 0, bOn = false;
 window.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|SELECT|TEXTAREA)$/.test((e.target.tagName || ''))) return;
   const kk = e.key.toLowerCase(), appOn = !$('#app').hidden;
+  if (appOn && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey && (e.code === 'Space' || 'fcprhnbd'.includes(kk)) && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) cardUpSound(false);   // the pop sound for every shortcut key
   if (e.code === 'Space' && appOn) { e.preventDefault(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); togglePause(); return; }   // Space = pause / resume
   if (appOn && V3 && 'cpndb'.includes(kk) && kk !== 'b') bOn = false;
   if (kk === 'f' && appOn && !(zoomFlipId !== null && $('#zoom') && !$('#zoom').hidden)) { $('#bFull').click(); return; }   // F = full screen on / off
