@@ -258,3 +258,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: the collapsed log now also shows the previous 4 moves under the green line, fading out, reaching about a fifth of the way down the screen. (v1.226)
 - Test-build tool: the collapse arrows (log and player box) are larger. (v1.226)
 - Test-build tool: the in-game Rules tab no longer shows the "Board facts from Tim" notes (they stay in this file) and anything still to be confirmed is shown in red. (v1.227)
+- Test-build tool: an expandable "Tips for playing" (top 10 things you might need to do) sits under the shortcut legend, top left. (v1.228)

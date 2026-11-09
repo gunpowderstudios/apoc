@@ -353,3 +353,11 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 /* v1.227: items still to be confirmed are red in the in-game rules */
 .rules details.ask{border-color:#c0392b}.rules details.ask summary,.rules details.ask[open] summary{color:#ff6b5e}
 .rules h4.ask{color:#ff6b5e}.rules ul.ask,.rules ol.ask,.rules details.ask li{color:#ff8a7e}
+
+/* v1.228: expandable tips under the shortcut legend */
+#chint .keys{white-space:pre}
+#chint #tips{pointer-events:auto;white-space:normal;margin-top:8px;max-width:290px;font:500 12.5px/1.4 sans-serif;text-shadow:0 1px 3px #000}
+#chint #tips summary{cursor:pointer;font-weight:700;color:#ffd54f;list-style:none;padding:2px 0}
+#chint #tips summary::before{content:'\25B8 '}#chint #tips[open] summary::before{content:'\25BE '}
+#chint #tips[open]{background:rgba(0,0,0,.7);border-radius:8px;padding:6px 10px 8px}
+#chint #tips ol{margin:6px 0 0;padding-left:18px}#chint #tips li{margin:0 0 5px}

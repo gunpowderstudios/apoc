@@ -520,7 +520,18 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.textContent = 'B  Board / Centre\nC  Card\nP  Piece\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause'; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.innerHTML = '<div class="keys">B  Board / Centre\nC  Card\nP  Piece\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause</div>' + `<details id="tips"><summary>Tips for playing</summary><ol>
+<li><b>Your turn:</b> Eat (1 food, or lose 1 health), Draw the news, roll the news dice, then roll Day or Night to get your moves.</li>
+<li><b>Keep food in your pack.</b> No food at the start of your turn costs you 1 health.</li>
+<li><b>Pick up free resources</b> lying on streets and at the Church. Resources inside buildings belong to the shop: buy, steal or loot them.</li>
+<li><b>Aim for a bunker:</b> one of each of the 6 resources (duct tape stands in for any missing one), then press Build.</li>
+<li><b>Sell resources</b> at the Truck Stop, Salvage Yard, Prison or Pawn Shop. <b>Buy items</b> at the Gun Shop and Hardware Store.</li>
+<li><b>Craft or recycle</b> items from the Recipe Book (R): one craft and one recycle per turn.</li>
+<li><b>Move or act, not split:</b> do all your moves then your actions (or the other way round). You may stop early.</li>
+<li><b>Watch the news stands (N):</b> five papers of one type raise DEFCON. Glowing board areas show who an event hits.</li>
+<li><b>Hurt?</b> Use Meds (free) when alone, or head for the Hospital while it is open.</li>
+<li><b>Steal and loot are risky:</b> caught means busted (1 DoomCoin fine), three busts and you are tagged.</li>
+</ol></details>`; (this.r.domElement.parentElement.parentElement || document.body).appendChild(h); }
     const d = this.cam.position.distanceTo(this.ctl.target), far = !this.fitD || d < this.fitD * 0.8 || (this.fitT && this.ctl.target.distanceTo(this.fitT) > 0.08);
     if (!this._hintOn) { this._hintOn = true; this.hint.style.display = 'block'; }   // always shown, top right
     this.hint.style.opacity = far ? '1' : '0.7';
