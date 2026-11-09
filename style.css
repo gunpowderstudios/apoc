@@ -267,3 +267,8 @@ body.sidemin #evbar{right:330px}
 #rnd{line-height:1.1}
 #turn h3{cursor:pointer;user-select:none}#turn h3::after{content:' ▾';color:#9aa;font-size:12px}#turn.min h3::after{content:' ▸'}
 #turn.min > *:not(h3):not(.btns){display:none !important}
+#loglive{cursor:default;max-height:52vh;overflow-y:auto;overflow-x:hidden;background:rgba(0,0,0,.5);border:0;border-radius:8px;padding:6px 10px;margin-top:6px;scrollbar-width:thin}
+#loglive .ll{margin:0 0 4px;opacity:1 !important;font-size:13px}
+#loglive .l0{font-size:15px}
+#loglive .l0{color:#4cd964 !important;filter:none !important;font-weight:700;text-shadow:0 0 10px #2ecc40,0 1px 4px #000}
+#loglive div.td{border-left:0;border-right:3px solid currentColor;padding:0 6px 0 0;text-align:right}

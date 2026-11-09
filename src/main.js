@@ -164,7 +164,7 @@ function enterApp() {
   { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
-    $('#loglive').onclick = () => { $('#topinfo').classList.toggle('open'); lastLogSeq = -1; render(); }; }
+  }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
@@ -634,12 +634,12 @@ function renderLog() {
   const who = l => { if (l.pl !== null && l.pl !== undefined && S.players[l.pl]) return S.players[l.pl]; const f = names.find(([nm]) => l.t.startsWith(nm + ' ') || l.t.startsWith(nm + "'")); return f ? f[1] : null; };
   let rr = null, cc = null;
   const rows = S.log.slice(-120).map((l, i, a) => { const q = who(l); let h = ''; if (l.r !== undefined && l.r !== rr) { rr = l.r; cc = null; h = `<div class="rd">Round ${l.r}</div>`; }
-    if (l.c !== undefined && l.c !== null && l.c !== cc && S.players[l.c]) { cc = l.c; const tp = S.players[l.c]; h += `<div class="td" style="color:${pcol(tp)}">${esc(tp.name)}'s turn</div>`; } return h + `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; });
-  el.innerHTML = rows.join(''); el.scrollTop = el.scrollHeight;
-  // top-right live log: newest line glows green, older ones fade away below it; click to open the whole log
-  const open = $('#topinfo').classList.contains('open'), ll = $('#loglive');
-  if (open) { ll.innerHTML = rows.join(''); ll.scrollTop = ll.scrollHeight; }
-  else ll.innerHTML = S.log.slice(-8).reverse().map((l, i) => { const q = who(l); return `<div class="ll l${i}"${q && i ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>`; }).join('');
+    if (l.c !== undefined && l.c !== null && l.c !== cc && S.players[l.c]) { cc = l.c; const tp = S.players[l.c]; h += `<div class="td" style="color:${pcol(tp)}">${esc(tp.name)}'s turn</div>`; } return { h, d: `<div class="${l.pl === m ? 'me' : ''}${i === a.length - 1 ? ' cur' : ''}"${q ? ` style="color:${pcol(q)}"` : ''}>${esc(l.t)}</div>` }; });
+  el.innerHTML = rows.map(r => r.h + r.d).join(''); el.scrollTop = el.scrollHeight;
+  // top-right live log: transparent black panel, newest line on top (glowing green), scroll down for the older ones
+  const ll = $('#loglive'), keep = ll.scrollTop;
+  ll.innerHTML = rows.slice().reverse().map((r, i) => (i === 0 ? r.d.replace('<div class="', '<div class="ll l0 ') : r.d.replace('<div class="', '<div class="ll ')) + r.h).join('');
+  ll.scrollTop = keep;
 }
 function renderHand() {
   const p = S.players[me()], el = $('#hand'); if (!p) return;
