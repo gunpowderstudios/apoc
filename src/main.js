@@ -179,7 +179,7 @@ function enterApp() {
   $('#bReset').onclick = () => { V2.fit(); V2.dirty = true; if (V3) V3.reset(); };
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
-  { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Watch it played'; wb.classList.toggle('on', whole); };
+  { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Table View'; wb.classList.toggle('on', whole); };
     paint(); wb.onclick = () => { whole = !whole; try { localStorage.setItem('apoc-whole', whole ? '1' : '0'); } catch (e) {} paint(); if (whole && V3) V3.fitAll(true); }; window.__paintWhole = paint; }   // whole game view: board centred, no auto zoom in/out
   $('#bFollow').classList.toggle('on', follow); $('#bFollow').onclick = () => { follow = !follow; followArmed = true; try { localStorage.setItem('apoc-follow', follow ? '1' : '0'); } catch (e) {} $('#bFollow').classList.toggle('on', follow); if (!follow && V3) V3.fitAll(); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
