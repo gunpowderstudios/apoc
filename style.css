@@ -365,3 +365,11 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 /* v1.229: recipe book 'I want this' tick box (feeds the shopping list in the player panel) */
 .tile label.want{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;font-size:13px;cursor:pointer;color:#ffd54f}
 .tile label.want input{width:17px;height:17px;accent-color:#ffd54f;cursor:pointer}
+
+#defbanner{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:60;padding:.5em 1.6em;border-radius:10px;font:900 1.6em/1.2 system-ui,sans-serif;letter-spacing:.08em;pointer-events:none;box-shadow:0 6px 28px #000a;border:2px solid #000a;animation:defin .4s ease-out}
+#defbanner[hidden]{display:none}
+#defbanner.d-yellow{background:#f5c400;color:#222}
+#defbanner.d-orange{background:#ff8a00;color:#111}
+#defbanner.d-red{background:#d62828;color:#fff}
+#defbanner.d-green{background:#2e9e4f;color:#fff}
+@keyframes defin{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}

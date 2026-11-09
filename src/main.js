@@ -728,7 +728,16 @@ const defSnd = new Audio('assets/sfx/defcon.mp3'); let defPrev = null;
 function defconSound() {   // plays when DEFCON rises (not on game load / new game / sandbox lowering)
   const d = S ? S.defcon : null; if (d === null || d === undefined) { defPrev = null; return; }
   if (defPrev !== null && d > defPrev) { try { let n = 3; defSnd.onended = () => { if (--n > 0) { defSnd.currentTime = 0; defSnd.play().catch(() => {}); } else defSnd.onended = null; }; defSnd.currentTime = 0; defSnd.play().catch(() => { defSnd.onended = null; }); } catch (e) {} }   // the DEFCON siren plays 3 times in a row
+  if (defPrev !== null && d > defPrev) showDefBanner(d);
   defPrev = d;
+}
+let defBanT = null;
+function showDefBanner(d) {   // top-centre banner, coloured by the new DEFCON level
+  const lv = E.D.cfg.defcon[d]; if (!lv) return;
+  let b = $('#defbanner'); if (!b) { b = document.createElement('div'); b.id = 'defbanner'; document.body.appendChild(b); }
+  b.className = 'd-' + lv.id; b.textContent = 'DEFCON RISES TO ' + lv.name + '!'; b.hidden = false;
+  b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+  clearTimeout(defBanT); defBanT = setTimeout(() => { b.hidden = true; }, 6000);
 }
 function renderNewsPanel() {
   defconSound();

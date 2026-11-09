@@ -265,3 +265,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: "Watch it played" button moved to the top bar (lit when on). (v1.232)
 - Test-build tool: a game with only AI players starts with "Watch it played" on (you can switch it off). (v1.233)
 - Test-build tool: the DEFCON-rising sound plays 3 times in a row. (v1.234)
+- Test-build tool: when DEFCON rises, a banner "DEFCON RISES TO PANIC/MAYHEM/SHTF!" pops up top centre for a few seconds, coloured yellow / orange / red for the new level. (v1.235)
