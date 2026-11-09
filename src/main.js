@@ -111,7 +111,7 @@ async function onStart() {
     mode = lobbyMode === 'host' ? 'host' : 'local';
     const seedTxt = (new URLSearchParams(location.search).get('seed') || '').trim();   // hidden: ?seed=abc in the address for replaying a game
     S = E.createGame({ players, seed: seedTxt ? (+seedTxt || [...seedTxt].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) : undefined, sandbox: $('#sandbox').checked });
-    hist = []; enterApp(); afterChange(); runSetup();
+    hist = []; wholeDone = false; whole = S.players.every(q => q.ai) || localStorage.getItem('apoc-whole') === '1'; enterApp(); if (window.__paintWhole) window.__paintWhole(); afterChange(); runSetup();   // an all-AI game starts in Watch it played
   } catch (e) { console.error(e); lobbyMsg(String(e.message || e)); }
 }
 async function openRoom() {
@@ -180,7 +180,7 @@ function enterApp() {
   $('#bGraph').onclick = cycleGraph;
   $('#bPause').onclick = togglePause; $('#bStep').onclick = () => { stepOnce = true; schedule(); }; $('#speed').onchange = () => { speed = $('#speed').value; };
   { const wb = $('#bWhole'), paint = () => { wb.textContent = '🌍 Watch it played'; wb.classList.toggle('on', whole); };
-    paint(); wb.onclick = () => { whole = !whole; try { localStorage.setItem('apoc-whole', whole ? '1' : '0'); } catch (e) {} paint(); if (whole && V3) V3.fitAll(true); }; }   // whole game view: board centred, no auto zoom in/out
+    paint(); wb.onclick = () => { whole = !whole; try { localStorage.setItem('apoc-whole', whole ? '1' : '0'); } catch (e) {} paint(); if (whole && V3) V3.fitAll(true); }; window.__paintWhole = paint; }   // whole game view: board centred, no auto zoom in/out
   $('#bFollow').classList.toggle('on', follow); $('#bFollow').onclick = () => { follow = !follow; followArmed = true; try { localStorage.setItem('apoc-follow', follow ? '1' : '0'); } catch (e) {} $('#bFollow').classList.toggle('on', follow); if (!follow && V3) V3.fitAll(); lastActorKey = null; render(); };
   $('#bUndo').onclick = undo; $('#bLog').onclick = exportLog; $('#bSave').onclick = saveFile;
   $('#bRules').onclick = () => { modalFn = assumptionsModal; render(); };
