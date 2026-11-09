@@ -554,7 +554,7 @@ function renderTurn0() {
     el.innerHTML = h; return;
   }
   const ts = S.ts;
-  h += `<h3>${esc(pa.name)}'s turn <span class="note">(${E.D.prepper[pa.prepper].name})</span></h3>`;
+  h += `<h3>${esc(pa.name)}'s turn <span class="note">(${pa.ai ? 'AI' : esc(pa.owner || '')})</span></h3>`;
   if (S.lastRoll) h += `<div class="note">Last roll – ${esc(S.players[S.lastRoll.pl].name)}: ${esc(rollText(S.lastRoll))}</div>`;
   if (!mineNow) { el.innerHTML = h + `<div class="note">${S.pending ? 'Waiting for ' + esc(S.players[S.pending.pl].name) + ' to decide…' : 'Waiting for ' + esc(pa.name) + '…'}</div>`; return; }
   if (S.pending) { el.innerHTML = h + '<div class="note">Decision needed.</div>'; return; }

@@ -261,3 +261,4 @@ body.sidemin #evbar{right:330px}
 #loglive div.td{margin-top:4px;padding-left:6px;border-left:3px solid currentColor;font-weight:700;font-size:12.5px;filter:brightness(1.45)}
 #loglive div[style]{filter:brightness(1.45)}
 #loglive.ll{filter:none}
+#topinfo{width:264px}body.sidemin aside,body.fs aside{width:240px}

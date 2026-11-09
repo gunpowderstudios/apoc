@@ -70,7 +70,8 @@ export function createGame(opts) {
   for (const n of D.news) if (n.endTimes) s.endTimes[n.endTimes].push(n.id);
   opts.players.forEach((pl, i) => {
     const p = {
-      id: i, name: pl.name, ai: !!pl.ai, prepper: pl.prepper, node: D.board.startNode, health: cfg.maxHealth, bunker: false,
+      id: i, name: ((D.prepper[pl.prepper] || {}).name || pl.name).split(' ')[0], owner: String(pl.name).replace(/ \(AI\)$/, ''), ai: !!pl.ai,   // the game speaks of the characters (Jessica, Sam...); owner is the person's own name
+       prepper: pl.prepper, node: D.board.startNode, health: cfg.maxHealth, bunker: false,
       res: Object.fromEntries(ALLRES.map(r => [r, 0])), coin: cfg.startCoin, items: [], busted: 0, tagged: false,
       goal: pl.goal || 'balanced', gambled: 0, thug: null, admitted: false, carePending: false, moon: false, askedHospital: false, standee: null,
     };

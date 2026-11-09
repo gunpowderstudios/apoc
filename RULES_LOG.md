@@ -225,3 +225,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: every shortcut key (B C P R F N D H Space) plays the pop-up sound. (v1.205)
 - Test-build tool: the Info side bar is gone. Top right shows the round number (big) with a live move log (newest line glowing green, older lines fading; click to open the full log). All top-menu buttons and the sandbox tools are under a cog menu (Pause stays on the bar). The turn box stays bottom right. (v1.206)
 - Test-build tool: rolled dice always land with the picture on the top face the right way up for the camera (the die still tumbles, it just settles readable). (v1.207)
+- Test-build tool: the game now names players by their character (Jessica, Sam, Frost, Naomi) in the log, turn box and table labels (the person / AI is shown in brackets on the table); the top-right and bottom-right panels are 20% narrower. (v1.208)

@@ -393,7 +393,7 @@ export class View3D {
           const ed = new THREE.LineSegments(new THREE.EdgesGeometry(cube.geometry), new THREE.LineBasicMaterial({ color: 0x111111 })); cube.add(ed);
           cube.userData.matId = p.id; cube.userData.cardImg = url; cube.userData.healthCube = { pid: p.id, x, zc, y: cube.position.y }; this.mats.add(cube);
         }
-        const nm = this.label(p.name + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
+        const nm = this.label(p.name + (p.ai ? ' (AI)' : p.owner && p.owner !== p.name ? ' (' + p.owner + ')' : '') + (p.bunker ? '  (bunker)' : ''), '#' + col.getHexString()); nm.position.set(x, 0.012, zc - 0.0745 - 0.014); this.mats.add(nm);
         // busted tokens (1-2) / tagged token sit beside the name above the card; 3 busts = tagged
         { const tk = p.tagged ? [['tagged', 'tagged']] : Array.from({ length: p.busted || 0 }, () => ['busted']), bg = new THREE.CylinderGeometry(0.0085, 0.0085, 0.0028, 24);
           tk.forEach((t, k) => { const f = t[1] || t[0], tm = new THREE.MeshStandardMaterial({ map: this.tex('assets/counters/' + f + '.webp'), transparent: true, roughness: 0.5 }), sm = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.6 });
