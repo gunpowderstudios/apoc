@@ -264,3 +264,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool: top bar has "Watch it played" (was Whole game view): the board stays centred in the overview and the camera stops zooming to the dice and the active player, for watching the AI play. Keys (B, C, P, N, D) still work. Remembered. (v1.231)
 - Test-build tool: "Watch it played" button moved to the top bar (lit when on). (v1.232)
 - Test-build tool: a game with only AI players starts with "Watch it played" on (you can switch it off). (v1.233)
+- Test-build tool: the DEFCON-rising sound plays 3 times in a row. (v1.234)
