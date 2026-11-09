@@ -467,7 +467,10 @@ export class View3D {
       const u = `assets/dice/f${String(base[sp.set] + i).padStart(2, '0')}.webp`; m.map = this.texs['d' + u] || (this.texs['d' + u] = this.tl.load(u)); m.map.colorSpace = THREE.SRGBColorSpace; return m; });
       const geo = new THREE.BoxGeometry(SZ, SZ, SZ), mesh = new THREE.Mesh(geo, mats); mesh.castShadow = true; mesh.receiveShadow = true; this.dice.add(mesh);
       // final orientation: slot `face` normal -> +Y, then a random spin about Y
-      const fq = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(...nrm[sp.face]), new THREE.Vector3(0, 1, 0)).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.random() * 6.28));
+      const q0 = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(...nrm[sp.face]), new THREE.Vector3(0, 1, 0));
+      // spin about Y so the picture on the top face is the right way up for the camera (the top of the artwork points away from the viewer)
+      const tu = new THREE.Vector3(...[[0, 1, 0], [0, 1, 0], [0, 0, -1], [0, 0, 1], [0, 1, 0], [0, 1, 0]][sp.face]).applyQuaternion(q0), ang = Math.PI - Math.atan2(tu.x, tu.z);
+      const fq = q0.clone().premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ang));
       const p0 = new THREE.Vector3(x0 + (k - (specs.length - 1) / 2) * 0.03, 0.05, zc - 0.05), p1 = new THREE.Vector3((kind === 'news' ? -0.04 : kind === 'num' ? 0.04 + k * 0.045 : 0.01) + (Math.random() - 0.5) * 0.01, SZ / 2, 0.04 + (Math.random() - 0.5) * 0.02);
       const axis = new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
       this.rolling.push({ set: sp.set, mesh, fq, p0, p1, axis, spin: (7 + Math.random() * 4) * (Math.random() < .5 ? 1 : -1), t0: performance.now() + k * 90, ms: 1500 });
