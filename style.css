@@ -361,3 +361,7 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 #chint #tips summary::before{content:'\25B8 '}#chint #tips[open] summary::before{content:'\25BE '}
 #chint #tips[open]{background:rgba(0,0,0,.7);border-radius:8px;padding:6px 10px 8px}
 #chint #tips ol{margin:6px 0 0;padding-left:18px}#chint #tips li{margin:0 0 5px}
+
+/* v1.229: recipe book 'I want this' tick box (feeds the shopping list in the player panel) */
+.tile label.want{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;font-size:13px;cursor:pointer;color:#ffd54f}
+.tile label.want input{width:17px;height:17px;accent-color:#ffd54f;cursor:pointer}

@@ -544,7 +544,17 @@ function renderTurn() {
     bk = ready ? `<div class="bunkerline ok">🏠 Bunker: READY to build${miss.length ? ' (duct tape covers ' + miss.map(r => E.RES_LABEL[r]).join(', ') + ')' : ''}</div>`
       : `<div class="bunkerline">🏠 Bunker: ${6 - miss.length} of 6 - need ${miss.map(r => E.RES_LABEL[r]).join(', ')}${tape ? ' (' + tape + ' duct tape)' : ''}</div>`;
   }
-  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip"><b class="gheart">♥</b> ${pa.health}</span><span class="chip"><i class="gcoin"></i> ${pa.coin}</span></div><div class="gitems">${items}</div>${bk}</div>`);
+  let shop = '';
+  { const w = wantSet(pa), lines = [];
+    for (const it of E.D.items) {
+      if (!w.has(it.id) || E.ownsItem(pa, it.id)) continue;
+      const cost = E.craftCost(S, pa, it).cost, need = Object.entries(cost).map(([r, n]) => [r, n - pa.res[r]]).filter(x => x[1] > 0);
+      const stock = E.stockOf(S, it.id), nb = it.needsBunker && !pa.bunker;
+      const txt = stock === 0 ? 'none left' : need.length ? 'need ' + need.map(([r, n]) => (n > 1 ? n + ' ' : '') + E.RES_LABEL[r]).join(', ') : nb ? 'needs a bunker' : 'READY to craft';
+      lines.push(`<div class="bunkerline${!need.length && stock > 0 && !nb ? ' ok' : ''}">🛒 ${esc(it.name)}: ${txt}</div>`);
+    }
+    shop = lines.join(''); }
+  el.insertAdjacentHTML('beforeend', `<div class="glance"><div class="res">${chips(pa.res)}<span class="chip"><b class="gheart">♥</b> ${pa.health}</span><span class="chip"><i class="gcoin"></i> ${pa.coin}</span></div><div class="gitems">${items}</div>${bk}${shop}</div>`);
 }
 function renderTurn0() {
   const el = $('#turn'); let h = '';
@@ -797,6 +807,15 @@ function itemModal(pid, uid) {
 }
 let craftTab = 'craft';
 const craftOk = () => !!(S && !S.over && iAct() && !S.pending && S.stage === 'turn' && S.ts && ['eat', 'news', 'newsroll', 'roll', 'prep'].includes(S.ts.step));
+// ---- shopping list: items ticked 'I want this' in the Recipe Book show in the player panel, like the bunker line
+let wantMap = {}; try { wantMap = JSON.parse(localStorage.getItem('apoc-want') || '{}'); } catch (e) {}
+const wantSet = p => new Set(wantMap[p.prepper] || []);
+document.addEventListener('change', e => {
+  const t = e.target; if (!t || !t.classList || !t.classList.contains('wantbox') || !S) return;
+  const p = S.players[actor()], w = wantSet(p); t.checked ? w.add(t.dataset.id) : w.delete(t.dataset.id);
+  wantMap[p.prepper] = [...w]; try { localStorage.setItem('apoc-want', JSON.stringify(wantMap)); } catch (x) {}
+  render();
+});
 function craftModal() {
   const p = S.players[actor()], ok = craftOk(), ts = S.ts, can = new Map(E.craftable(S, p).map(c => [c.id, c]));
   const tab = (id, l) => btn(l, () => { craftTab = id; render(); }, { cls: craftTab === id ? 'primary' : '' });
@@ -804,12 +823,12 @@ function craftModal() {
   if (craftTab === 'craft') {
     body = `<div class="note" style="margin-bottom:6px">${ts && ts.crafted ? '<b>You have already crafted this turn.</b>' : 'You may craft ONE item this turn, at any point.'}</div><div class="grid">${E.D.items.map(it => {
       const c = can.get(it.id), stock = E.stockOf(S, it.id), rc = {}; it.recipe.forEach(r => { rc[r.r] = (rc[r.r] || 0) + 1; });
-      return `<div class="tile ${c ? '' : 'dis'}"><img class="zm" data-zoom="${it.img}" src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${it.mustOwn ? `<div class="note">you must own: ${esc(it.mustOwn.map(m => E.D.item[m].name).join(' + '))}</div>` : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}</div>`;
+      return `<div class="tile ${c ? '' : 'dis'}"><img class="zm" data-zoom="${it.img}" src="${it.img}"><div><b>${esc(it.name)}</b> <span class="note">x${stock} left</span></div><div class="res" style="justify-content:center">${chips(c ? c.cost : rc)}</div>${c && c.note ? `<div class="note">${esc(c.note)}</div>` : ''}${it.needsBunker ? '<div class="note">needs bunker</div>' : ''}${it.mustOwn ? `<div class="note">you must own: ${esc(it.mustOwn.map(m => E.D.item[m].name).join(' + '))}</div>` : ''}${btn('Craft', () => doCmd({ t: 'craft', id: it.id }), { dis: !c || !ok })}<label class="want"><input type="checkbox" class="wantbox" data-id="${it.id}" ${wantSet(p).has(it.id) ? 'checked' : ''}> I want this</label></div>`;
     }).join('')}</div>`;
   } else {
     body = `<div class="note" style="margin-bottom:6px">${ts && ts.scrapped ? '<b>You have already recycled an item this turn.</b>' : 'You may recycle ONE item this turn, at any point. You get back its resources except the last one, which is lost.'}</div><div class="grid">${p.items.length ? p.items.map(i => {
       const d = E.D.item[i.id], back = {}; for (const r of d.recipe) if (!r.x) back[r.r] = (back[r.r] || 0) + 1;
-      return `<div class="tile"><img class="zm" data-zoom="${d.img}" src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Recycle', () => doCmd({ t: 'scrap', uid: i.uid }), { dis: !ok || (ts && ts.scrapped) })}</div>`;
+      return `<div class="tile"><img class="zm" data-zoom="${d.img}" src="${d.img}"><div><b>${esc(d.name)}</b>${i.broken ? ' <span class="note">(broken)</span>' : ''}</div><div class="res" style="justify-content:center">${Object.keys(back).length ? chips(back) : '<span class="note">nothing returned</span>'}</div>${btn('Recycle', () => { modalFn = () => box(`<h2>Recycle the ${esc(d.name)}?</h2><p>You get back ${Object.keys(back).length ? chips(back) : 'nothing'} and the card goes back in the item deck. The last resource of the recipe is lost.</p><div class="btns">${btn('Yes, recycle it', () => { modalFn = craftModal; doCmd({ t: 'scrap', uid: i.uid }); }, { cls: 'primary' })}${btn('No, keep it', () => { modalFn = craftModal; render(); })}</div>`); render(); }, { dis: !ok || (ts && ts.scrapped) })}</div>`;
     }).join('') : '<div class="note">You have no items to recycle.</div>'}</div>`;
   }
   return `<h2>APOC Recipe Book <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Recycle')}</div>${body}<div class="btns">${closeBtn()}</div>`;
