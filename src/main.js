@@ -160,6 +160,7 @@ function toggleMusic() { musicOn = !musicOn; try { localStorage.setItem('apoc-mu
 function enterApp() {
   $('#lobby').hidden = true; $('#app').hidden = false; appUp = true;
   document.title = 'APOC test table ' + VERSION; $('#ver').textContent = VERSION;
+  $('aside').prepend($('#topinfo'));
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
   { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRulesTab', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
@@ -571,7 +572,8 @@ function renderTurn0() {
     h += `<div class="btns">${btn('☀ Roll DAY dice', () => doCmd({ t: 'roll', kind: 'day' }), { cls: 'primary' })}${btn('🌙 Roll NIGHT dice', () => doCmd({ t: 'roll', kind: 'night' }), { dis: noNight, title: noNight ? 'Tagged or curfew: day dice only' : '' })}</div>`;
     h += '<div class="note">Day = safer. Night = more moves, more risk.</div>';
   } else if (ts.step === 'prep') {
-    h += `<div>Moves <b>${ts.moves}</b> · Actions <b>${ts.actions}</b> ${ts.moveState === 'done' ? '<span class="note">(movement finished)</span>' : ''}</div><div class="btns">`;
+    h += `<div class="btns">${btn('End turn ▶', () => doCmd({ t: 'endTurn' }), { cls: 'primary' })}</div>`;   // name, then the big button, then the options
+    h += `<div class="mv">Moves <b>${ts.moves}</b> · Actions <b>${ts.actions}</b> ${ts.moveState === 'done' ? '<span class="note">(movement finished)</span>' : ''}</div><div class="btns opts">`;
     for (const x of E.actionsAt(S, pa)) h += btn(esc(x.a === 'build' ? '🏠 ' + x.label : x.label), () => actionClick(x.a, pa), x.a === 'build' ? { cls: 'primary buildgo' } : {});
     
     const L = S.loc[pa.node], freeSpot = E.D.node[pa.node].kind !== 'building' || pa.node === E.D.board.churchNode;
@@ -582,7 +584,7 @@ function renderTurn0() {
     if (pa.items.some(i => i.id === 'moonshine' && !i.broken)) h += btn('🥃 Drink moonshine', () => doCmd({ t: 'moonshine' }));
     if (pa.thug && pa.thug.job === 'thief' && !ts.thiefUsed) h += btn('🥷 Thief: take a resource', () => { modalFn = () => tokenPicker('Your thief steals which resource?', (node, r) => doCmd({ t: 'thief', node, r })); render(); });
     if (pa.thug && pa.thug.job === 'bouncer') h += btn('🛡 Post bouncer (1 coin)', () => { modalFn = buildingPicker; render(); });
-    h += '</div><div class="btns">' + btn('End turn ▶', () => doCmd({ t: 'endTurn' }), { cls: 'primary' }) + '</div>';
+    h += '</div>';
   } else h += '<div class="note">…</div>';
   el.innerHTML = h;
 }

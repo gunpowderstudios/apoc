@@ -272,3 +272,40 @@ body.sidemin #evbar{right:330px}
 #loglive .l0{font-size:15px}
 #loglive .l0{color:#4cd964 !important;filter:none !important;font-weight:700;text-shadow:0 0 10px #2ecc40,0 1px 4px #000}
 #loglive div.td{border-left:0;border-right:3px solid currentColor;padding:0 6px 0 0;text-align:right}
+/* v1.212: tidy right-hand column - turn box same width as the log, compact buttons, plain (no background) log */
+body.sidemin aside,body.fs aside{width:264px;max-width:264px;right:14px}
+body.sidemin #turn,body.fs #turn{padding:7px 9px;font-size:12px}
+#turn h3{font-size:13px;margin:0 0 4px;text-align:center}
+#turn .btns{justify-content:center;gap:5px;margin:3px 0}
+#turn .btns button{padding:6px 10px;font-size:13px;font-weight:600;border-radius:7px}
+#turn .btns button.primary{padding:9px 14px;font-size:15px;font-weight:800;flex:1 1 100%}
+#turn .btns button.buildgo{font-size:15px;padding:9px 14px}
+#turn .note{font-size:11px}
+#turn .glance .chip{font-size:12px;padding:1px 6px}
+#loglive{background:none !important;box-shadow:none;max-height:calc(100vh - 480px);min-height:90px}
+#loglive .ll{text-shadow:0 1px 3px #000,0 0 6px #000,0 0 10px #000}
+
+/* right-hand column: round + log fill the space above the turn box; both the same width */
+body.sidemin aside,body.fs aside{position:fixed;top:44px;bottom:10px;right:14px;width:264px;max-width:none;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;overflow:visible;pointer-events:none;z-index:15}
+#topinfo{position:static;flex:1 1 auto;min-height:0;width:auto;max-width:none;display:flex;flex-direction:column;justify-content:flex-start;text-align:right}
+#topinfo #rnd{flex:none}
+#loglive{flex:0 1 auto;max-height:none;min-height:0;background:none !important;padding:4px 0 !important;margin-top:4px;text-shadow:0 1px 4px #000,0 0 8px #000,0 0 3px #000}
+body.sidemin #turn{flex:none;width:100%;box-sizing:border-box;padding:8px 10px}
+#turn h3{margin:0 0 6px;text-align:center;font-size:16px}
+#turn .mv{font-size:12px;color:#b9bec6;text-align:center;margin:2px 0 4px}
+#turn .btns.opts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+#turn .btns.opts button{width:100%;margin:0;padding:6px 6px;font-size:12.5px;line-height:1.15}
+#turn .btns.opts button.buildgo,#turn .btns.opts button.primary{grid-column:1/-1}
+body.sidemin #evbar,body.fs #evbar{right:296px}
+
+/* v1.212: tidy right-hand panels - same width, turn box 50% transparent, name > big button > options */
+body.sidemin aside,body.fs aside{width:264px;max-width:264px;right:14px;bottom:10px}
+body.sidemin #turn{background:rgba(27,30,34,.5);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;max-height:44vh;overflow:auto;box-shadow:none;backdrop-filter:blur(2px)}
+body.sidemin #turn h3{order:-3;margin:0;text-align:center;font-size:15px}
+body.sidemin #turn .btns:has(button.primary){order:-2}
+body.sidemin #turn .btns{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:0}
+body.sidemin #turn .btns button.primary{flex:1 1 100%;font-size:17px;padding:9px 12px}
+body.sidemin #turn .btns button:not(.primary){font-size:12.5px;padding:4px 9px}
+body.sidemin #turn .note{font-size:11.5px;margin:0;text-align:center}
+#loglive{background:none !important;max-height:40vh}
+#loglive .ll,#loglive div{text-shadow:0 1px 3px #000,0 0 6px #000}
