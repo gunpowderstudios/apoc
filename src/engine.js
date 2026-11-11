@@ -760,6 +760,12 @@ function endGrabTurn(s) {
 }
 
 // ------------------------------------------------------------------ queries for UI / AI
+// A building next door that shares your road segment is not a shortcut: without bolt cutters (or Sam) you can't go building -> road segment -> another building (v1.240).
+export function viaSegBlocked(s, p, prev, cur, to) {
+  if (!prev || !cur || prev === to) return false;
+  if (hasItem(p, 'bolt-cutters') || p.prepper === 'sam') return false;
+  return D.node[prev].kind === 'building' && D.node[cur].kind === 'street' && D.node[to].kind === 'building';
+}
 export function canStep(s, p, to) {
   if (!D.adj[p.node].includes(to)) return false;
   return true;
@@ -771,7 +777,7 @@ export function legalMoves(s, p) {
   if (s.stage === 'grab') { if (s.grab.moves > 0) for (const n of D.adj[p.node]) out.push({ to: n }); return out; }
   const ts = s.ts;
   if (ts.step !== 'prep' || ts.moves <= 0 || ts.moveState === 'done') return out;
-  for (const n of D.adj[p.node]) out.push({ to: n });
+  for (const n of D.adj[p.node]) if (!viaSegBlocked(s, p, ts.prevNode, p.node, n)) out.push({ to: n });
   // bolt cutters / parkour: from a building to one that touches it (data/adjacent.json)
   const here = D.node[p.node];
   if (here.kind === 'building' && (hasItem(p, 'bolt-cutters') || p.prepper === 'sam')) {
@@ -835,20 +841,24 @@ export function craftCost(s, p, it) {
 }
 export function marketPrice(s) { return defc(s).buy; }
 export function shopList(s, p) { return (D.cfg.shops[p.node] || []).map(([id, price0]) => ({ id, price: shopPrice(s, p.node, price0), stock: id === 'DUCT' ? s.supply.ducttape : stockOf(s, id), name: id === 'DUCT' ? 'Duct tape' : D.item[id].name })); }
-export function reachable(s, p, maxDist = 12) {   // BFS for the UI/AI: node -> {dist, path}
-  const dist = { [p.node]: 0 }, prev = {}; const q = [p.node];
+export function reachable(s, p, maxDist = 12) {   // BFS for the UI/AI: node -> {dist, prev}
+  const dist = { [p.node]: 0 }, prev = {}; const q = [[p.node, s.ts && s.ts.prevNode || null]];
+  const seen = new Set([(q[0][1] || '') + '>' + p.node]);
   while (q.length) {
-    const u = q.shift(); if (dist[u] >= maxDist) continue;
-    for (const v of D.adj[u]) if (dist[v] === undefined) { dist[v] = dist[u] + 1; prev[v] = u; q.push(v); }
+    const [u, pu] = q.shift(); if (dist[u] >= maxDist) continue;
+    for (const v of D.adj[u]) { if (viaSegBlocked(s, p, pu, u, v)) continue; const k = u + '>' + v; if (seen.has(k)) continue; seen.add(k); if (dist[v] === undefined) { dist[v] = dist[u] + 1; prev[v] = u; } q.push([v, u]); }
   }
   return { dist, prev };
 }
 export function pathTo(s, from, to) {
-  const dist = { [from]: 0 }, prev = {}; const q = [from];
-  while (q.length) { const u = q.shift(); if (u === to) break; for (const v of D.adj[u]) if (dist[v] === undefined) { dist[v] = dist[u] + 1; prev[v] = u; q.push(v); } }
-  if (dist[to] === undefined) return null;
-  const path = []; let c = to; while (c !== from) { path.unshift(c); c = prev[c]; }
-  return path;
+  const p = s.players[s.cur] || s.players[0];
+  const start = { n: from, pr: from === p.node && s.ts ? s.ts.prevNode || null : null, path: [] };
+  const seen = new Set([start.pr + '>' + from]); const q = [start];
+  while (q.length) {
+    const u = q.shift(); if (u.n === to) return u.path;
+    for (const v of D.adj[u.n]) { if (viaSegBlocked(s, p, u.pr, u.n, v)) continue; const k = u.n + '>' + v; if (seen.has(k)) continue; seen.add(k); q.push({ n: v, pr: u.n, path: [...u.path, v] }); }
+  }
+  return null;
 }
 export function totalMoves(s, p) {
   return D.cfg.baseMoves + (p.prepper === 'naomi' ? 1 : 0) + (hasItem(p, 'town-map') ? 2 : 0);
@@ -1065,7 +1075,7 @@ function doMove(s, p, to) {
   if (opts.subway) { p.coin -= 1; logm(s, `${p.name} pays 1 DOOMCOIN and takes the subway to ${D.node[to].name}.`, p.id); }
   if (opts.cutters) logm(s, `${p.name} cuts through to ${D.node[to].name}.`, p.id);
   ts.moves--; ts.moveState = 'moving';
-  p.node = to;
+  ts.prevNode = p.node; p.node = to;
   onEnter(s, p);
   return OK;
 }
@@ -1094,7 +1104,7 @@ RESOLVE.applyDice = (s, pd) => {
   const p = cur(s), ts = s.ts, { kind, face } = ts.dice;
   const f = (kind === 'day' ? D.cfg.dayDie : D.cfg.nightDie)[face];
   logm(s, `${p.name} rolls the ${kind.toUpperCase()} dice: ${diceText(kind, face)}.`, p.id);
-  ts.moves = ts.baseMoves;
+  ts.moves = ts.baseMoves; ts.prevNode = null;
   switch (f[0]) {
     case 'food': gain(s, p, 'food', f[1]); break;
     case 'foodcoin': gain(s, p, 'food', 1); p.coin += 1; break;

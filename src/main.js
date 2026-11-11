@@ -357,10 +357,15 @@ function updateTargets() {
   if (S.sandbox && sbxMove) { for (const n of D.board.nodes) targets[n.id] = { kind: 'act', steps: [n.id] }; return; }
   if (left <= 0) return;
   const blocked = grab ? {} : S.ts.blocked || {};
-  const seen = { [p.node]: { d: 0, steps: [] } }, q = [p.node];
+  const seen = { [p.node]: { d: 0, steps: [] } }, p0 = grab ? null : S.ts.prevNode || null, vis = new Set([(p0 || '') + '>' + p.node]), q = [{ n: p.node, pr: p0, steps: [] }];
   while (q.length) {
-    const u = q.shift(), su = seen[u]; if (su.d >= left) continue;
-    for (const v of E.D.adj[u]) if (!seen[v] && !blocked[v]) { seen[v] = { d: su.d + 1, steps: [...su.steps, v] }; q.push(v); }
+    const u = q.shift(); if (u.steps.length >= left) continue;
+    for (const v of E.D.adj[u.n]) {
+      if (blocked[v] || (!grab && E.viaSegBlocked(S, p, u.pr, u.n, v))) continue;
+      const k = u.n + '>' + v; if (vis.has(k)) continue; vis.add(k);
+      const steps = [...u.steps, v]; if (!seen[v]) seen[v] = { d: steps.length, steps };
+      q.push({ n: v, pr: u.n, steps });
+    }
   }
   for (const id in seen) if (id !== p.node) targets[id] = { kind: 'move', steps: seen[id].steps };
   for (const m of E.legalMoves(S, p)) if (m.subway) targets[m.to] = { kind: 'subway', steps: [m.to] }; else if (m.cutters) targets[m.to] = { kind: 'move', steps: [m.to] };
