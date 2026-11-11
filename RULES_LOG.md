@@ -90,22 +90,23 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - The two streets that were both called Turbine Drive are now Dumpster Drive (west, past the Dumpster) and Turbine Drive (middle). Pet Store now has its south door onto Coin Street (revised board). (v1.160)
 
 ## 8. Still to confirm (ASK)
-1. Combat damage = difference of rolls, capped at 3, min 1; all modifiers stack?
-2. Bunkered players' resources can't be robbed in fights (only coin)?
-3. Kevlar Vest: auto-used, 4 hits then back in the deck?
-4. Hazmat Suit: 3 charges?
-5. Moonshine: ignore health loss until your next turn?
-6. Failed steal/loot rules as in section 5?
-7. Naomi's Detention: attacker's choice or random (using random)?
-8. Jessica's Forager: +1 food at the park, 2 total if she ends her turn there?
-9. Frost gun bonus = Rifle recipe -1 Know-how only; Naomi 5 moves and free Chem when short once per turn?
-10. Night dice "find 1 resource": player chooses which?
-11. X marks (resource lost on break down) on each item recipe: please check against card art.
-12. News card 15: typo in card text, keep or fix?
-13. Boat Yard location (SW on the board, Tim said SE).
-14. Contraband meds: every player or only the roller?
+1. Contraband meds: does it apply to every player or only the roller? (No answer yet; currently every player may swap.)
+2. X marks (resource lost on break down) on each item recipe: Tim to check against the card art. The last circle on the recipe should be the one lost; the card art will be made clearer.
+3. News card 15: typo in the card text. Tim will fix the card.
+4. Boat Yard location: stays where it is on the board for now (SW), Tim to revisit.
 
-15. Building a bunker: are the six resources kept or spent? Does duct tape really stand in for one missing resource? Is the Build action allowed anywhere? Does the first-bunker bonus card exist?
+### Confirmed by Tim (v1.239)
+- Combat damage = difference of the two rolls, capped at 3, minimum 1; all modifiers stack.
+- Bunkered players' RESOURCES can't be robbed in fights (coin can still be taken).
+- Kevlar Vest: used automatically, blocks all the damage from a hit, 4 uses, then it goes back in the deck.
+- Hazmat Suit: unlimited use (no charges). It stops health loss from the pandemic, mainly in post-APOC. (Test build also lets it shield the pre-APOC outbreak / pollution / chemical-waste news effects; tell me if it should not.)
+- Moonshine: ignore health loss until your next turn.
+- Failed steal / loot: same rules as section 5.
+- Naomi's Detention: follows her card (bunker skill): once per fight, when a prepper wounds Naomi, they lose a resource. The card doesn't say who picks, so the test build takes the resource they hold most of.
+- Jessica's Forager: +1 food on visiting the park, 2 total if she ends her turn there.
+- Frost and Naomi: go by their cards (Frost +1 with guns and +1 burgle / dumpster dive, bunker: no KNOW-HOW for a Rifle; Naomi 5 moves, one craft per turn without CHEM).
+- Night dice "find 1 resource": the player chooses which.
+- Building a bunker (section 4 rule above): confirmed, including keeping all six resources, duct tape as a wild, Build allowed anywhere, and the first-builder bonus item card.
 
 ## 9. Not built yet
 Post-APOC (Mission Packs), End Times cards, and any event or item whose effect isn't designed yet (they show their text but do nothing).
@@ -120,7 +121,7 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Central Park has six doors and is its own block. Blocks (for Bolt Cutters) follow the street grid; the river row is the bottom row.
 - Pet Store: currently shares the Music Store's door on Coin Street. To be fixed when Tim's new map arrives (own door, south facing onto Coin Street).
 - Subway = the "S" markers (junctions). You can walk onto an S junction like any other junction without using the subway. Using the subway costs 1 move and 1 DoomCoin and takes you to any other S station. (Confirmed by Tim, v1.117.) Bridges for the boat are not modelled.
-### Rules I had to guess
+### Rules I had to guess (combat modifiers stacking is now confirmed)
 - DoomCoin is an unlimited bank. Resource tokens are limited to the supply counts.
 - Combat modifiers stack.
 - Night dice are blocked by the Curfew event. Tagged preppers must use the day dice.
