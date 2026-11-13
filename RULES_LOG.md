@@ -271,3 +271,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Fixed: v1.235 accidentally blanked the version file and the page would not load; restored. (v1.236)
 - Test-build tool: the app icon now shows above the title on the game setup screen. (v1.237)
 - Test-build tool: the "Watch it played" button is now called "Table View" (same behaviour). (v1.238)
+- Test-build tool (online play, v1.241): fixed loading a saved game while a room was open, which silently turned the game local so guests saw nothing; an open room now always stays live. New pill at the top shows "Room CODE · names connected" for the host and "Online · watching / you play X" (or Disconnected) for guests.

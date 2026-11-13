@@ -108,7 +108,7 @@ async function onStart() {
       players.push({ name, prepper: s.prepper, ai, goal: s.goal });
     });
     guests.forEach(g => peerSeat.set(g, -1));
-    mode = lobbyMode === 'host' ? 'host' : 'local';
+    mode = lobbyMode === 'host' || (net && net.conns) ? 'host' : 'local';
     const seedTxt = (new URLSearchParams(location.search).get('seed') || '').trim();   // hidden: ?seed=abc in the address for replaying a game
     S = E.createGame({ players, seed: seedTxt ? (+seedTxt || [...seedTxt].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) : undefined, sandbox: $('#sandbox').checked });
     hist = []; wholeDone = false; whole = S.players.every(q => q.ai) || localStorage.getItem('apoc-whole') === '1'; enterApp(); if (window.__paintWhole) window.__paintWhole(); afterChange(); runSetup();   // an all-AI game starts in Watch it played
@@ -116,22 +116,22 @@ async function onStart() {
 }
 async function openRoom() {
   lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open();
-  net.onJoin = (pid, name) => { guestNames.set(pid, name); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
-  net.onLeave = pid => { guestNames.delete(pid); $('#hostInfo').innerHTML = hostInfoHtml(code); };
+  net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
+  net.onLeave = pid => { guestNames.delete(pid); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) net.send(pid, { err: r.error }); };
-  $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code);
+  $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
   $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
 }
 const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
-  await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => toast('Disconnected from host'));
+  await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
   lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
 }
 function onGuestMsg(m) {
   if (m.err) return toast(m.err);
-  if (m.state) { mySeat = m.seat; S = m.state; if (!appUp) enterApp(); render(); }
+  if (m.state) { mySeat = m.seat; S = m.state; if (!appUp) enterApp(); render(); netChip(); }
 }
 
 // ---------------------------------------------------------------- save / load
@@ -144,7 +144,8 @@ function saveFile() {
 }
 function loadGame(o) {
   if (!o || o.game !== 'apoc' || !o.S || !o.S.players) return lobbyMsg('That is not an APOC save file.');
-  mode = 'local'; remoteSeats = new Set(); peerSeat = new Map(); S = o.S; hist = []; lastLogSeq = -1; lastSeq = 0; rollInit = false;
+  const hosting = net && mode !== 'guest' && net.conns;   // an open room stays open when a saved game is loaded: guests watch it
+  mode = hosting ? 'host' : 'local'; remoteSeats = new Set(); peerSeat = new Map(); if (hosting) for (const g of net.conns.keys()) peerSeat.set(g, -1); S = o.S; hist = []; lastLogSeq = -1; lastSeq = 0; rollInit = false;
   if (o.version && o.version !== VERSION) toast(`Save was made in ${o.version}; you are on ${VERSION}. Rules may differ.`);
   enterApp(); afterChange();
 }
@@ -323,7 +324,13 @@ function doCmd(cmd) {
 function afterChange() {
   render(); broadcast(); autosave(); schedule();
 }
-function broadcast() { if (mode !== 'host' || !net) return; for (const [pid, seat] of peerSeat) net.send(pid, { state: E.publicView(S, seat), seat }); }
+function netChip() {   // small pill showing the online state, so everyone can see who is connected
+  let c = $('#netchip'); if (!c) { c = document.createElement('div'); c.id = 'netchip'; document.body.appendChild(c); }
+  if (mode === 'host' && net && net.conns) { const n = net.conns.size; c.hidden = false; c.className = n ? 'ok' : 'wait'; c.textContent = `🌐 Room ${net.code} · ${n ? [...net.conns.keys()].map(g => guestNames.get(g) || 'Guest').join(', ') + ' connected' : 'nobody has joined yet'}`; }
+  else if (mode === 'guest' && net) { const open = net.conn && net.conn.open; c.hidden = false; c.className = open ? 'ok' : 'bad'; c.textContent = open ? `🌐 Online · ${mySeat != null && mySeat >= 0 && S && S.players[mySeat] ? 'you play ' + S.players[mySeat].name : 'watching'}` : '🌐 Disconnected from host'; }
+  else c.hidden = true;
+}
+function broadcast() { netChip(); if (mode !== 'host' || !net) return; for (const [pid, seat] of peerSeat) net.send(pid, { state: E.publicView(S, seat), seat }); }
 const DELAY = { slow: 2400, normal: 1100, fast: 350 };
 function togglePause() {
   paused = !paused; $('#bPause').textContent = paused ? '▶ Resume' : '⏸ Pause'; $('#bPause').classList.toggle('on', paused); $('#bStep').hidden = !paused;
