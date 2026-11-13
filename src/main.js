@@ -9,7 +9,10 @@ import { HostNet, GuestNet } from './net.js';
 const $ = s => document.querySelector(s);
 const ICON = { food: 'food', knowhow: 'know-how', chem: 'chem', hardware: 'hardware', tech: 'tech', meds: 'meds', ducttape: 'duct-tape' };
 const PREPS = ['jessica', 'sam', 'frost', 'naomi'];
-const NAMES = ['Tim', 'Paul', 'Russ', 'Mike'];
+const NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+const savedName = () => { try { return (localStorage.getItem('apoc-name') || '').trim(); } catch (e) { return ''; } };   // your own name is remembered in this browser until you change it
+const saveName = v => { try { v = String(v).trim(); if (v && !/^Player \d$/.test(v)) localStorage.setItem('apoc-name', v); } catch (e) {} };
+const aiName = (name, prepper) => /^Player \d$/.test(name) ? E.D.prepper[prepper].name + ' (AI)' : /\(AI\)$/.test(name) ? name : name + ' (AI)';
 // ---- volume: music and sound effects have their own sliders in the cog menu (saved on this device)
 const VOL = (() => { try { return Object.assign({ music: 0.35, fx: 1 }, JSON.parse(localStorage.getItem('apoc-vol'))); } catch (e) { return { music: 0.35, fx: 1 }; } })();
 const fxAudios = [];
@@ -73,6 +76,7 @@ function buildSeats() {
     const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = () => { dot(); lobbySync(); }; dot();
     $('#st' + i).value = carryT && o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : lobbyMode === 'host' ? 'remote' : i === 1 ? 'ai' : 'off');   // host: me + 3 open seats unless you add AI
     if (o) { $('#sn' + i).value = o.n; $('#sg' + i).value = o.g || 'balanced'; }
+    if (i === 0) { const sv = savedName(); if (sv) $('#sn0').value = sv; $('#sn0').oninput = () => saveName($('#sn0').value); }
     const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = () => { gl(); lobbySync(); }; gl();
   });
 }
@@ -84,6 +88,7 @@ function bindLobby() {
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
+  { const jn = $('#joinName'); if (savedName()) jn.value = savedName(); jn.oninput = () => saveName(jn.value); }   // remembered name
   const rm = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();   // opened from a shared room link: go straight to Join
   if (rm) { const jb = document.querySelector('#modeTabs button[data-m="join"]'); if (jb) { jb.click(); $('#joinCode').value = rm; $('#joinName').focus(); } }
   const sv = readAutosave();
@@ -97,7 +102,7 @@ function readSeats() {
   for (let i = 0; i < 4; i++) {
     const t = $('#st' + i).value; if (t === 'off') continue;
     let name = $('#sn' + i).value.trim() || NAMES[i];
-    if (t === 'ai' && !/\(AI\)$/.test(name)) name += ' (AI)';
+    if (t === 'ai') name = aiName(name, $('#sp' + i).value);
     out.push({ name, prepper: $('#sp' + i).value, ai: t === 'ai', type: t, color: i, goal: $('#sg' + i).value });
   }
   return out;
@@ -114,7 +119,7 @@ async function onStart() {
     const players = []; remoteSeats = new Set(); peerSeat = new Map();
     seats.forEach((s, i) => {
       let ai = s.ai, name = s.name;
-      if (s.type === 'remote') { const g = byRow.get(s.color) || guests.shift(); if (g) { peerSeat.set(g, i); name = guestNames.get(g); remoteSeats.add(i); } else { ai = true; name += ' (AI)'; } }
+      if (s.type === 'remote') { const g = byRow.get(s.color) || guests.shift(); if (g) { peerSeat.set(g, i); name = guestNames.get(g); remoteSeats.add(i); } else { ai = true; name = aiName(name, s.prepper); } }
       players.push({ name, prepper: s.prepper, ai, goal: s.goal });
     });
     guests.forEach(g => peerSeat.set(g, -1)); claims = new Map();
@@ -410,13 +415,13 @@ function chatAdd(n, t, sys, quiet) {
   if (!quiet) { if (!sys && n !== chatMe()) chime(); if (!chatOpen) chatUnread++; }
   chatPaint();
 }
-const chatMe = () => mode !== 'guest' ? 'Host' : ($('#joinName') && $('#joinName').value.trim()) || 'Guest';
+const chatMe = () => mode !== 'guest' ? (($('#sn0') && $('#sn0').value.trim()) || 'Host') : ($('#joinName') && $('#joinName').value.trim()) || 'Guest';
 function chatPost(n, t, sys) {   // host side: record locally and relay to every guest
   t = String(t).slice(0, 300); if (!t.trim()) return;
   chatAdd(n, t, sys); if (sys && n === '') chime(t.endsWith('joined the room'));
   if (net && net.conns) for (const pid of net.conns.keys()) net.send(pid, { chat: { n, t, sys } });
 }
-function chatSend(text) { if (mode === 'guest') net && net.send({ chat: text }); else chatPost('Host', text); }
+function chatSend(text) { if (mode === 'guest') net && net.send({ chat: text }); else chatPost(chatMe(), text); }
 function chatPaint() {
   const box = $('#chatbox'); if (!box) return;
   const log = $('#chatlog'); log.innerHTML = chatLog.map(c => c.sys ? `<div class="sys">${esc(c.t)}</div>` : `<div><b>${esc(c.n)}:</b> ${esc(c.t)}</div>`).join(''); log.scrollTop = log.scrollHeight;
