@@ -78,7 +78,7 @@ function bindLobby() {
   document.querySelectorAll('#modeTabs button').forEach(b => b.onclick = () => {
     lobbyMode = b.dataset.m; document.querySelectorAll('#modeTabs button').forEach(x => x.classList.toggle('on', x === b));
     $('#seatsBox').hidden = lobbyMode === 'join'; $('#joinBox').hidden = lobbyMode !== 'join'; $('#hostInfo').hidden = lobbyMode !== 'host' || !net;
-    $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'New game' : 'Open room') : 'New game';
+    $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'Start game' : 'Enter Room') : 'New game';
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
@@ -151,7 +151,7 @@ async function openRoom() {
   setInterval(() => { if (net && net.conns && mode === 'host' && S && !S.over) { broadcast(); schedule(); } }, 4000);   // safety net: keeps guests in step and nudges the AI if it ever stalls
   try { history.replaceState(null, '', roomLink(code)); } catch (e) {}   // the address bar now holds the room link too
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
-  $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
+  $('#startBtn').textContent = 'Start game'; lobbyMsg('Share the room code, then press Start game. Unfilled remote seats become AI.');
 }
 const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
 window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied'); };
