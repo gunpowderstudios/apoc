@@ -279,3 +279,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (online lobby, v1.246): remote players now choose their own character after joining (buttons show which are taken); their pick claims that seat on the host list and renames it to their name. The host sets who is Human / Remote / AI / Empty; a Remote seat nobody takes becomes an AI.
 - Test-build tool (v1.247): on the Host tab the button reads "Enter Room"; once the room is open it becomes "Start game".
 - Test-build tool (v1.248): the room link button is now "Share room link" (copies the link).
+- Test-build tool (online, v1.249): a guest who joins with no seat (joined after the start, or no Remote seat was left) now sees "You are watching. Take a seat:" and can take over any character the AI is playing; if a seated guest leaves, the AI plays that character until they come back. Late joiners also receive live updates.
