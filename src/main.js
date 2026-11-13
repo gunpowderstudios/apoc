@@ -154,8 +154,8 @@ async function openRoom() {
   $('#startBtn').textContent = 'Start game'; lobbyMsg('Share the room code, then press Start game. Unfilled remote seats become AI.');
 }
 const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
-window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied'); };
-const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button onclick="copyRoomLink()">Copy link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
+window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied - paste it to your friends'); };
+const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
