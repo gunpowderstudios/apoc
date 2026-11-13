@@ -385,3 +385,5 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 #chatlog{height:150px;overflow:auto;display:flex;flex-direction:column;gap:3px;margin-bottom:6px;word-break:break-word}
 #chatlog .sys{color:#9c9;font-style:italic}
 #chatform{display:flex;gap:6px}#chatin{flex:1;min-width:0;background:#111;color:#fff;border:1px solid #fff4;border-radius:6px;padding:.3em .5em}
+#chatbox{bottom:150px;display:flex;flex-direction:column-reverse;align-items:flex-start}
+#chatbox #chatbody{margin:0 0 6px}
