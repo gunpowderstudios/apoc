@@ -64,13 +64,14 @@ function buildSeats() {
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
     <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
+  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<p class="note">You set up the seats. Make yourself <b>Human</b> and set the others to <b>Remote player</b>, <b>AI</b> or <b>Empty</b>. Remote players choose their own character after they join; a Remote seat nobody takes becomes an AI.</p>');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
-    const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = dot; dot();
+    const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = () => { dot(); lobbySync(); }; dot();
     $('#st' + i).value = o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : i === 1 ? 'ai' : 'off');
     if (o) { $('#sn' + i).value = o.n; $('#sg' + i).value = o.g || 'balanced'; }
-    const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = gl; gl();
+    const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = () => { gl(); lobbySync(); }; gl();
   });
 }
 function bindLobby() {
@@ -106,25 +107,46 @@ async function onStart() {
     if (lobbyMode === 'host' && !net) return await openRoom();
     if (!seats.length) return lobbyMsg('Add at least one player.');
     if (new Set(seats.map(s => s.prepper)).size !== seats.length) return lobbyMsg('Each player needs a different prepper.');
-    let guests = [...guestNames.keys()];
+    validClaims(); const byRow = new Map([...claims].map(([g, c]) => [c.i, g])), claimed = new Set(claims.keys());
+    let guests = [...guestNames.keys()].filter(g => !claimed.has(g));
     const players = []; remoteSeats = new Set(); peerSeat = new Map();
     seats.forEach((s, i) => {
       let ai = s.ai, name = s.name;
-      if (s.type === 'remote') { const g = guests.shift(); if (g) { peerSeat.set(g, i); name = guestNames.get(g); remoteSeats.add(i); } else { ai = true; name += ' (AI)'; } }
+      if (s.type === 'remote') { const g = byRow.get(s.color) || guests.shift(); if (g) { peerSeat.set(g, i); name = guestNames.get(g); remoteSeats.add(i); } else { ai = true; name += ' (AI)'; } }
       players.push({ name, prepper: s.prepper, ai, goal: s.goal });
     });
-    guests.forEach(g => peerSeat.set(g, -1));
+    guests.forEach(g => peerSeat.set(g, -1)); claims = new Map();
     mode = lobbyMode === 'host' || (net && net.conns) ? 'host' : 'local';
     const seedTxt = (new URLSearchParams(location.search).get('seed') || '').trim();   // hidden: ?seed=abc in the address for replaying a game
     S = E.createGame({ players, seed: seedTxt ? (+seedTxt || [...seedTxt].reduce((a, c) => a * 31 + c.charCodeAt(0) | 0, 7)) : undefined, sandbox: $('#sandbox').checked });
     hist = []; wholeDone = false; whole = S.players.every(q => q.ai) || localStorage.getItem('apoc-whole') === '1'; enterApp(); if (window.__paintWhole) window.__paintWhole(); afterChange(); runSetup();   // an all-AI game starts in Watch it played
   } catch (e) { console.error(e); lobbyMsg(String(e.message || e)); }
 }
+// ---- lobby: remote players choose their own character; their pick claims that row on the host's seat list
+let claims = new Map();   // guest id -> { i: seat row, prevT, prevN }
+function validClaims() { for (const [g, c] of [...claims]) if (!guestNames.has(g) || !$('#st' + c.i) || $('#st' + c.i).value !== 'remote') claims.delete(g); }
+function lobbyState(pid) {
+  validClaims(); const taken = {};
+  for (let i = 0; i < 4; i++) if ($('#st' + i) && $('#st' + i).value === 'human') taken[$('#sp' + i).value] = 'the host';
+  for (const [g, c] of claims) taken[$('#sp' + c.i).value] = guestNames.get(g) || 'Guest';
+  const mine = claims.has(pid) ? $('#sp' + claims.get(pid).i).value : null;
+  return { taken, mine };
+}
+function lobbySync() { if (!net || !net.conns || S || mode === 'guest') return; for (const pid of net.conns.keys()) net.send(pid, { lobby: lobbyState(pid) }); }
+function releaseClaim(pid) { const c = claims.get(pid); if (!c) return; claims.delete(pid); const st = $('#st' + c.i); if (st) { st.value = c.prevT; $('#sn' + c.i).value = c.prevN; if (st.onchange) st.onchange(); } }
+function claimSeat(pid, p) {
+  let i = -1; for (let k = 0; k < 4; k++) if ($('#sp' + k) && $('#sp' + k).value === p) i = k;
+  validClaims(); if (i < 0 || $('#st' + i).value === 'human' || [...claims].some(([g, c]) => g !== pid && c.i === i)) return;
+  const prev = claims.get(pid); releaseClaim(pid);
+  claims.set(pid, { i, prevT: $('#st' + i).value, prevN: $('#sn' + i).value });
+  $('#st' + i).value = 'remote'; $('#sn' + i).value = guestNames.get(pid) || 'Guest'; if ($('#st' + i).onchange) $('#st' + i).onchange();
+}
 async function openRoom() {
   lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open();
   net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
-  net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
-  net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; guestNames.delete(pid); chatPost('', nm + ' left the room', true); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
+  net.onPick = (pid, p) => { if (S) return; claimSeat(pid, p); lobbySync(); };
+  net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); lobbySync(); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
+  net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; guestNames.delete(pid); chatPost('', nm + ' left the room', true); releaseClaim(pid); lobbySync(); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) { net.send(pid, { err: r.error }); net.send(pid, { state: E.publicView(S, seat), seat }); } };   // a refused command also re-sends the table so the guest's screen is never out of step
   setInterval(() => { if (net && net.conns && mode === 'host' && S && !S.over) { broadcast(); schedule(); } }, 4000);   // safety net: keeps guests in step and nudges the AI if it ever stalls
   try { history.replaceState(null, '', roomLink(code)); } catch (e) {}   // the address bar now holds the room link too
@@ -140,8 +162,15 @@ async function doJoin() {
   await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
   netChip(); lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
 }
+function renderPick(l) {   // guest: choose your character from the ones that are still free
+  const b = $('#pickBox'); if (!b) return; b.hidden = false;
+  b.innerHTML = '<div class="note" style="margin-top:8px">Choose your character:</div><div class="picks">' + PREPS.map(p => { const who = l.taken[p], me = l.mine === p;
+    return `<button class="pick ${me ? 'on' : ''}" data-p="${p}" ${who && !me ? 'disabled' : ''} style="border-color:${PREP_COL[p]}">${esc(E.D.prepper[p].name)}${me ? ' ✓ you' : who ? ' · ' + esc(who) : ''}</button>`; }).join('') + '</div>';
+  b.querySelectorAll('button').forEach(x => { x.onclick = () => net.send({ pick: x.dataset.p }); });
+}
 function onGuestMsg(m) {
   if (m.err) return toast(m.err);
+  if (m.lobby) renderPick(m.lobby);
   if (m.chatLog) { chatLog = []; m.chatLog.forEach(c => chatAdd(c.n, c.t, c.sys, true)); }
   if (m.chat) chatAdd(m.chat.n, m.chat.t, m.chat.sys);
   if (m.state) { mySeat = m.seat; S = m.state; if (!appUp) enterApp(); render(); netChip(); }

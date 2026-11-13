@@ -388,3 +388,4 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 #chatbox{bottom:150px;display:flex;flex-direction:column-reverse;align-items:flex-start}
 #chatbox #chatbody{margin:0 0 6px}
 #cogmenu label.vol{display:flex;align-items:center;gap:8px;padding:.3em .7em;color:#fff;font-size:13px}#cogmenu label.vol input{flex:1;min-width:90px}
+#pickBox .picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}#pickBox .pick{border:2px solid;border-radius:8px;padding:.4em .8em;background:#1b1b1b;color:#fff;cursor:pointer}#pickBox .pick.on{background:#2a5a2a}#pickBox .pick:disabled{opacity:.45;cursor:default}
