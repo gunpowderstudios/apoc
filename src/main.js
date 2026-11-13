@@ -57,19 +57,21 @@ async function boot() {
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
 const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino'], ['steal', 'First: steal and loot'], ['scavenge', 'First: burgle and dumpster dive'], ['hoard', 'First: hoard 8 DoomCoin'], ['raid', 'First: raid a bunker']];
+let lastSeatMode = null;
 function buildSeats() {
-  const types = lobbyMode === 'host' ? [['human', 'Human (this device)'], ['remote', 'Remote player'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
+  const carryT = lastSeatMode === lobbyMode; lastSeatMode = lobbyMode;   // switching between Solo and Host starts from that mode's default seats
+  const types = lobbyMode === 'host' ? [['human', 'Me (this device)'], ['remote', 'Open seat (a friend takes it)'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
   const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value, g: $('#sg' + i).value } : null);
   $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" id="sd${i}" style="background:${PREP_COL[PREPS[i]]}"></span><input id="sn${i}" value="${NAMES[i]}">
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
     <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
-  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<p class="note">You set up the seats. Make yourself <b>Human</b> and set the others to <b>Remote player</b>, <b>AI</b> or <b>Empty</b>. Remote players choose their own character after they join; a Remote seat nobody takes becomes an AI.</p>');
+  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<p class="note">Set yourself to <b>Me</b>, add <b>AI</b> players, and leave the other seats as <b>Open seat</b>: your friends take an open seat themselves after they join. Any open seat nobody takes becomes an AI when you start.</p>');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
     const dot = () => { $('#sd' + i).style.background = PREP_COL[$('#sp' + i).value]; }; $('#sp' + i).onchange = () => { dot(); lobbySync(); }; dot();
-    $('#st' + i).value = o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : i === 1 ? 'ai' : 'off');
+    $('#st' + i).value = carryT && o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : lobbyMode === 'host' ? 'remote' : i === 1 ? 'ai' : 'off');   // host: me + 3 open seats unless you add AI
     if (o) { $('#sn' + i).value = o.n; $('#sg' + i).value = o.g || 'balanced'; }
     const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = () => { gl(); lobbySync(); }; gl();
   });
@@ -126,17 +128,18 @@ async function onStart() {
 let claims = new Map();   // guest id -> { i: seat row, prevT, prevN }
 function validClaims() { for (const [g, c] of [...claims]) if (!guestNames.has(g) || !$('#st' + c.i) || $('#st' + c.i).value !== 'remote') claims.delete(g); }
 function lobbyState(pid) {
-  validClaims(); const taken = {};
-  for (let i = 0; i < 4; i++) if ($('#st' + i) && $('#st' + i).value === 'human') taken[$('#sp' + i).value] = 'the host';
-  for (const [g, c] of claims) taken[$('#sp' + c.i).value] = guestNames.get(g) || 'Guest';
+  validClaims(); const taken = {}, open = [];
+  for (let i = 0; i < 4; i++) { const st = $('#st' + i); if (!st) continue; const p = $('#sp' + i).value; taken[p] = st.value === 'human' ? 'the host' : st.value === 'ai' ? 'AI' : st.value === 'off' ? 'closed' : null; if (st.value === 'remote') open.push(p); }
+  for (const [g, c] of claims) taken[$('#sp' + c.i).value] = g === pid ? null : guestNames.get(g) || 'Guest';
   const mine = claims.has(pid) ? $('#sp' + claims.get(pid).i).value : null;
-  return { taken, mine };
+  return { taken, mine, open };
 }
 function lobbySync() { if (!net || !net.conns || S || mode === 'guest') return; for (const pid of net.conns.keys()) net.send(pid, { lobby: lobbyState(pid) }); }
 function releaseClaim(pid) { const c = claims.get(pid); if (!c) return; claims.delete(pid); const st = $('#st' + c.i); if (st) { st.value = c.prevT; $('#sn' + c.i).value = c.prevN; if (st.onchange) st.onchange(); } }
 function claimSeat(pid, p) {
   let i = -1; for (let k = 0; k < 4; k++) if ($('#sp' + k) && $('#sp' + k).value === p) i = k;
-  validClaims(); if (i < 0 || $('#st' + i).value === 'human' || [...claims].some(([g, c]) => g !== pid && c.i === i)) return;
+  validClaims(); const ownRow = claims.get(pid) && claims.get(pid).i === i;
+  if (i < 0 || ($('#st' + i).value !== 'remote' && !ownRow) || [...claims].some(([g, c]) => g !== pid && c.i === i)) return;   // only an open seat that nobody else has taken
   const prev = claims.get(pid); releaseClaim(pid);
   claims.set(pid, { i, prevT: $('#st' + i).value, prevN: $('#sn' + i).value });
   $('#st' + i).value = 'remote'; $('#sn' + i).value = guestNames.get(pid) || 'Guest'; if ($('#st' + i).onchange) $('#st' + i).onchange();
@@ -183,10 +186,10 @@ function seatBar() {   // a guest with no seat can take over any character the A
   b.hidden = false; b.innerHTML = '<b>You are watching.</b> Take a seat: ' + free.map(q => `<button data-p="${q.prepper}" style="border-color:${PREP_COL[q.prepper]}">${esc(E.D.prepper[q.prepper].name)}</button>`).join('');
   b.querySelectorAll('button').forEach(x => { x.onclick = () => net.send({ pick: x.dataset.p }); });
 }
-function renderPick(l) {   // guest: choose your character from the ones that are still free
-  const b = $('#pickBox'); if (!b) return; b.hidden = false;
-  b.innerHTML = '<div class="note" style="margin-top:8px">Choose your character:</div><div class="picks">' + PREPS.map(p => { const who = l.taken[p], me = l.mine === p;
-    return `<button class="pick ${me ? 'on' : ''}" data-p="${p}" ${who && !me ? 'disabled' : ''} style="border-color:${PREP_COL[p]}">${esc(E.D.prepper[p].name)}${me ? ' ✓ you' : who ? ' · ' + esc(who) : ''}</button>`; }).join('') + '</div>';
+function renderPick(l) {   // guest: take one of the open seats
+  const b = $('#pickBox'); if (!b) return; b.hidden = false; const anyOpen = PREPS.some(p => !l.taken[p]);
+  b.innerHTML = `<div class="note" style="margin-top:8px">${anyOpen || l.mine ? 'Take a seat:' : 'No open seats yet - ask the host to open one.'}</div><div class="picks">` + PREPS.map(p => { const who = l.taken[p], me = l.mine === p;
+    return `<button class="pick ${me ? 'on' : ''}" data-p="${p}" ${who ? 'disabled' : ''} style="border-color:${PREP_COL[p]}">${esc(E.D.prepper[p].name)}${me ? ' ✓ you' : who ? ' · ' + esc(who) : ' · open'}</button>`; }).join('') + '</div>';
   b.querySelectorAll('button').forEach(x => { x.onclick = () => net.send({ pick: x.dataset.p }); });
 }
 function onGuestMsg(m) {
