@@ -8,7 +8,7 @@ const code = () => Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ2345
 const pid = c => 'apoc-gunpowder-' + c.toLowerCase();
 
 export class HostNet {
-  constructor() { this.conns = new Map(); this.onJoin = null; this.onLeave = null; this.onCmd = null; }
+  constructor() { this.conns = new Map(); this.onJoin = null; this.onLeave = null; this.onCmd = null; this.onChat = null; }
   async open() {
     await loadPeer();
     for (let i = 0; i < 5; i++) {
@@ -22,6 +22,7 @@ export class HostNet {
       c.on('data', m => {
         if (m.hello) { this.conns.set(c.peer, c); if (this.onJoin) this.onJoin(c.peer, m.hello.name || 'Guest'); }
         else if (m.cmd && this.onCmd) this.onCmd(c.peer, m.cmd);
+        else if (m.chat && this.onChat) this.onChat(c.peer, m.chat);
       });
       c.on('close', () => { this.conns.delete(c.peer); if (this.onLeave) this.onLeave(c.peer); });
     });

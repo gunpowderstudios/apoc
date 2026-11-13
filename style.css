@@ -376,3 +376,12 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 
 #netchip{position:fixed;top:6px;left:50%;transform:translateX(-50%);z-index:40;padding:.15em .8em;border-radius:99px;font:600 12px system-ui,sans-serif;background:#000a;color:#fff;border:1px solid #fff4;pointer-events:none}
 #netchip[hidden]{display:none}#netchip.ok{border-color:#3c3}#netchip.wait{border-color:#fc3}#netchip.bad{border-color:#e33;color:#f88}
+
+#chatbox{position:fixed;left:12px;bottom:92px;z-index:45;width:270px;font:13px system-ui,sans-serif;color:#fff}
+#chatbox[hidden]{display:none}
+#chattab{display:inline-block;background:#000b;border:1px solid #fff4;border-radius:99px;padding:.3em .9em;cursor:pointer;font-weight:600}
+#chatbody{display:none;margin-top:6px;background:#000b;border:1px solid #fff4;border-radius:10px;padding:8px}
+#chatbox.open #chatbody{display:block}
+#chatlog{height:150px;overflow:auto;display:flex;flex-direction:column;gap:3px;margin-bottom:6px;word-break:break-word}
+#chatlog .sys{color:#9c9;font-style:italic}
+#chatform{display:flex;gap:6px}#chatin{flex:1;min-width:0;background:#111;color:#fff;border:1px solid #fff4;border-radius:6px;padding:.3em .5em}

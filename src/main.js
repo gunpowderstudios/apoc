@@ -116,8 +116,9 @@ async function onStart() {
 }
 async function openRoom() {
   lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open();
-  net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
-  net.onLeave = pid => { guestNames.delete(pid); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
+  net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
+  net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
+  net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; guestNames.delete(pid); chatPost('', nm + ' left the room', true); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) net.send(pid, { err: r.error }); };
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
   $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
@@ -127,10 +128,12 @@ async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
   await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
-  lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
+  netChip(); lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
 }
 function onGuestMsg(m) {
   if (m.err) return toast(m.err);
+  if (m.chatLog) { chatLog = []; m.chatLog.forEach(c => chatAdd(c.n, c.t, c.sys, true)); }
+  if (m.chat) chatAdd(m.chat.n, m.chat.t, m.chat.sys);
   if (m.state) { mySeat = m.seat; S = m.state; if (!appUp) enterApp(); render(); netChip(); }
 }
 
@@ -324,9 +327,50 @@ function doCmd(cmd) {
 function afterChange() {
   render(); broadcast(); autosave(); schedule();
 }
-function netChip() {   // small pill showing the online state, so everyone can see who is connected
+// ---- chat between the people in an online room (host relays every message to everyone)
+let chatLog = [], chatUnread = 0, chatOpen = false;
+function chime(up = true) {
+  try {
+    const ac = tick.ac || (tick.ac = new (window.AudioContext || window.webkitAudioContext)()), t0 = ac.currentTime;
+    [660, 880].forEach((f, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = up ? f : 1540 - f; const a = t0 + i * 0.13;
+      g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(0.3, a + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, a + 0.3); o.connect(g).connect(ac.destination); o.start(a); o.stop(a + 0.32); });
+  } catch (e) {}
+}
+function chatAdd(n, t, sys, quiet) {
+  chatLog.push({ n, t, sys }); if (chatLog.length > 80) chatLog.shift();
+  if (!quiet) { if (!sys && n !== chatMe()) chime(); if (!chatOpen) chatUnread++; }
+  chatPaint();
+}
+const chatMe = () => mode !== 'guest' ? 'Host' : ($('#joinName') && $('#joinName').value.trim()) || 'Guest';
+function chatPost(n, t, sys) {   // host side: record locally and relay to every guest
+  t = String(t).slice(0, 300); if (!t.trim()) return;
+  chatAdd(n, t, sys); if (sys && n === '') chime(t.endsWith('joined the room'));
+  if (net && net.conns) for (const pid of net.conns.keys()) net.send(pid, { chat: { n, t, sys } });
+}
+function chatSend(text) { if (mode === 'guest') net && net.send({ chat: text }); else chatPost('Host', text); }
+function chatPaint() {
+  const box = $('#chatbox'); if (!box) return;
+  const log = $('#chatlog'); log.innerHTML = chatLog.map(c => c.sys ? `<div class="sys">${esc(c.t)}</div>` : `<div><b>${esc(c.n)}:</b> ${esc(c.t)}</div>`).join(''); log.scrollTop = log.scrollHeight;
+  $('#chattab').textContent = '💬 Chat' + (chatUnread ? ` (${chatUnread})` : '');
+}
+function chatEnsure(show) {
+  let box = $('#chatbox');
+  if (!box && show) {
+    box = document.createElement('div'); box.id = 'chatbox';
+    box.innerHTML = '<div id="chattab" role="button">💬 Chat</div><div id="chatbody"><div id="chatlog"></div><form id="chatform"><input id="chatin" maxlength="300" placeholder="Message everyone…" autocomplete="off"><button>Send</button></form></div>';
+    document.body.appendChild(box);
+    $('#chattab').onclick = () => { chatOpen = !chatOpen; box.classList.toggle('open', chatOpen); if (chatOpen) { chatUnread = 0; chatPaint(); setTimeout(() => $('#chatin').focus(), 0); } };
+    $('#chatform').onsubmit = e => { e.preventDefault(); const i = $('#chatin'); if (i.value.trim()) chatSend(i.value); i.value = ''; };
+    $('#chatin').onkeydown = e => e.stopPropagation();   // typing must not trigger the board shortcuts
+    $('#chatin').onkeyup = e => e.stopPropagation();
+    chatPaint();
+  }
+  if (box) box.hidden = !show;
+}
+function netChip() {
+  const hosting = net && net.conns && mode !== 'guest'; chatEnsure(hosting || (mode === 'guest' && net));   // small pill showing the online state, so everyone can see who is connected
   let c = $('#netchip'); if (!c) { c = document.createElement('div'); c.id = 'netchip'; document.body.appendChild(c); }
-  if (mode === 'host' && net && net.conns) { const n = net.conns.size; c.hidden = false; c.className = n ? 'ok' : 'wait'; c.textContent = `🌐 Room ${net.code} · ${n ? [...net.conns.keys()].map(g => guestNames.get(g) || 'Guest').join(', ') + ' connected' : 'nobody has joined yet'}`; }
+  if (hosting) { const n = net.conns.size; c.hidden = false; c.className = n ? 'ok' : 'wait'; c.textContent = `🌐 Room ${net.code} · ${n ? [...net.conns.keys()].map(g => guestNames.get(g) || 'Guest').join(', ') + ' connected' : 'nobody has joined yet'}`; }
   else if (mode === 'guest' && net) { const open = net.conn && net.conn.open; c.hidden = false; c.className = open ? 'ok' : 'bad'; c.textContent = open ? `🌐 Online · ${mySeat != null && mySeat >= 0 && S && S.players[mySeat] ? 'you play ' + S.players[mySeat].name : 'watching'}` : '🌐 Disconnected from host'; }
   else c.hidden = true;
 }
