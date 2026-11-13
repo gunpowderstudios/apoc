@@ -10,6 +10,10 @@ const $ = s => document.querySelector(s);
 const ICON = { food: 'food', knowhow: 'know-how', chem: 'chem', hardware: 'hardware', tech: 'tech', meds: 'meds', ducttape: 'duct-tape' };
 const PREPS = ['jessica', 'sam', 'frost', 'naomi'];
 const NAMES = ['Tim', 'Paul', 'Russ', 'Mike'];
+// ---- volume: music and sound effects have their own sliders in the cog menu (saved on this device)
+const VOL = (() => { try { return Object.assign({ music: 0.35, fx: 1 }, JSON.parse(localStorage.getItem('apoc-vol'))); } catch (e) { return { music: 0.35, fx: 1 }; } })();
+const fxAudios = [];
+const FXAudio = src => { const a = new Audio(src); a.volume = VOL.fx; fxAudios.push(a); return a; };
 const img = src => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -38,7 +42,7 @@ async function gate() {
 
 async function boot() {
   await gate(); $('#lobby').hidden = false;
-  { const radio = new Audio('assets/sfx/radio-chatter.mp3'); let done = false;   // radio chatter on the start screen, played once (waits for the first click/key if the browser blocks autoplay)
+  { const radio = FXAudio('assets/sfx/radio-chatter.mp3'); let done = false;   // radio chatter on the start screen, played once (waits for the first click/key if the browser blocks autoplay)
     const go = () => { if (done) return; radio.play().then(() => { done = true; rm(); if (musicOn) music.play().catch(() => {}); }).catch(() => {}); };   // ambient music starts with the radio chatter and keeps going into the game
     const rm = () => { for (const ev of ['pointerdown', 'keydown']) window.removeEventListener(ev, go); };
     go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); }
@@ -121,7 +125,8 @@ async function openRoom() {
   net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
   net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
   net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; guestNames.delete(pid); chatPost('', nm + ' left the room', true); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
-  net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) net.send(pid, { err: r.error }); };
+  net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) { net.send(pid, { err: r.error }); net.send(pid, { state: E.publicView(S, seat), seat }); } };   // a refused command also re-sends the table so the guest's screen is never out of step
+  setInterval(() => { if (net && net.conns && mode === 'host' && S && !S.over) { broadcast(); schedule(); } }, 4000);   // safety net: keeps guests in step and nudges the AI if it ever stalls
   try { history.replaceState(null, '', roomLink(code)); } catch (e) {}   // the address bar now holds the room link too
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
   $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
@@ -159,7 +164,7 @@ function loadGame(o) {
 }
 
 // ---------------------------------------------------------------- app shell
-const music = new Audio('assets/sfx/ambient.mp3'); music.loop = true; music.volume = 0.35;
+const music = new Audio('assets/sfx/ambient.mp3'); music.loop = true; music.volume = VOL.music;
 let musicOn = (() => { try { return localStorage.getItem('apoc-music') !== 'off'; } catch (e) { return true; } })();
 function syncMusic() {
   const b = $('#bMusic'); if (b) b.textContent = musicOn ? '🔇 Music off' : '🎵 Music on';
@@ -172,7 +177,7 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
@@ -180,7 +185,12 @@ function enterApp() {
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
-  $('#bMusic').onclick = toggleMusic; syncMusic();   // ambient music while playing
+  $('#bMusic').onclick = toggleMusic; syncMusic();
+  { const save = () => { try { localStorage.setItem('apoc-vol', JSON.stringify(VOL)); } catch (e) {} };
+    const vm = $('#volMusic'), vf = $('#volFx'); vm.value = Math.round(VOL.music / 0.7 * 100); vf.value = Math.round(VOL.fx * 100);
+    vm.oninput = () => { VOL.music = vm.value / 100 * 0.7; music.volume = VOL.music; save(); };
+    vf.oninput = () => { VOL.fx = vf.value / 100; fxAudios.forEach(a => { a.volume = VOL.fx; }); save(); };
+    vf.onchange = () => { try { diceSnd.currentTime = 0; diceSnd.play().catch(() => {}); } catch (e) {} }; }   // ambient music while playing
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
   V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;
   V2.loop(() => S, () => ({}));
@@ -295,7 +305,8 @@ function me() { if (mode === 'guest') return mySeat >= 0 ? mySeat : 0; const a =
 
 function runCmd(pl, cmd) {
   const snap = JSON.stringify(S); let r;
-  if (cmd.t === 'path') { r = { ok: true }; let n = 0; for (const to of cmd.steps) { if (S.pending || S.over) break; r = E.dispatch(S, pl, { t: 'move', to }); if (!r.ok) break; n++; } if (n) r.ok = true; }
+  if (cmd.t === 'path' && cmd.steps.length > 1 && !S.sandbox) r = { ok: false, error: 'Move one space at a time' };
+  else if (cmd.t === 'path') { r = { ok: true }; let n = 0; for (const to of cmd.steps) { if (S.pending || S.over) break; r = E.dispatch(S, pl, { t: 'move', to }); if (!r.ok) break; n++; } if (n) r.ok = true; }
   else r = E.dispatch(S, pl, cmd);
   if (r.ok) { hist.push(snap); if (hist.length > 40) hist.shift(); }
   afterChange(); return r;
@@ -307,7 +318,7 @@ function tick() {
   try {
     const ac = tick.ac || (tick.ac = new (window.AudioContext || window.webkitAudioContext)()), t0 = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
     o.type = 'triangle'; o.frequency.setValueAtTime(640 + Math.random() * 160, t0); o.frequency.exponentialRampToValueAtTime(180, t0 + 0.07);
-    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.35, t0 + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, 0.35 * VOL.fx), t0 + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
     o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + 0.1);
   } catch (e) {}
 }
@@ -338,7 +349,7 @@ function chime(up = true) {
   try {
     const ac = tick.ac || (tick.ac = new (window.AudioContext || window.webkitAudioContext)()), t0 = ac.currentTime;
     [660, 880].forEach((f, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = up ? f : 1540 - f; const a = t0 + i * 0.13;
-      g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(0.3, a + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, a + 0.3); o.connect(g).connect(ac.destination); o.start(a); o.stop(a + 0.32); });
+      g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, 0.3 * VOL.fx), a + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, a + 0.3); o.connect(g).connect(ac.destination); o.start(a); o.stop(a + 0.32); });
   } catch (e) {}
 }
 function chatAdd(n, t, sys, quiet) {
@@ -415,7 +426,7 @@ function updateTargets() {
   const blocked = grab ? {} : S.ts.blocked || {};
   const seen = { [p.node]: { d: 0, steps: [] } }, p0 = grab ? null : S.ts.prevNode || null, vis = new Set([(p0 || '') + '>' + p.node]), q = [{ n: p.node, pr: p0, steps: [] }];
   while (q.length) {
-    const u = q.shift(); if (u.steps.length >= left) continue;
+    const u = q.shift(); if (u.steps.length >= 1) continue;   // one space at a time: only the circles next to you glow
     for (const v of E.D.adj[u.n]) {
       if (blocked[v] || (!grab && E.viaSegBlocked(S, p, u.pr, u.n, v))) continue;
       const k = u.n + '>' + v; if (vis.has(k)) continue; vis.add(k);
@@ -452,7 +463,7 @@ function onDrop(pid, id) {
   closePop();
   if (!id || !targets[id]) {
     const left = S.stage === 'grab' ? S.grab.moves : S.ts && S.ts.moves;
-    toast(!id ? 'Dropped off the map: the piece goes back' : left > 0 ? `You can't reach ${E.D.node[id].name || id} (you have ${left} moves; only roads, junctions and doors connect)` : 'No moves left');
+    toast(!id ? 'Dropped off the map: the piece goes back' : left > 0 ? `Move one space at a time: only the glowing circles next to you (you have ${left} move${left > 1 ? 's' : ''})` : 'No moves left');
     render(); return;
   }
   onBoardClick(id);
@@ -541,7 +552,7 @@ const chip = (r, n) => `<span class="chip" title="${E.RES_LABEL[r]}"><img src="a
 const chips = res => E.ALLRES.filter(r => res[r] > 0).map(r => chip(r, res[r])).join('') || '<span class="note">nothing</span>';
 const itemImg = id => id === 'DUCT' ? 'assets/counters/duct-tape.webp' : id === 'hidden' ? 'assets/items/back.jpg' : `assets/items/${id}.jpg`;
 
-const diceSnd = new Audio('assets/sfx/dice.mp3'); let lastRollKey = null, rollInit = false;
+const diceSnd = FXAudio('assets/sfx/dice.mp3'); let lastRollKey = null, rollInit = false;
 function throwDice(r) {
   let sp = null;
   if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
@@ -726,7 +737,7 @@ function renderHand() {
   el.innerHTML = `<div class="note" style="flex:none">${esc(p.name)}'s items${p.itemCount !== undefined ? '' : ''}:</div>` + (items.length ? items.map(i => `<div class="itm ${i.broken ? 'broken' : ''}" data-i="${H.push(() => { modalFn = () => itemModal(p.id, i.uid); render(); }) - 1}" title="${i.id === 'hidden' ? 'hidden' : esc(E.D.item[i.id].name)}"><img src="${itemImg(i.id)}">${i.tokens !== undefined && i.tokens !== null ? `<span class="tk">${i.tokens}</span>` : ''}</div>`).join('') : '<span class="note">none</span>');
 }
 let shownNews = new Set(), bannerUntil = 0, bannerHtml = '';
-const newsSnd = new Audio('assets/sfx/breaking-news.mp3'), eventSnd = new Audio('assets/sfx/event.mp3'); let firedShown = null; let newsShown = null, newsClosed = null;
+const newsSnd = FXAudio('assets/sfx/breaking-news.mp3'), eventSnd = FXAudio('assets/sfx/event.mp3'); let firedShown = null; let newsShown = null, newsClosed = null;
 let newsView = null;
 function itemDeckModal() {
   const cnt = {}; for (const c of S.itemDeck) cnt[c.id] = (cnt[c.id] || 0) + 1;
@@ -774,7 +785,7 @@ function renderTurnBar() {
 // A drawn news paper comes up big in the middle of the table until it is closed (x, click or Esc); the event info of each pile stays along the bottom until a newer paper covers it.
 function closeNewsBig() { const o = $('#newsbig'); if (o && !o.hidden) { o.hidden = true; newsClosed = newsShown; return true; } return false; }
 window.addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && zoomFlipId !== null) { const z = $('#zoom'); if (z && !z.hidden) { z.querySelector('.flipbtn').click(); return; } } if ((e.key === 'Escape' || e.key === 'Enter') && closeEvPop()) return; if (e.key !== 'Escape') return; if (closeApoc()) return; const z = $('#zoom'); if (z && !z.hidden) { z.hidden = true; return; } closeNewsBig(); });
-const sirenSnd = new Audio('assets/sfx/siren.mp3'); let apocShownKey = null;
+const sirenSnd = FXAudio('assets/sfx/siren.mp3'); let apocShownKey = null;
 function closeApoc() { const o = $('#apocbig'); if (o && !o.hidden) { o.hidden = true; try { sirenSnd.pause(); } catch (e) {} return true; } return false; }
 function renderApocBig() {   // the APOC event has triggered: big message on screen + siren
   let o = $('#apocbig'); if (!o) { o = document.createElement('div'); o.id = 'apocbig'; o.hidden = true; o.onclick = () => closeApoc(); document.body.appendChild(o); }
@@ -785,7 +796,7 @@ function renderApocBig() {   // the APOC event has triggered: big message on scr
   o.innerHTML = `<img src="assets/ui/ev-${S.apocEvent}.png"><div class="a1">THE APOC EVENT HAS TRIGGERED</div><div class="a2">${nm} APOCALYPSE</div><div class="a3">Click or press Esc to close</div>`;
   try { sirenSnd.currentTime = 0; sirenSnd.play().catch(() => {}); } catch (e) {}
 }
-const defSnd = new Audio('assets/sfx/defcon.mp3'); let defPrev = null;
+const defSnd = FXAudio('assets/sfx/defcon.mp3'); let defPrev = null;
 function defconSound() {   // plays when DEFCON rises (not on game load / new game / sandbox lowering)
   const d = S ? S.defcon : null; if (d === null || d === undefined) { defPrev = null; return; }
   if (defPrev !== null && d > defPrev) { try { let n = 3; defSnd.onended = () => { if (--n > 0) { defSnd.currentTime = 0; defSnd.play().catch(() => {}); } else defSnd.onended = null; }; defSnd.currentTime = 0; defSnd.play().catch(() => { defSnd.onended = null; }); } catch (e) {} }   // the DEFCON siren plays 3 times in a row
@@ -905,7 +916,7 @@ function craftModal() {
   }
   return `<h2>APOC Recipe Book <span class="note">(${esc(p.name)} has ${chips(p.res)})</span></h2><div class="btns" style="margin-bottom:8px">${tab('craft', '🔧 Craft')}${tab('scrap', '♻ Recycle')}</div>${body}<div class="btns">${closeBtn()}</div>`;
 }
-const cardSnd = new Audio('assets/sfx/card-up.mp3');
+const cardSnd = FXAudio('assets/sfx/card-up.mp3');
 function cardUpSound(wasShown) { if (wasShown) return; try { cardSnd.currentTime = 0; cardSnd.play().catch(() => {}); } catch (e) {} }   // sound when a card is enlarged (not when just flipping it)
 function zoomMat(id) {   // character card on the table: shown big with a Flip button (backpack side <-> bunker side)
   const p = S.players[id], pr = E.D.prepper[p.prepper]; if (!pr) return;

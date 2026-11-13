@@ -387,3 +387,4 @@ body.sidemin #turn,body.fs #turn{background:rgba(0,0,0,.7) !important}
 #chatform{display:flex;gap:6px}#chatin{flex:1;min-width:0;background:#111;color:#fff;border:1px solid #fff4;border-radius:6px;padding:.3em .5em}
 #chatbox{bottom:150px;display:flex;flex-direction:column-reverse;align-items:flex-start}
 #chatbox #chatbody{margin:0 0 6px}
+#cogmenu label.vol{display:flex;align-items:center;gap:8px;padding:.3em .7em;color:#fff;font-size:13px}#cogmenu label.vol input{flex:1;min-width:90px}
