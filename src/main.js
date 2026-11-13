@@ -77,6 +77,8 @@ function bindLobby() {
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
+  const rm = (new URLSearchParams(location.search).get('room') || '').trim().toUpperCase();   // opened from a shared room link: go straight to Join
+  if (rm) { const jb = document.querySelector('#modeTabs button[data-m="join"]'); if (jb) { jb.click(); $('#joinCode').value = rm; $('#joinName').focus(); } }
   const sv = readAutosave();
   if (sv) { $('#contBtn').hidden = false; $('#contBtn').textContent = `Continue saved game (round ${sv.S.round}, ${new Date(sv.savedAt).toLocaleString()})`; $('#contBtn').onclick = () => loadGame(sv); }
   $('#loadBtn').onclick = () => $('#loadFile').click();
@@ -120,10 +122,13 @@ async function openRoom() {
   net.onJoin = (pid, name) => { guestNames.set(pid, name); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
   net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; guestNames.delete(pid); chatPost('', nm + ' left the room', true); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) net.send(pid, { err: r.error }); };
+  try { history.replaceState(null, '', roomLink(code)); } catch (e) {}   // the address bar now holds the room link too
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
   $('#startBtn').textContent = 'New game'; lobbyMsg('Share the room code, then Start. Unfilled remote seats become AI.');
 }
-const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
+const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
+window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied'); };
+const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button onclick="copyRoomLink()">Copy link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
