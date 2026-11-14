@@ -312,3 +312,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Board data update (v1.266, from Tim's sandbox files): door arrows nudged for Salvage Yard, Drugs, Park (first door) and Basketball Court; road/junction circles moved for Dumpster Drive/Rust Road (I30), Fairbrass/Bourbon (I33), West Street and Justice Way. Block groups confirmed unchanged (saved as data/blocks.json); subway marker positions saved as data/subways.json (West Street station marker sits at the left board edge).
 
 - Test-build tool (v1.267): the Sandbox checkbox on the start screen is hidden from other players; add ?dev=1 to the game address once to show it in your browser (?dev=0 hides it again).
+
+- Test-build tool (v1.268): clicking the DEFCON chart pop-up now shows the SHTF token (and the Panic Index tokens) in their current positions.

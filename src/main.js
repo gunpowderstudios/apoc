@@ -1005,7 +1005,15 @@ function zoomMat(id) {   // character card on the table: shown big with a Flip b
 let zoomFlipId = null;
 function zoomCard(src) {   zoomFlipId = null;   // any face-up card clicked on the table or in a list: show it big in the centre of the screen; click to close
   let o = $('#zoom'); if (!o) { o = document.createElement('div'); o.id = 'zoom'; o.onclick = () => { o.hidden = true; }; document.body.appendChild(o); }
-  cardUpSound(!o.hidden); o.innerHTML = `<img src="${src}">`; o.hidden = false;
+  cardUpSound(!o.hidden);
+  if (/countdown\.jpg/.test(src) && S) {   // DEFCON chart: show where the SHTF token is, and the Panic Index tokens
+    const ys = [590, 440, 270, 78], slots = [[78, 795], [197, 755], [322, 718]], col = { ai: '#2e8bff', pandemic: '#e0301e', nuclear: '#ffc107' };
+    const pos = (x, y, w, extra) => `position:absolute;left:${x / 4}%;top:${y / 8.66}%;width:${w}%;aspect-ratio:1;transform:translate(-50%,-50%);${extra}`;
+    o.innerHTML = `<div style="position:relative;display:inline-block;line-height:0"><img src="${src}" style="display:block">`
+      + (S.panic || []).slice(0, 3).map((k, i) => `<div style="${pos(slots[i][0], slots[i][1], 9, 'border-radius:50%;border:2px solid #000;background:' + (col[k] || '#fff'))}"></div>`).join('')
+      + `<img src="assets/counters/shtf.webp" title="SHTF token" style="${pos(330, ys[Math.min(3, S.defcon)], 14, 'height:auto;border-radius:50%;box-shadow:0 0 14px #ffd54f,0 2px 8px #000')}"></div>`; o.hidden = false; return;
+  }
+  o.innerHTML = `<img src="${src}">`; o.hidden = false;
 }
 function renderCraftBtn() {
   let b = $('#craftbtn'); if (!b) { b = document.createElement('button'); b.id = 'craftbtn'; b.onclick = () => { modalFn = craftModal; render(); }; $('#boardWrap').appendChild(b); }
