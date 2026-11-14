@@ -649,7 +649,7 @@ export class View3D {
   }
   fitAll(hold) {
     this.manual = !!hold;   // C key passes hold: the auto-follow then leaves the zoomed-out view alone until Z / X / N / D
-    const el = 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
+    const small = (this.r.domElement.getBoundingClientRect().height || 1000) < 800, el = small ? 1.08 : 0.9, az = 0, hx = -Math.sin(az), hz = Math.cos(az), dir = new THREE.Vector3(hx * Math.cos(el), Math.sin(el), hz * Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.01, 0, -0.015);
     const pts = [], rect = (x0, x1, z0, z1, y = 0.03) => { for (const x of [x0, x1]) for (const z of [z0, z1]) pts.push(new THREE.Vector3(x, y, z)); };
     rect(-0.4, 0.4, -0.2667, 0.2667, 0.01);   // board
     rect(-0.585, -0.425, -0.065, 0.262, 0.01);  // DEFCON chart
@@ -657,7 +657,7 @@ export class View3D {
     rect(-0.4, 0.235, -0.49, -0.295, 0.03);     // news row
     rect(0.41, 0.61, 0.18, 0.28, 0.01);          // logo
     rect(0.415, 0.6, -0.245, 0.09, 0.02);       // pool
-    { const n = this.nPlayers || 2, hx = ((n - 1) / 2) * 0.225 + 0.11; rect(-hx, hx, 0.285, this.matItems ? 0.575 : 0.5, 0.01); }   // player mats, their tokens and (if any) item cards
+    { const n = this.nPlayers || 2, hx = ((n - 1) / 2) * 0.225 + 0.11; rect(-hx, hx, 0.285, this.matItems ? 0.62 : 0.54, 0.01); }   // player mats, their tokens and (if any) item cards
     const box = d => {   // projected bounding box of the whole scene for distance d (NDC)
       cam.position.copy(tg).addScaledVector(dir, d); cam.lookAt(tg); cam.updateMatrixWorld(true); cam.updateProjectionMatrix();
       let x0 = 9, x1 = -9, y0 = 9, y1 = -9; for (const q of pts) { const v = q.clone().project(cam); x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); }
@@ -665,7 +665,7 @@ export class View3D {
     };
     // keep clear of the event panels along the bottom of the window (they sit over the canvas)
     const bar = document.querySelector('#evbar'), ch = this.r.domElement.getBoundingClientRect().height || 1;
-    const ofs = 2 * (Math.max(bar ? bar.offsetHeight : 0, 120) + 16) / ch;   // always keep ~136px clear, so panels that arrive later never cover the cards
+    const ofs = 2 * (Math.max(bar ? bar.offsetHeight : 0, small ? 150 : 120) + 16) / ch;   // always keep ~136px clear, so panels that arrive later never cover the cards
     let d = 1.5;
     for (let it = 0; it < 10; it++) {
       let lo = 0.3, hi = 4; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2, q = box(m); if (Math.max((q.x1 - q.x0) / 2, (q.y1 - q.y0) / 2 + ofs / 2) <= 0.9) hi = m; else lo = m; } d = hi;   // the larger side fills 90% of the window

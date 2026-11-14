@@ -340,3 +340,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 ## Crate for deposited resources (v1.281)
 - Resources a player puts down on a building (Table View tool) go into that building's **CRATE**, kept separate from the shop's own stock. Anyone standing there can take them for free (one at a time, within their carrying limit; coins too). Shown as a small wooden crate beside the building's piles.
+
+## Table View on small screens (v1.282)
+- Table View now frames the whole table, including each player's items and resource tokens below their cards, on short windows (tilts closer to overhead and keeps more room clear at the bottom).
