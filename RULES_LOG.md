@@ -285,3 +285,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.251): setup name boxes default to Player 1-4 (no real names); your own name is remembered in this browser until you change it; default AI seats are named after the character, e.g. Sam (AI).
 
 - Test-build tool (v1.252): glowing buildings now have a bigger ring on top of the piles; clicking a pile or the door area walks you in. Volume sliders now work on iPad/iPhone.
+
+- Test-build tool (v1.253): spaces further away within your remaining moves show a lighter, smaller glow (not clickable) so you can plan ahead; adjacent spaces stay bright.

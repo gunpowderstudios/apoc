@@ -394,7 +394,7 @@ async function runSetup() {
   const ov = $('#setup'), bar = $('#setupBar'); ov.hidden = false; bar.style.width = '0%';
   for (let i = 0; i < ids.length; i++) {
     await new Promise(r => setTimeout(r, 130));
-    V3.hide.delete(ids[i]); tick(); bar.style.width = Math.round((i + 1) / ids.length * 100) + '%'; V3.sync(S, { targets });
+    V3.hide.delete(ids[i]); tick(); bar.style.width = Math.round((i + 1) / ids.length * 100) + '%'; V3.sync(S, { targets, faint });
   }
   await new Promise(r => setTimeout(r, 250));
   ov.hidden = true; V3.hide = null; setupHold = false; render(); schedule();
@@ -479,8 +479,9 @@ function schedule() {
 }
 
 // ---------------------------------------------------------------- board interaction
+let faint = {};   // every other space you could reach with the moves left: lighter glow, not clickable (plan ahead)
 function updateTargets() {
-  targets = {};
+  targets = {}; faint = {};
   if (!S || !iAct() || S.pending) return;
   const p = S.players[actor()];
   const grab = S.stage === 'grab';
@@ -499,6 +500,7 @@ function updateTargets() {
     }
   }
   for (const id in seen) if (id !== p.node) targets[id] = { kind: 'move', steps: seen[id].steps };
+  { const r = E.reachable(S, p, left); for (const id in r.dist) if (id !== p.node && !targets[id] && !blocked[id]) faint[id] = 1; }
   for (const m of E.legalMoves(S, p)) if (m.subway) targets[m.to] = { kind: 'subway', steps: [m.to] }; else if (m.cutters) targets[m.to] = { kind: 'move', steps: [m.to] };
 }
 function onBoardClick(id, pt) {
@@ -648,7 +650,7 @@ function render() {
   renderStatus(); renderPlayers(); renderTurn(); renderSandbox(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
-    V3.sync(S, { targets });
+    V3.sync(S, { targets, faint });
     const ap = S.players.find(p => p.id === actor()), key = S.over ? 'over' : S.stage + ':' + actor() + ':' + (ap && ap.node);
     if (follow && !whole && key !== lastActorKey && !S.over && !(lastActorKey === null && !followArmed)) setTimeout(() => { if (V3.manual) return; if (!V3.followPawn(actor())) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length); }, 60);
     lastActorKey = key; followArmed = true; if (whole && !wholeDone) { wholeDone = true; setTimeout(() => V3.fitAll(true), 150); }

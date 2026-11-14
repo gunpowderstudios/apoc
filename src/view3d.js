@@ -294,12 +294,17 @@ export class View3D {
       m.scale.setScalar(1);   // figures always show at their true height (the active player is marked on their card instead)
     }
     // move highlights
-    const msig = Object.keys(ui.targets || {}).join(',') + '|' + (ui.hover || '');
+    const msig = Object.keys(ui.targets || {}).join(',') + '|' + Object.keys(ui.faint || {}).join(',') + '|' + (ui.hover || '');
     this.targets = ui.targets;
     if (msig !== this.markSig) {
       this.markSig = msig; this.marks.clear();
       const rg = new THREE.RingGeometry(0.011, 0.016, 28);
       const rgB = new THREE.RingGeometry(0.022, 0.032, 36);   // buildings: bigger ring drawn on top of the resource piles so it can't be hidden
+      for (const id of Object.keys(ui.faint || {})) {   // further spaces within reach: small pale rings
+        const n = this.nodes[id]; if (!n) continue; const [cx, cz] = this.w(n);
+        const m = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ color: 0xcfeedd, side: THREE.DoubleSide, transparent: true, opacity: 0.4 }));
+        m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.0015, cz); if (n.kind === 'building') { m.position.y = 0.028; m.material.depthTest = false; m.renderOrder = 11; } this.marks.add(m);
+      }
       for (const id of Object.keys(ui.targets || {})) {
         const t = ui.targets[id], n = this.nodes[id], [cx, cz] = this.w(n);
         const m = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ color: t.kind === 'subway' ? 0xff9800 : t.kind === 'act' ? 0xffd54f : 0x7cf29a, side: THREE.DoubleSide, transparent: true, opacity: 0.95 }));
