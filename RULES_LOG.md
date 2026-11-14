@@ -316,3 +316,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.268): clicking the DEFCON chart pop-up now shows the SHTF token (and the Panic Index tokens) in their current positions.
 
 - Test-build tool (v1.269): shortcut legend (P = Player) and Tips for playing share one transparent black panel.
+
+- Test-build tool (v1.270): all boxes around the screen edge (Round, turn panel, recipe book, shortcut legend, chat) now sit about 5 mm in from the edge.
