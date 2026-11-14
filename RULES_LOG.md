@@ -295,3 +295,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.256): cog menu now has a 'Doors: on/off' toggle (boxes round every door); Sandbox tools sit in the cog menu collapsed by default, with the door on/off list inside.
 
 - Confirmed by Tim (v1.257): all 57 building doors on the board are correct (each building's door opens onto the right street space).
+
+- Test-build tool (v1.258): cog menu 'Blocks' toggle colour-codes every building by its city block (same colour = same block, listed in the sandbox panel). In a sandbox game click a building, then one in the block it belongs to, to move it there; Download blocks.json to send. Doors list also has Download doors.json.

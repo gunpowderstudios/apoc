@@ -130,7 +130,7 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
-      if (h && h.type === 'token' && !this.editPiles && h.info && h.info.node !== undefined && this.targets && this.targets[h.info.node]) { const bp = this.boardPoint(e); if (this.onClick) this.onClick(h.info.node, bp ? { x: bp.bx, y: bp.by } : null); return; }   // a glowing building is covered by its resource piles: clicking a pile still moves you in (v1.252)
+      if (h && h.type === 'token' && !this.editPiles && h.info && h.info.node !== undefined && ((this.targets && this.targets[h.info.node]) || this.blockEdit)) { const bp = this.boardPoint(e); if (this.onClick) this.onClick(h.info.node, bp ? { x: bp.bx, y: bp.by } : null); return; }   // a glowing building is covered by its resource piles: clicking a pile still moves you in (v1.252)
       if (h && h.type === 'token') { if (this.editPiles) { if (this.onPileClick && h.info && h.info.node !== undefined) this.onPileClick(h.info.node); return; } if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
@@ -313,6 +313,25 @@ export class View3D {
         this.marks.add(m);
       }
     }
+  }
+  setBlockMarks(items, sel) {   // sandbox block checker: every building gets a coloured disc (same colour = same city block) and a line to its block's centre; the picked building gets a yellow ring
+    const key = JSON.stringify([items, sel]); if (key === this.blkKey) return; this.blkKey = key;
+    if (!this.blkG) { this.blkG = new THREE.Group(); this.scene.add(this.blkG); } this.blkG.clear();
+    const blocks = {}; for (const it of items) (blocks[it.block] = blocks[it.block] || []).push(it);
+    const names = Object.keys(blocks).sort(), dg = new THREE.CircleGeometry(0.014, 20);
+    names.forEach((b, k) => {
+      const col = new THREE.Color().setHSL((k * 0.618) % 1, 0.9, 0.55), list = blocks[b];
+      const cx = list.reduce((s, i) => s + i.x, 0) / list.length, cy = list.reduce((s, i) => s + i.y, 0) / list.length, [mx, mz] = this.w({ x: cx, y: cy });
+      const mat = new THREE.LineBasicMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.9 });
+      for (const it of list) {
+        const [x, z] = this.w({ x: it.x, y: it.y });
+        const d = new THREE.Mesh(dg, new THREE.MeshBasicMaterial({ color: col, depthTest: false })); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.033, z); d.renderOrder = 14; this.blkG.add(d);
+        if (list.length > 1) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, 0.032, z), new THREE.Vector3(mx, 0.032, mz)]), mat); l.renderOrder = 13; this.blkG.add(l); }
+      }
+      if (list.length > 1) { const s = this.numSprite ? null : null; const c = new THREE.Mesh(new THREE.RingGeometry(0.01, 0.016, 4, 1, Math.PI / 4), new THREE.MeshBasicMaterial({ color: col, depthTest: false, side: THREE.DoubleSide })); c.rotation.x = -Math.PI / 2; c.position.set(mx, 0.034, mz); c.renderOrder = 14; this.blkG.add(c); }
+    });
+    const SEL = items.find(i => i.id === sel);
+    if (SEL) { const [x, z] = this.w({ x: SEL.x, y: SEL.y }); const r = new THREE.Mesh(new THREE.RingGeometry(0.03, 0.04, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, depthTest: false, side: THREE.DoubleSide })); r.rotation.x = -Math.PI / 2; r.position.set(x, 0.036, z); r.renderOrder = 15; this.blkG.add(r); }
   }
   setDoorMarks(list) {   // sandbox door checker: a hollow box round each door arrow, green = door on, red = off
     const key = JSON.stringify(list); if (key === this.doorKey) return; this.doorKey = key;

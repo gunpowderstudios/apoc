@@ -775,6 +775,11 @@ export function setDoor(b, e, open) {
   if (open) { D.closed.delete(key); if (!D.adj[b].includes(e)) { D.adj[b].push(e); D.adj[e].push(b); } }
   else { D.closed.add(key); D.adj[b] = D.adj[b].filter(x => x !== e); D.adj[e] = D.adj[e].filter(x => x !== b); }
 }
+// sandbox: edit which buildings touch each other (used by the bolt-cutter / Sam rule) (v1.258)
+export function setNextTo(a, b, on) { for (const k of [a + '|' + b, b + '|' + a]) { if (on) D.nextTo.add(k); else D.nextTo.delete(k); } }
+export const nextToPairs = () => { const out = []; for (const k of D.nextTo) { const [a, b] = k.split('|'); if (a < b) out.push([a, b]); } return out.sort((x, y) => (x[0] + x[1]).localeCompare(y[0] + y[1])); };
+export function setBlock(id, blk) { D.node[id].block = blk; }
+export const blocksMap = () => Object.fromEntries(D.board.nodes.filter(n => n.kind === 'building').map(n => [n.id, n.block]));
 export const closedDoors = () => [...(D.closed || [])];
 export function canStep(s, p, to) {
   if (!D.adj[p.node].includes(to)) return false;
