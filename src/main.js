@@ -670,13 +670,14 @@ const REF_BURGLE = [['1', 'Shot by the owner! Lose 2 health'], ['2', 'Alarm! No 
 const refOpen = new Set();
 function renderRefPanels() {
   const wrap = $('#boardWrap'); if (!wrap || !S) return;
-  let box = $('#refpanels'); if (!box) { box = document.createElement('div'); box.id = 'refpanels'; wrap.appendChild(box); box.addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.k) { if (d.open) refOpen.add(d.dataset.k); else refOpen.delete(d.dataset.k); } }, true); }
+  let box = $('#refpanels'); if (!box) { box = document.createElement('div'); box.id = 'refpanels'; wrap.appendChild(box); box.addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.k) { if (d.open) refOpen.add(d.dataset.k); else refOpen.delete(d.dataset.k); box.classList.toggle('wide', refOpen.has('shopping')); } }, true); }
   const shop = (k, id, title) => {
     const rows = (E.D.cfg.shops[id] || []).map(([it, price0]) => `<tr><td>${esc(it === 'DUCT' ? 'Duct tape' : E.D.item[it].name)}</td><td class="px">${E.shopPrice(S, id, price0)} coin</td></tr>`).join('');
     return `<details data-k="${k}" ${refOpen.has(k) ? 'open' : ''}><summary>${title}</summary><table>${rows}</table></details>`;
   };
   const tbl = (k, title, note, rows) => `<details data-k="${k}" ${refOpen.has(k) ? 'open' : ''}><summary>${title}</summary><div class="rn">${note}</div><table>${rows.map(r => `<tr><td class="n">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></details>`;
-  const html = shop('gun', 'gunshop', '🔫 Gun Shop prices') + shop('hw', 'hardwarestore', '🔧 Hardware Store prices') + tbl('dive', '🗑 Dumpster diving', 'Roll 1 die (plus modifiers), 1 action', REF_DIVE) + tbl('burg', '🏚 Burglary', 'Roll 1 die (plus modifiers) at a residence, 1 action', REF_BURGLE);
+  const inner = shop('gun', 'gunshop', '🔫 Gun Shop prices') + shop('hw', 'hardwarestore', '🔧 Hardware Store prices') + tbl('dive', '🗑 Dumpster diving', 'Roll 1 die (plus modifiers), 1 action', REF_DIVE) + tbl('burg', '🏚 Burglary', 'Roll 1 die (plus modifiers) at a residence, 1 action', REF_BURGLE);
+  const html = `<details data-k="shopping" ${refOpen.has('shopping') ? 'open' : ''}><summary>🛒 Shopping</summary>${inner}</details>`; box.classList.toggle('wide', refOpen.has('shopping'));
   if (box._html !== html) { box._html = html; box.innerHTML = html; }
 }
 let shopSeen = '';

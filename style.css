@@ -423,3 +423,6 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 /* v1.283: decision prompts inside the player panel */
 #turn .promptbox{background:#2b2410;border:2px solid #ffd54f;border-radius:8px;padding:8px 10px;margin-bottom:8px;box-shadow:0 0 14px #ffd54f55}
 #turn .promptbox h2{margin:0 0 6px;font-size:15px;color:#ffd54f}
+/* v1.287: all reference tables under one collapsed "Shopping" tab, as narrow as the legend until opened */
+#refpanels{width:135px}#refpanels.wide{width:250px}
+#refpanels details details{border:0;border-top:1px solid rgba(255,255,255,.15);border-radius:0;background:transparent}
