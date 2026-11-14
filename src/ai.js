@@ -293,21 +293,12 @@ function grabNext(s) {
   const g = s.grab; if (g.phase !== 'move') return null;
   const p = s.players[g.order[g.turn]]; if (!p.ai) return null;
   const C = cmd => ({ pl: p.id, cmd });
-  const L = s.loc[p.node];
-  if (E.resTotal(p) < E.holdLimit(p) && (g.grabbed[p.node] || 0) < 2 || D.node[p.node].kind !== 'building') {
-    const r = ALLRES.filter(r => L.res[r] > 0).sort((a, b) => needValue(s, p, b) - needValue(s, p, a))[0];
-    if (r && E.resTotal(p) < E.holdLimit(p) && ((g.grabbed[p.node] || 0) < 2 || D.node[p.node].kind !== 'building')) return C({ t: 'grab', r });
-  }
+  const valAt = id => { let v = 0; for (const r of ALLRES) v += (s.loc[id].res[r] || 0) * needValue(s, p, r); return v; };
+  let best = p.node, bv = valAt(p.node);
   if (g.moves > 0) {
     const { dist } = E.reachable(s, p, g.moves);
-    let best = null, bv = 0;
-    for (const [id, d] of Object.entries(dist)) {
-      if (d === 0) continue; const nn = D.node[id];
-      let v = 0; const toks = []; for (const r of ALLRES) for (let i = 0; i < (s.loc[id].res[r] || 0); i++) toks.push(needValue(s, p, r));
-      toks.sort((a, b) => b - a); v = toks.slice(0, nn.kind === 'building' ? 2 : 6).reduce((a, b) => a + b, 0);
-      v = v / (1 + d * 0.15); if (v > bv) { bv = v; best = id; }
-    }
-    if (best) { const path = E.pathTo(s, p.node, best); if (path) return C({ t: 'move', to: path[0] }); }
+    for (const [id, d] of Object.entries(dist)) { if (d === 0) continue; const v = valAt(id) / (1 + d * 0.05); if (v > bv + 0.01) { bv = v; best = id; } }
   }
-  return C({ t: 'endTurn' });
+  if (best !== p.node) { const path = E.pathTo(s, p.node, best); if (path) return C({ t: 'move', to: path[0] }); }
+  return C({ t: 'grabAll' });
 }

@@ -472,7 +472,7 @@ export class View3D {
       s.players.forEach((p, i) => {
         const c0 = this.mats.children.length;
         const x = this.matX(i, n), art = (this.preppers && this.preppers[p.prepper] ? this.preppers[p.prepper].art : []), url = art[(this.flip && this.flip[p.id] !== undefined ? this.flip[p.id] : (p.bunker ? 1 : 0))] || art[0];
-        const active = s.cur === p.id && s.stage === 'turn', fade = s.stage === 'turn' && !active, fx = fade ? { transparent: true, opacity: 0.5 } : {};   // players whose turn it is not are faded to 50%
+        const inPlay = s.stage === 'turn' || s.stage === 'grab', active = s.cur === p.id && inPlay, fade = inPlay && !active, fx = fade ? { transparent: true, opacity: 0.5 } : {};   // players whose turn it is not are faded to 50%
         const col = new THREE.Color(PREP_COL[p.prepper] || '#888');
         const frame = new THREE.Mesh(new THREE.BoxGeometry(0.21 + 0.01, 0.002, 0.149 + 0.01), new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: active ? 0.9 : 0.1, ...fx }));
         frame.position.set(x, 0.001, zc); frame.receiveShadow = true; this.mats.add(frame);

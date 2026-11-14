@@ -14,7 +14,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 
 ## 1a. How the pre-APOC game ends
 1. DEFCON reaches the last level (5th paper in a pile at End Turn): the APOC event (AI, Pandemic or Nuclear) is triggered. Thugs and coin are cleared; in a Nuclear event players without a bunker drop to 1 health.
-2. Panic Grab: players may spend MEDS first, then take one last turn each (order: highest health, then fewest resources, then a die roll), 2 moves per health point, grabbing resources where they stand. Two players ending in the same building fight over it (Black Friday).
+2. Panic Grab: players may spend MEDS first, then take one last turn each (order: highest health, then fewest resources, then a die roll), moving your regular 2 moves per health point +2, then taking ALL the items from the location you end up at (CONFIRMED by Tim, v1.277; the old limit of 2 per building is gone). Two players ending in the same building fight over it (Black Friday).
 3. After the last Panic Grab turn the board is cleared and the game stops. In the real game the players open the sealed envelope (Mission Pack) for that event and play on; in the online test the game just tells you which one. (Confirmed by Tim, v1.112.)
 
 ## 1. Turn order (pre-APOC)
@@ -328,3 +328,9 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.274): dice are square-edged again (rounded dice tried in v1.272 and removed).
 
 - Test-build tool (v1.275): on the host's setup screen the AI play-style (trait) box only shows for AI seats, not for Open seats (humans). An open seat nobody takes still becomes a balanced AI.
+
+## Changes after the 4-player test (v1.276)
+- CONFIRMED by Tim: every player now starts with 4 FOOD (was 3).
+- CONFIRMED by Tim (panic round movement): you get your regular move +2 and can take ALL the items from whatever location you end up at (no limit on how much you can grab). No news card is drawn during the panic round.
+- Test-build tool: newspapers/card pop-ups close when dice are rolled; the re-roll prompt sits at the bottom of the screen so the thrown dice stay visible; rules sections no longer collapse or jump while scrolling (fixed for small screens).
+- Test-build tool (v1.277): panic round: your move is 2 per health +2, then one button 'Take everything here & end turn' takes every resource and coin where you stand (no limit). The current player's card/mat is bright and the others are dimmed during the panic round, same as before it.

@@ -278,6 +278,7 @@ function enterApp() {
     const z = e.target.closest('img[data-zoom]'); if (z) zoomCard(z.dataset.zoom);
   }, true);
   document.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b && H[+b.dataset.i]) H[+b.dataset.i](e); });
+  $('#modalBox').addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.i !== undefined) { const i = +d.dataset.i; if (d.open) rulesOpen.add(i); else rulesOpen.delete(i); } }, true);
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && modalFn) { modalFn = null; render(); } });
   $('#bUndo').hidden = mode === 'guest';
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && modalFn) { modalFn = null; render(); } });
@@ -634,7 +635,7 @@ function throwDice(r) {
   if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
   else if (r.kind === 'risk') sp = [{ set: 'num', face: Math.max(0, Math.min(5, (r.value || 1) - 1)) }];
   else if (r.kind === 'fight') sp = [r.a, r.d].map(x => ({ set: 'num', face: Math.max(0, Math.min(5, ((x && x.r) || 1) - 1)) }));
-  if (sp) { V3.rollDice(sp, r.pl, S.players.length); if (followArmed && !whole) V3.followDice(); }
+  if (sp) { closeNewsBig(); { const z = $('#zoom'); if (z && !z.hidden) z.hidden = true; } V3.rollDice(sp, r.pl, S.players.length); if (followArmed && !whole) V3.followDice(); }
 }
 function rollSound() {
   const k = S.lastRoll ? (S.lastRoll.rn || JSON.stringify(S.lastRoll)) : null;   // one throw per roll: keyed on the roll itself, not on the log length
@@ -712,9 +713,9 @@ function renderTurn0() {
   const a = actor(), pa = S.players[a], mineNow = iAct();
   if (S.stage === 'grab') {
     const g = S.grab;
-    h += `<h3>PANIC GRAB: ${esc(pa.name)}</h3><div class="note">Moves left ${g.moves}. Click a highlighted space to move; grab resources where you stand (max 2 per building).</div>`;
+    h += `<h3>PANIC GRAB: ${esc(pa.name)}</h3><div class="note">Moves left ${g.moves} (your move + 2). Click a highlighted space to move, then take EVERYTHING from where you end up.</div>`;
     if (mineNow && !S.pending) {
-      const L = S.loc[pa.node]; h += '<div class="btns">' + E.ALLRES.filter(r => L.res[r] > 0).map(r => btn(`Grab ${E.RES_LABEL[r]} (${L.res[r]})`, () => doCmd({ t: 'grab', r }))).join('') + btn('End grab', () => doCmd({ t: 'endTurn' })) + '</div>';
+      const L = S.loc[pa.node], any = E.ALLRES.some(r => L.res[r] > 0) || L.coin > 0; h += '<div class="btns">' + btn(any ? '🧺 Take everything here & end turn' : 'End turn (nothing here)', () => doCmd({ t: 'grabAll' }), { cls: 'primary buildgo big' }) + '</div>';
     }
     el.innerHTML = h; return;
   }
@@ -938,8 +939,12 @@ function renderModal() {
   if (S.over) html = gameOverModal();
   else if (S.pending && mine(S.pending.pl)) html = promptModal(S.pending);
   else if (modalFn) html = modalFn();
-  if (html == null) { m.hidden = true; return; }
-  m.hidden = false; b.innerHTML = html;
+  if (html == null) { m.hidden = true; b._html = null; return; }
+  const dock = !!(S.pending && mine(S.pending.pl) && ['reroll', 'gambleNext'].includes(S.pending.kind) && !S.over);   // dice prompts sit at the bottom so the thrown dice stay visible
+  m.classList.toggle('dock', dock); m.hidden = false;
+  if (b._html === html) return;   // nothing changed: leave it alone (keeps open sections and the scroll position)
+  const sc = b.querySelector('.rules'), st = sc ? sc.scrollTop : 0, top = b.scrollTop;
+  b.innerHTML = html; b._html = html; b.scrollTop = top; const sc2 = b.querySelector('.rules'); if (sc2) sc2.scrollTop = st;
 }
 function promptModal(pd) {
   const nm = S.players[pd.pl].name, recent = pd.kind === 'reroll' ? '' : S.log.slice(-8).filter(l => l.pl === pd.pl || l.t.startsWith(nm)).slice(-3).map(l => `<div class="note">${esc(l.t)}</div>`).join('');
@@ -1073,10 +1078,11 @@ function mdToSections(md) {
   }
   close(); return secs;
 }
+const rulesOpen = new Set([0]);
 function rulesModal() {
   if (rulesMd === null) { rulesMd = ''; fetch('RULES_LOG.md?v=' + Date.now()).then(r => r.text()).then(t => { rulesMd = t; render(); }).catch(() => { rulesMd = 'Could not load the rules.'; render(); }); }
   const secs = rulesMd ? mdToSections(rulesMd) : [];
-  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details class="${s.ask ? 'ask' : ''}" ${i === 0 ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
+  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-i="${i}" class="${s.ask ? 'ask' : ''}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {

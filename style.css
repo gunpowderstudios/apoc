@@ -408,3 +408,7 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 /* v1.271: big glowing BUILD YOUR BUNKER button in the action step */
 #turn .btns button.buildgo.big{width:100%;font-size:19px;padding:14px 18px;background:#1f9d3f;border:2px solid #d8ffe0;color:#fff;animation:buildpulse 1s ease-in-out infinite}
 @keyframes buildpulse{0%,100%{box-shadow:0 0 8px #6fd47f,0 0 0 0 #6fd47f66}50%{box-shadow:0 0 30px #b9ffc4,0 0 0 6px #6fd47f44}}
+
+/* v1.276: dice prompts (re-roll) dock at the bottom so they don't cover the dice */
+#modal.dock{background:transparent;align-items:flex-end;pointer-events:none;padding-bottom:210px}
+#modal.dock #modalBox{pointer-events:auto;box-shadow:0 4px 18px #000c}

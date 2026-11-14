@@ -730,7 +730,7 @@ function advanceGrab(s) {
 }
 function startGrabTurn(s) {
   const g = s.grab; const q = s.players[g.order[g.turn]];
-  g.moves = 2 * q.health; g.grabbed = {};
+  g.moves = 2 * q.health + 2; g.grabbed = {};
   s.cur = q.id;
   logm(s, `PANIC GRAB: ${q.name} has ${g.moves} moves.`);
 }
@@ -983,14 +983,12 @@ function grabCmd(s, pl, cmd) {
     // free grab from streets happens via 'grab' too
     return OK;
   }
-  if (cmd.t === 'grab') {
-    const L = s.loc[q.node];
-    if (!L.res[cmd.r]) return err('None there');
-    if ((g.grabbed[q.node] || 0) >= 2 && D.node[q.node].kind === 'building') return err('Max 2 per location');
-    if (resTotal(q) >= holdLimit(q)) return err('Full');
-    L.res[cmd.r]--; q.res[cmd.r]++; g.grabbed[q.node] = (g.grabbed[q.node] || 0) + 1;
-    logm(s, `${q.name} grabs 1 ${RES_LABEL[cmd.r]}.`);
-    return OK;
+  if (cmd.t === 'grabAll') {   // panic round: end your move, then take ALL the items from the location you ended up at (no limit)
+    const L = s.loc[q.node], got = [];
+    for (const r of ALLRES) { const n = L.res[r] || 0; if (n > 0) { L.res[r] = 0; q.res[r] = (q.res[r] || 0) + n; got.push(`${n} ${RES_LABEL[r]}`); } }
+    if (L.coin > 0) { q.coin += L.coin; got.push(`${L.coin} coin`); L.coin = 0; }
+    logm(s, got.length ? `${q.name} grabs everything here: ${got.join(', ')}.` : `${q.name} ends their move with nothing to grab.`, q.id);
+    endGrabTurn(s); advance(s); return OK;
   }
   if (cmd.t === 'endTurn') { endGrabTurn(s); advance(s); return OK; }
   return err('Not allowed during the panic grab');
