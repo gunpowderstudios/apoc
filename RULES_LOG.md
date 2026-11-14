@@ -302,3 +302,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.260): door boxes, block dots and building glow rings sit much lower, close to the table.
 
 - Test-build tool (v1.261): dragging a block dot joins the block of the nearest building to where you drop it (no need to land exactly on one).
+
+- Test-build tool (v1.262): door boxes and block dots now only reposition when dragged (they don't change which street a door opens onto or which block a building is in). Download doors.json / blocks.json include the new positions.

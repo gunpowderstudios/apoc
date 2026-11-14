@@ -1090,8 +1090,8 @@ ${V3 && V3.editPiles ? pileEditor() : ''}
   ${blocksPanel()}
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
 }
-let blocksOn = false, blkSel = null;
-function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: n.x, y: n.y, block: String(n.block) })) : [], blkSel); }
+let blocksOn = false, blkSel = null, blkPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-blockpos')) || {}; } catch (e) { return {}; } })();
+function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: (blkPos[n.id] || [n.x])[0], y: (blkPos[n.id] || [0, n.y])[1], block: String(n.block) })) : [], blkSel); }
 function saveBlocks() { try { localStorage.setItem('apoc-blocks', JSON.stringify(E.blocksMap())); } catch (e) {} }
 function blockClick(id) {   // pick a building, then click one in the block it belongs to: it joins that block
   if (!D.node[id] || D.node[id].kind !== 'building') { toast('Click a building'); return; }
@@ -1108,14 +1108,8 @@ function onMarkDrag(mk, to) {   // sandbox: a door box or a building dot was cli
   if (mk.kind === 'door') {
     const [b, e] = mk.key.split('|');
     if (!to) return void toggleDoor(b, e);
-    const hit = V3.pickBoard ? V3.pickBoard(to.x, to.y) : null, ne = hit && D.node[hit] && D.node[hit].kind !== 'building' ? hit : e;
-    const now = E.moveDoor(b, e, ne, [Math.round(to.x), Math.round(to.y)]); saveDoorPos();
-    toast(D.node[b].name + ' door moved' + (now !== e ? ' - now opens onto ' + D.node[now].name : ' (still opens onto ' + D.node[e].name + ')'));
-  } else if (to) {
-    let hit = null, bd = 1e9; for (const n of D.board.nodes) if (n.kind === 'building' && n.id !== mk.id) { const d = Math.hypot(n.x - to.x, n.y - to.y); if (d < bd) { bd = d; hit = n.id; } }   // nearest building to where it was dropped
-    if (hit && hit !== mk.id && D.node[hit] && D.node[hit].kind === 'building') { E.setBlock(mk.id, D.node[hit].block); saveBlocks(); toast(D.node[mk.id].name + ' is now in the same block as ' + D.node[hit].name); }
-    else toast('Nothing changed');
-  }
+    E.moveDoor(b, e, e, [Math.round(to.x), Math.round(to.y)]); saveDoorPos(); toast(D.node[b].name + ' door marker moved');
+  } else if (to) { blkPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-blockpos', JSON.stringify(blkPos)); } catch (e) {} toast(D.node[mk.id].name + ' marker moved'); }
   syncDoorMarks(); syncBlockMarks(); render();
 }
 function saveDoorPos() { try { localStorage.setItem('apoc-doorpos', JSON.stringify(E.doorsData())); } catch (e) {} }
@@ -1124,8 +1118,8 @@ function blocksPanel() {
   const mini = (label, fn, o = {}) => btn(label, fn, o); setTimeout(syncBlockMarks, 0);
   if (!blocksOn) return '<div class="sr"><span class="sl">Blocks</span><span class="note">turn on 🧱 Blocks above</span></div>';
   const groups = {}; for (const n of D.board.nodes) if (n.kind === 'building') (groups[n.block] = groups[n.block] || []).push(n.name);
-  return `<div class="sr"><span class="sl">Blocks</span><span class="note">${blkSel ? 'picked: <b>' + esc(D.node[blkSel].name) + '</b> - click a building in the block it belongs to' : 'same colour = same block. Drag a building dot onto a building in the block it belongs to'}</span></div>
-  <div class="sr">${blkSel ? mini('Put ' + esc(D.node[blkSel].name) + ' in its own block', () => { E.setBlock(blkSel, 'own_' + blkSel); saveBlocks(); blkSel = null; syncBlockMarks(); render(); }) : ''}${mini('Download blocks.json', () => dlJSON('blocks.json', { note: 'APOC city blocks: building -> block id (same id = same block)', version: VERSION, blocks: E.blocksMap() }))}${mini('Reset to default', () => { try { localStorage.removeItem('apoc-blocks'); } catch (x) {} toast('Reload the page to restore the original blocks'); })}</div>
+  return `<div class="sr"><span class="sl">Blocks</span><span class="note">${blkSel ? 'picked: <b>' + esc(D.node[blkSel].name) + '</b> - click a building in the block it belongs to' : 'same colour = same block. Drag a dot to position its marker; send blocks.json'}</span></div>
+  <div class="sr">${blkSel ? mini('Put ' + esc(D.node[blkSel].name) + ' in its own block', () => { E.setBlock(blkSel, 'own_' + blkSel); saveBlocks(); blkSel = null; syncBlockMarks(); render(); }) : ''}${mini('Download blocks.json', () => dlJSON('blocks.json', { note: 'APOC city blocks: building -> block id (same id = same block); markers = where each block marker was placed on the board (px)', version: VERSION, blocks: E.blocksMap(), markers: blkPos }))}${mini('Reset to default', () => { try { localStorage.removeItem('apoc-blocks'); localStorage.removeItem('apoc-blockpos'); } catch (x) {} toast('Reload the page to restore the original blocks'); })}</div>
   <div style="max-height:150px;overflow:auto;font-size:10.5px;color:#aab">${Object.keys(groups).sort().map(k => '<div><b>' + esc(k) + '</b>: ' + groups[k].map(esc).join(', ') + '</div>').join('')}</div>`;
 }
 function doorsPanel() {
