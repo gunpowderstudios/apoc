@@ -349,3 +349,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 ## News card stays up (v1.284)
 - The big news card now stays on screen after the dice are rolled until the player closes it (click or Esc), also during AI turns. (Reverts the v1.276 auto-close on roll.)
+
+## ACTIVE token look (v1.285)
+- Test-build visual only: the ACTIVE token on a news card is turned to read horizontally, sits over the card's top-left corner and glows in its colour.
