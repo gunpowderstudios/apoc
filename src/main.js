@@ -708,6 +708,7 @@ function renderPlayers() {
 function renderTurn() {
   renderTurn0(); $('#turn').classList.toggle('min', turnMin);
   if (!S || S.over) return;
+  if (S.pending && mine(S.pending.pl)) { $('#turn').insertAdjacentHTML('afterbegin', `<div class="promptbox">${promptModal(S.pending)}</div>`); $('#turn').classList.remove('min'); }   // decision prompts (keep dice / re-roll etc.) live in the player panel, not a pop-up
   const pa = S.players[actor()], el = $('#turn');
   const items = pa.items.map(i => `<span class="gitem${i.broken ? ' brk' : ''}">${esc((E.D.item[i.id] || {}).name || i.id)}${i.broken ? ' (broken)' : ''}</span>`).join('') || '<span class="note">no items</span>';
   let bk = '';
@@ -960,7 +961,7 @@ const box = html => html;
 function renderModal() {
   const m = $('#modal'), b = $('#modalBox'); let html = null;
   if (S.over) html = gameOverModal();
-  else if (S.pending && mine(S.pending.pl)) html = promptModal(S.pending);
+  else if (S.pending && mine(S.pending.pl)) html = null;
   else if (modalFn) html = modalFn();
   if (html == null) { m.hidden = true; b._html = null; return; }
   const dock = !!(S.pending && mine(S.pending.pl) && ['reroll', 'gambleNext'].includes(S.pending.kind) && !S.over);   // dice prompts sit at the bottom so the thrown dice stay visible

@@ -343,3 +343,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 ## Table View on small screens (v1.282)
 - Table View now frames the whole table, including each player's items and resource tokens below their cards, on short windows (tilts closer to overhead and keeps more room clear at the bottom).
+
+## Decision prompts in the player panel (v1.283)
+- Prompts such as Keep dice / Re-roll (and every other choice a player must make) now appear in a highlighted box at the top of the player panel on the right instead of a pop-up, so nothing covers the board or dice.

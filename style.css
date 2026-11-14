@@ -420,3 +420,6 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 #refpanels table{width:100%;border-collapse:collapse;margin:0 0 6px}
 #refpanels td{padding:3px 12px;vertical-align:top}#refpanels td.px{text-align:right;white-space:nowrap;color:#ffd54f;font-weight:700}#refpanels td.n{width:18px;font-weight:800;color:#ffd54f}
 #refpanels .rn{padding:0 12px 4px;font-size:11px;opacity:.75}
+/* v1.283: decision prompts inside the player panel */
+#turn .promptbox{background:#2b2410;border:2px solid #ffd54f;border-radius:8px;padding:8px 10px;margin-bottom:8px;box-shadow:0 0 14px #ffd54f55}
+#turn .promptbox h2{margin:0 0 6px;font-size:15px;color:#ffd54f}
