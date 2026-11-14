@@ -764,7 +764,10 @@ function endGrabTurn(s) {
 export function viaSegBlocked(s, p, prev, cur, to) {
   if (!prev || !cur || prev === to) return false;
   if (hasItem(p, 'bolt-cutters') || p.prepper === 'sam') return false;
-  return D.node[prev].kind === 'building' && D.node[cur].kind === 'street' && D.node[to].kind === 'building';
+  const A = D.node[prev], C = D.node[cur], B = D.node[to];
+  if (!(A.kind === 'building' && C.kind === 'street' && B.kind === 'building')) return false;
+  if (C.seg) { const [x1, y1, x2, y2] = C.seg, horiz = Math.abs(x2 - x1) >= Math.abs(y2 - y1), side = n => Math.sign(horiz ? n.y - (y1 + y2) / 2 : n.x - (x1 + x2) / 2); if (side(A) !== side(B)) return false; }   // across the street is a different block: allowed (v1.254)
+  return true;
 }
 export function canStep(s, p, to) {
   if (!D.adj[p.node].includes(to)) return false;

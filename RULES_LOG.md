@@ -287,3 +287,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.252): glowing buildings now have a bigger ring on top of the piles; clicking a pile or the door area walks you in. Volume sliders now work on iPad/iPhone.
 
 - Test-build tool (v1.253): spaces further away within your remaining moves show a lighter, smaller glow (not clickable) so you can plan ahead; adjacent spaces stay bright.
+
+- Rule fix (v1.254): the no-shortcut rule (building -> street -> building next door needs bolt cutters / Sam) only applies to buildings on the SAME side of the street. Leaving the Park onto Park View and entering Big Storage across the road is allowed.
