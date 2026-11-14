@@ -58,6 +58,7 @@ async function boot() {
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config, adjacent] = await Promise.all(['board', 'items', 'news', 'preppers', 'config', 'adjacent'].map(rd));
   D = E.init({ board, items, news, preppers, config, adjacent });
+  try { for (const k of JSON.parse(localStorage.getItem('apoc-doors-off') || '[]')) { const [b, e] = k.split('|'); if (D.node[b] && D.node[e]) E.setDoor(b, e, false); } } catch (e) {}
   origSetup = Object.fromEntries(D.board.nodes.map(n => [n.id, { ...(n.setup || {}) }]));   // the board.json starting piles, for Reset
   try { tokDef = await (await fetch('data/tokenlayout.json?v=' + Date.now())).json(); } catch (e) { tokDef = null; }
   applySetup({ ...(tokDef && tokDef.setup || {}), ...(JSON.parse(localStorage.getItem('apoc-setup') || 'null') || {}) });
@@ -1080,7 +1081,19 @@ function sandboxPanel() {   // compact test tools, shown in the side bar (own bo
   <div class="sr"><span class="sl">Move</span>${mini(sbxMove ? '✔ click board' : 'Teleport…', () => { sbxMove = !sbxMove; render(); }, { cls: sbxMove ? 'on' : '' })}</div>
   <div class="sr"><span class="sl">Layout</span>${mini(V3 && V3.editPiles ? '✔ drag piles on board' : 'Move piles…', () => { V3.editPiles = !V3.editPiles; render(); }, { cls: V3 && V3.editPiles ? 'on' : '' })}${mini('Download', () => downloadLayout(), { title: 'Download the token layout as JSON to send back' })}${mini('Load…', () => $('#layoutFile').click())}${mini('Reset', () => { if (!confirm('Put every pile back to the default layout?')) return; try { localStorage.removeItem('apoc-tokenlayout'); localStorage.removeItem('apoc-setup'); } catch (e) {} applySetup({ ...origSetup, ...(tokDef && tokDef.setup || {}) }); V3.layout = JSON.parse(JSON.stringify(V3.defaultLayout || {})); render(); })}<input type="file" id="layoutFile" accept=".json" hidden></div>
 ${V3 && V3.editPiles ? pileEditor() : ''}
+  ${doorsPanel()}
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
+}
+let doorsOpen = false;
+function doorList() { const out = []; for (const n of D.board.nodes) if (n.kind === 'building') (n.entrances || []).forEach((e, i) => out.push({ b: n.id, e, name: n.name, st: D.node[e] ? D.node[e].name : e, arrow: (n.entArrows || [])[i] || null })); return out; }
+function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e) })) : []); }
+function toggleDoor(b, e) { const closed = E.closedDoors().includes(b + '|' + e); E.setDoor(b, e, closed); try { localStorage.setItem('apoc-doors-off', JSON.stringify(E.closedDoors())); } catch (x) {} render(); }
+function doorsPanel() {
+  const mini = (label, fn, o = {}) => btn(label, fn, o), closed = new Set(E.closedDoors());
+  const rows = doorsOpen ? `<div class="sg" style="max-height:220px;overflow:auto;display:block">${doorList().map(d => mini((closed.has(d.b + '|' + d.e) ? '✖ ' : '✔ ') + d.name + ' → ' + d.st, () => toggleDoor(d.b, d.e), { cls: closed.has(d.b + '|' + d.e) ? '' : 'on' })).join('')}</div>
+    <div class="sr">${mini('All doors on', () => { for (const k of E.closedDoors()) { const [b, e] = k.split('|'); E.setDoor(b, e, true); } try { localStorage.setItem('apoc-doors-off', '[]'); } catch (x) {} render(); })}${mini('Copy closed list', () => { const t = E.closedDoors().map(k => k.replace('|', ' → ')).join('\n') || 'all doors on'; try { navigator.clipboard.writeText('Closed doors:\n' + t); toast('Copied: ' + (E.closedDoors().length || 'no') + ' closed doors'); } catch (x) { toast(t); } })}</div>` : '';
+  setTimeout(syncDoorMarks, 0);
+  return `<div class="sr"><span class="sl">Doors</span>${mini(doorsOpen ? '✔ doors shown (green on / red off)' : 'Check doors…', () => { doorsOpen = !doorsOpen; render(); }, { cls: doorsOpen ? 'on' : '' })}</div>${rows}`;
 }
 let origSetup = {}, tokDef = null;
 function applySetup(map) {   // starting piles per space: { node: { resource: count } } (replaces that space's setup)

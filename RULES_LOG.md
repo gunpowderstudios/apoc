@@ -289,3 +289,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.253): spaces further away within your remaining moves show a lighter, smaller glow (not clickable) so you can plan ahead; adjacent spaces stay bright.
 
 - Rule fix (v1.254): the no-shortcut rule (building -> street -> building next door needs bolt cutters / Sam) only applies to buildings on the SAME side of the street. Leaving the Park onto Park View and entering Big Storage across the road is allowed.
+
+- Test-build tool (v1.255): Sandbox > Doors > 'Check doors...' draws a green (on) / red (off) box round every door arrow on the map and lists every door; click a door in the list to switch it on/off to test movement (saved in this browser). 'Copy closed list' copies what you switched off so you can report back.

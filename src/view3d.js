@@ -314,6 +314,12 @@ export class View3D {
       }
     }
   }
+  setDoorMarks(list) {   // sandbox door checker: a hollow box round each door arrow, green = door on, red = off
+    const key = JSON.stringify(list); if (key === this.doorKey) return; this.doorKey = key;
+    if (!this.doorG) { this.doorG = new THREE.Group(); this.scene.add(this.doorG); } this.doorG.clear();
+    const g = new THREE.RingGeometry(0.021, 0.026, 4, 1, Math.PI / 4);   // hollow square frame: the map underneath stays visible
+    for (const d of list) { const [cx, cz] = this.w({ x: d.x, y: d.y }); const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: d.open ? 0x2ecc71 : 0xe74c3c, transparent: true, opacity: 0.95, depthTest: false, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.03, cz); m.renderOrder = 13; this.doorG.add(m); }
+  }
   tex(url) {
     if (!this.texs[url]) { const x = this.tl.load(url); x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; this.texs[url] = x; }
     return this.texs[url];

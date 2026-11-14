@@ -769,6 +769,13 @@ export function viaSegBlocked(s, p, prev, cur, to) {
   if (C.seg) { const [x1, y1, x2, y2] = C.seg, horiz = Math.abs(x2 - x1) >= Math.abs(y2 - y1), side = n => Math.sign(horiz ? n.y - (y1 + y2) / 2 : n.x - (x1 + x2) / 2); if (side(A) !== side(B)) return false; }   // across the street is a different block: allowed (v1.254)
   return true;
 }
+// sandbox: switch a building's door (building <-> its entrance street space) on or off to test movement (v1.255)
+export function setDoor(b, e, open) {
+  D.closed = D.closed || new Set(); const key = b + '|' + e;
+  if (open) { D.closed.delete(key); if (!D.adj[b].includes(e)) { D.adj[b].push(e); D.adj[e].push(b); } }
+  else { D.closed.add(key); D.adj[b] = D.adj[b].filter(x => x !== e); D.adj[e] = D.adj[e].filter(x => x !== b); }
+}
+export const closedDoors = () => [...(D.closed || [])];
 export function canStep(s, p, to) {
   if (!D.adj[p.node].includes(to)) return false;
   return true;
