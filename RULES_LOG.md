@@ -356,3 +356,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.286: the ACTIVE token sits on the very top-left corner of the news card, overlapping it slightly.
 
 - v1.287: the Gun Shop, Hardware Store, Dumpster diving and Burglary reference lists now sit under one collapsed 'Shopping' tab on the left (same width as the legend until opened).
+
+- v1.288: the Shopping tab sits directly under the legend (follows it when the legend expands).

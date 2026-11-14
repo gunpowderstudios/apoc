@@ -679,6 +679,8 @@ function renderRefPanels() {
   const inner = shop('gun', 'gunshop', '🔫 Gun Shop prices') + shop('hw', 'hardwarestore', '🔧 Hardware Store prices') + tbl('dive', '🗑 Dumpster diving', 'Roll 1 die (plus modifiers), 1 action', REF_DIVE) + tbl('burg', '🏚 Burglary', 'Roll 1 die (plus modifiers) at a residence, 1 action', REF_BURGLE);
   const html = `<details data-k="shopping" ${refOpen.has('shopping') ? 'open' : ''}><summary>🛒 Shopping</summary>${inner}</details>`; box.classList.toggle('wide', refOpen.has('shopping'));
   if (box._html !== html) { box._html = html; box.innerHTML = html; }
+  const place = () => { const c = $('#chint'), w = $('#boardWrap').getBoundingClientRect(); let top = 70; if (c && c.offsetParent !== null) { const r = c.getBoundingClientRect(); if (r.height > 0) top = r.bottom - w.top + 8; } box.style.top = top + 'px'; box.style.bottom = 'auto'; box.style.maxHeight = `max(120px, calc(100% - ${top + 110}px))`; };
+  place(); const c = $('#chint'); if (c && !c._ro && window.ResizeObserver) { c._ro = new ResizeObserver(place); c._ro.observe(c); }
 }
 let shopSeen = '';
 function autoShop() {   // arriving at a shop (movement finished, your turn): open the shop so you can buy
