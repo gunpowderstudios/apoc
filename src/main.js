@@ -242,11 +242,12 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bDoors', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
+  $('#bDoors').onclick = () => { doorsOpen = !doorsOpen; $('#bDoors').textContent = doorsOpen ? '🚪 Doors: on' : '🚪 Doors: off'; $('#bDoors').classList.toggle('on', doorsOpen); syncDoorMarks(); render(); };
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
@@ -1073,7 +1074,7 @@ function assumptionsModal() {
 function sandboxPanel() {   // compact test tools, shown in the side bar (own box under the turn panel)
   const t = Math.min(sbxTarget, S.players.length - 1), p = S.players[t];
   const mini = (label, fn, o = {}) => btn(label, fn, o);
-  return `<details open class="sbx"><summary>🧪 Sandbox tools</summary>
+  return `<details ${sbxOpen ? 'open' : ''} class="sbx" ontoggle="window.__sbxOpen(this.open)"><summary>🧪 Sandbox tools</summary>
   <div class="sr"><span class="sl">Player</span>${S.players.map(q => mini(esc(q.name), () => { sbxTarget = q.id; render(); }, { cls: q.id === t ? 'on' : '' })).join('')}</div>
   <div class="sr"><span class="sl">Resources</span><div class="sg">${E.ALLRES.map(r => `<span class="sc"><img src="assets/counters/${ICON[r]}.webp" title="${E.RES_LABEL[r]}"><b>${p.res[r]}</b>${mini('−', () => doCmd({ t: 'sbxGive', p: t, r, n: -1 }), { dis: p.res[r] < 1 })}${mini('+', () => doCmd({ t: 'sbxGive', p: t, r, n: 1 }))}</span>`).join('')}</div></div>
   <div class="sr"><span class="sl">Quick</span>${mini('+3 coin', () => doCmd({ t: 'sbxCoin', p: t, n: 3 }))}${mini('+1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health + 1 }))}${mini('−1 HP', () => doCmd({ t: 'sbxHealth', p: t, n: p.health - 1 }))}${mini('+4 moves', () => doCmd({ t: 'sbxMoves', n: 4 }))}</div>
@@ -1084,7 +1085,7 @@ ${V3 && V3.editPiles ? pileEditor() : ''}
   ${doorsPanel()}
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
 }
-let doorsOpen = false;
+let doorsOpen = false, sbxOpen = false; window.__sbxOpen = o => { sbxOpen = o; };
 function doorList() { const out = []; for (const n of D.board.nodes) if (n.kind === 'building') (n.entrances || []).forEach((e, i) => out.push({ b: n.id, e, name: n.name, st: D.node[e] ? D.node[e].name : e, arrow: (n.entArrows || [])[i] || null })); return out; }
 function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e) })) : []); }
 function toggleDoor(b, e) { const closed = E.closedDoors().includes(b + '|' + e); E.setDoor(b, e, closed); try { localStorage.setItem('apoc-doors-off', JSON.stringify(E.closedDoors())); } catch (x) {} render(); }
@@ -1093,7 +1094,7 @@ function doorsPanel() {
   const rows = doorsOpen ? `<div class="sg" style="max-height:220px;overflow:auto;display:block">${doorList().map(d => mini((closed.has(d.b + '|' + d.e) ? '✖ ' : '✔ ') + d.name + ' → ' + d.st, () => toggleDoor(d.b, d.e), { cls: closed.has(d.b + '|' + d.e) ? '' : 'on' })).join('')}</div>
     <div class="sr">${mini('All doors on', () => { for (const k of E.closedDoors()) { const [b, e] = k.split('|'); E.setDoor(b, e, true); } try { localStorage.setItem('apoc-doors-off', '[]'); } catch (x) {} render(); })}${mini('Copy closed list', () => { const t = E.closedDoors().map(k => k.replace('|', ' → ')).join('\n') || 'all doors on'; try { navigator.clipboard.writeText('Closed doors:\n' + t); toast('Copied: ' + (E.closedDoors().length || 'no') + ' closed doors'); } catch (x) { toast(t); } })}</div>` : '';
   setTimeout(syncDoorMarks, 0);
-  return `<div class="sr"><span class="sl">Doors</span>${mini(doorsOpen ? '✔ doors shown (green on / red off)' : 'Check doors…', () => { doorsOpen = !doorsOpen; render(); }, { cls: doorsOpen ? 'on' : '' })}</div>${rows}`;
+  return `<div class="sr"><span class="sl">Doors</span>${doorsOpen ? '<span class="note">click a door to switch it on/off</span>' : '<span class="note">turn on 🚪 Doors above</span>'}</div>${rows}`;
 }
 let origSetup = {}, tokDef = null;
 function applySetup(map) {   // starting piles per space: { node: { resource: count } } (replaces that space's setup)
