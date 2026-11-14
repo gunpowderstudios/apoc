@@ -78,7 +78,7 @@ export class View3D {
       if (e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'cube' && !this.heldG && this.canAdjustHealth) { const hc = h.mesh.userData.healthCube; this.cdrag = { ...hc, mesh: h.mesh, hp: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
-      if (this.markEdit) { this.ndc(e); const hs = this.ray.intersectObjects([...(this.doorG ? this.doorG.children : []), ...(this.blkG ? this.blkG.children : [])], false).filter(x => x.object.userData.mk); if (hs.length) { const o = hs[0].object; this.mdrag = { mk: o.userData.mk, mesh: o.userData.main || o, moved: false }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); return; } }
+      if (this.markEdit) { this.ndc(e); const hs = this.ray.intersectObjects([...(this.doorG ? this.doorG.children : []), ...(this.blkG ? this.blkG.children : []), ...(this.roadG ? this.roadG.children : [])], false).filter(x => x.object.userData.mk); if (hs.length) { const o = hs[0].object; this.mdrag = { mk: o.userData.mk, mesh: o.userData.main || o, moved: false }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); return; } }
       if (h && h.type === 'token' && this.editPiles && h.info && h.info.node !== undefined) { this.pdrag = { node: h.info.node, r: h.info.r }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
@@ -336,6 +336,17 @@ export class View3D {
     });
     const SEL = items.find(i => i.id === sel);
     if (SEL) { const [x, z] = this.w({ x: SEL.x, y: SEL.y }); const r = new THREE.Mesh(new THREE.RingGeometry(0.03, 0.04, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, depthTest: false, side: THREE.DoubleSide })); r.rotation.x = -Math.PI / 2; r.position.set(x, 0.009, z); r.renderOrder = 15; this.blkG.add(r); }
+  }
+  setRoadMarks(items) {   // sandbox road checker: street spaces (orange, with their road line) and junctions (white); each counts as one move
+    const key = JSON.stringify(items); if (key === this.roadKey) return; this.roadKey = key;
+    if (!this.roadG) { this.roadG = new THREE.Group(); this.scene.add(this.roadG); } this.roadG.clear();
+    const sg = new THREE.RingGeometry(0.007, 0.011, 4, 1, 0), jg = new THREE.CircleGeometry(0.0075, 16), hg = new THREE.CircleGeometry(0.02, 12), lm = new THREE.LineBasicMaterial({ color: 0xff9800, depthTest: false, transparent: true, opacity: 0.8 });
+    for (const it of items) {
+      const [x, z] = this.w({ x: it.x, y: it.y }), j = it.kind === 'intersection';
+      if (it.seg && !j) { const [ax, az] = this.w({ x: it.seg[0], y: it.seg[1] }), [bx, bz] = this.w({ x: it.seg[2], y: it.seg[3] }); const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(ax, 0.006, az), new THREE.Vector3(bx, 0.006, bz)]), lm); l.renderOrder = 12; this.roadG.add(l); }
+      const m = new THREE.Mesh(j ? jg : sg, new THREE.MeshBasicMaterial({ color: j ? 0xffffff : 0xff9800, depthTest: false, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.007, z); m.renderOrder = 14; m.userData.mk = { kind: 'road', id: it.id }; this.roadG.add(m);
+      const h = new THREE.Mesh(hg, new THREE.MeshBasicMaterial({ visible: false })); h.rotation.x = -Math.PI / 2; h.position.set(x, 0.01, z); h.userData.mk = m.userData.mk; h.userData.main = m; this.roadG.add(h);
+    }
   }
   setDoorMarks(list) {   // sandbox door checker: a hollow box round each door arrow, green = door on, red = off
     const key = JSON.stringify(list); if (key === this.doorKey) return; this.doorKey = key;

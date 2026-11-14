@@ -244,13 +244,14 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bDoors', 'bBlocks', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bDoors', 'bBlocks', 'bRoads', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
   $('#bDoors').onclick = () => { doorsOpen = !doorsOpen; $('#bDoors').textContent = doorsOpen ? '🚪 Doors: on' : '🚪 Doors: off'; $('#bDoors').classList.toggle('on', doorsOpen); syncDoorMarks(); render(); };
   $('#bBlocks').onclick = () => { blocksOn = !blocksOn; blkSel = null; $('#bBlocks').textContent = blocksOn ? '🧱 Blocks: on' : '🧱 Blocks: off'; $('#bBlocks').classList.toggle('on', blocksOn); syncBlockMarks(); render(); };
+  $('#bRoads').onclick = () => { roadsOn = !roadsOn; $('#bRoads').textContent = roadsOn ? '🛣 Roads: on' : '🛣 Roads: off'; $('#bRoads').classList.toggle('on', roadsOn); syncRoadMarks(); render(); };
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
@@ -1088,10 +1089,11 @@ function sandboxPanel() {   // compact test tools, shown in the side bar (own bo
 ${V3 && V3.editPiles ? pileEditor() : ''}
   ${doorsPanel()}
   ${blocksPanel()}
+  ${roadsPanel()}
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
 }
 let blocksOn = false, blkSel = null, blkPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-blockpos')) || {}; } catch (e) { return {}; } })();
-function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: (blkPos[n.id] || [n.x])[0], y: (blkPos[n.id] || [0, n.y])[1], block: String(n.block) })) : [], blkSel); }
+function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: (blkPos[n.id] || [n.x])[0], y: (blkPos[n.id] || [0, n.y])[1], block: String(n.block) })) : [], blkSel); }
 function saveBlocks() { try { localStorage.setItem('apoc-blocks', JSON.stringify(E.blocksMap())); } catch (e) {} }
 function blockClick(id) {   // pick a building, then click one in the block it belongs to: it joins that block
   if (!D.node[id] || D.node[id].kind !== 'building') { toast('Click a building'); return; }
@@ -1102,17 +1104,27 @@ function blockClick(id) {   // pick a building, then click one in the block it b
 }
 let doorsOpen = false, sbxOpen = false; window.__sbxOpen = o => { sbxOpen = o; };
 function doorList() { const out = []; for (const n of D.board.nodes) if (n.kind === 'building') (n.entrances || []).forEach((e, i) => out.push({ b: n.id, e, name: n.name, st: D.node[e] ? D.node[e].name : e, arrow: (n.entArrows || [])[i] || null })); return out; }
-function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn)); const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e), key: d.b + '|' + d.e })) : []); }
+function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e), key: d.b + '|' + d.e })) : []); }
 function toggleDoor(b, e) { const closed = E.closedDoors().includes(b + '|' + e); E.setDoor(b, e, closed); try { localStorage.setItem('apoc-doors-off', JSON.stringify(E.closedDoors())); } catch (x) {} render(); }
 function onMarkDrag(mk, to) {   // sandbox: a door box or a building dot was clicked (to = null) or dragged to a new spot on the board
   if (mk.kind === 'door') {
     const [b, e] = mk.key.split('|');
     if (!to) return void toggleDoor(b, e);
     E.moveDoor(b, e, e, [Math.round(to.x), Math.round(to.y)]); saveDoorPos(); toast(D.node[b].name + ' door marker moved');
+  } else if (mk.kind === 'road') { if (to) { roadPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-roadpos', JSON.stringify(roadPos)); } catch (e) {} toast((D.node[mk.id].name || mk.id) + ' marker moved'); }
   } else if (to) { blkPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-blockpos', JSON.stringify(blkPos)); } catch (e) {} toast(D.node[mk.id].name + ' marker moved'); }
-  syncDoorMarks(); syncBlockMarks(); render();
+  syncDoorMarks(); syncBlockMarks(); syncRoadMarks(); render();
 }
 function saveDoorPos() { try { localStorage.setItem('apoc-doorpos', JSON.stringify(E.doorsData())); } catch (e) {} }
+let roadsOn = false, roadPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-roadpos')) || {}; } catch (e) { return {}; } })();
+function syncRoadMarks() { if (!V3 || !V3.setRoadMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); V3.setRoadMarks(roadsOn ? D.board.nodes.filter(n => n.kind === 'street' || n.kind === 'intersection').map(n => ({ id: n.id, kind: n.kind, seg: n.seg || null, x: (roadPos[n.id] || [n.x])[0], y: (roadPos[n.id] || [0, n.y])[1] })) : []); }
+function roadsPanel() {
+  const mini = (label, fn, o = {}) => btn(label, fn, o); setTimeout(syncRoadMarks, 0);
+  if (!roadsOn) return '<div class="sr"><span class="sl">Roads</span><span class="note">turn on 🛣 Roads above</span></div>';
+  const ns = D.board.nodes.filter(n => n.kind === 'street').length, ni = D.board.nodes.filter(n => n.kind === 'intersection').length;
+  return `<div class="sr"><span class="sl">Roads</span><span class="note">${ns} road spaces (orange) + ${ni} junctions (white), each = 1 move. Drag a marker to where its circle should sit</span></div>
+  <div class="sr">${mini('Download roads.json', () => dlJSON('roads.json', { note: 'APOC road spaces and junctions: id -> marker position on the board (px); original = where the move circle is now', version: VERSION, positions: Object.fromEntries(D.board.nodes.filter(n => n.kind === 'street' || n.kind === 'intersection').map(n => [n.id, { kind: n.kind, name: n.name || '', original: [n.x, n.y], marker: roadPos[n.id] || [n.x, n.y] }])) }))}${mini('Reset to default', () => { roadPos = {}; try { localStorage.removeItem('apoc-roadpos'); } catch (x) {} syncRoadMarks(); render(); })}</div>`;
+}
 function dlJSON(name, obj) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 1)], { type: 'application/json' })); a.download = name; a.click(); }
 function blocksPanel() {
   const mini = (label, fn, o = {}) => btn(label, fn, o); setTimeout(syncBlockMarks, 0);
