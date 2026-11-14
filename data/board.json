@@ -132,8 +132,8 @@
   {
    "id": "I30",
    "kind": "intersection",
-   "x": 340,
-   "y": 1521,
+   "x": 355,
+   "y": 1520,
    "name": "Dumpster Drive / Rust Road",
    "sector": "SW"
   },
@@ -157,8 +157,8 @@
   {
    "id": "I33",
    "kind": "intersection",
-   "x": 1850,
-   "y": 1588,
+   "x": 1835,
+   "y": 1561,
    "name": "Fairbrass Exchange / Bourbon Street",
    "sector": "SE"
   },
@@ -327,8 +327,8 @@
   {
    "id": "H2_0",
    "kind": "street",
-   "x": 170,
-   "y": 1068,
+   "x": 166,
+   "y": 1065,
    "name": "West Street",
    "seg": [
     0,
@@ -342,8 +342,8 @@
   {
    "id": "H2_1",
    "kind": "street",
-   "x": 586,
-   "y": 1068,
+   "x": 594,
+   "y": 1077,
    "name": "Justice Way",
    "seg": [
     340,
@@ -930,8 +930,8 @@
    ],
    "entArrows": [
     [
-     2206,
-     249
+     2199,
+     244
     ]
    ],
    "note": "",
@@ -1129,8 +1129,8 @@
    ],
    "entArrows": [
     [
-     2293,
-     964
+     2286,
+     938
     ]
    ],
    "note": "",
@@ -1245,7 +1245,7 @@
    "entArrows": [
     [
      1114,
-     667
+     668
     ],
     [
      1568,
@@ -1806,8 +1806,8 @@
    ],
    "entArrows": [
     [
-     2459,
-     1117
+     2448,
+     1113
     ]
    ],
    "note": "",

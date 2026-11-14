@@ -309,3 +309,4 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 - Test-build tool (v1.264): cog menu 'Subways' toggle shows the 6 subway stations; in sandbox drag a marker to where its station sits and Download subways.json to send.
 - Test-build tool (v1.265): Doors / Blocks / Roads / Subways overlays now live only inside the Sandbox tools menu (cog menu, sandbox games only); they switch off in normal games.
+- Board data update (v1.266, from Tim's sandbox files): door arrows nudged for Salvage Yard, Drugs, Park (first door) and Basketball Court; road/junction circles moved for Dumpster Drive/Rust Road (I30), Fairbrass/Bourbon (I33), West Street and Justice Way. Block groups confirmed unchanged (saved as data/blocks.json); subway marker positions saved as data/subways.json (West Street station marker sits at the left board edge).

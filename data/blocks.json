@@ -1,0 +1,82 @@
+{
+ "note": "APOC city blocks: building -> block id (same id = same block); markers = where each block marker was placed on the board (px)",
+ "blocks": {
+  "church": "0_1",
+  "house1": "0_1",
+  "house2": "0_1",
+  "steel": "1_1",
+  "truckstop": "1_1",
+  "firestation": "2_1",
+  "autoshop": "2_1",
+  "library": "2_1",
+  "dental": "2_1",
+  "hospital": "3_1",
+  "gunshop": "4_1",
+  "salvage": "4_1",
+  "gas": "4_1",
+  "theater": "4_1",
+  "house3": "5_1",
+  "house4": "5_1",
+  "dumpsterNE": "x_dumpsterNE",
+  "police": "4_2",
+  "grocery": "4_2",
+  "music": "4_2",
+  "drugs": "4_2",
+  "pet": "4_2",
+  "house5": "5_2",
+  "house6": "5_2",
+  "house7": "5_2",
+  "park": "x_park",
+  "trainstation": "0_2",
+  "hardwarestore": "1_2",
+  "school": "1_2",
+  "cafe": "1_2",
+  "powerplant": "0_3",
+  "prison": "1_3",
+  "gym": "1_3",
+  "boatyard": "1_3",
+  "citydump": "1_3",
+  "dumpsterSW": "x_dumpsterSW",
+  "deptstore": "2_3",
+  "house8": "2_3",
+  "house9": "2_3",
+  "house10": "2_3",
+  "bigstorage": "3_3",
+  "offices": "3_3",
+  "restaurant": "3_3",
+  "bookstore": "3_3",
+  "casino": "4_3",
+  "thrift": "4_3",
+  "bar": "4_3",
+  "pizza": "4_3",
+  "pawn": "4_3",
+  "basketball": "5_3",
+  "harbor": "5_3"
+ },
+ "markers": {
+  "house2": [
+   222,
+   461
+  ],
+  "house1": [
+   106,
+   464
+  ],
+  "bigstorage": [
+   1516,
+   1265
+  ],
+  "house8": [
+   919,
+   1448
+  ],
+  "dumpsterSW": [
+   158,
+   1518
+  ],
+  "trainstation": [
+   173,
+   834
+  ]
+ }
+}

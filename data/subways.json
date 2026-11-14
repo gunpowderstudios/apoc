@@ -1,0 +1,71 @@
+{
+ "note": "APOC subway stations: space id -> marker position on the board (px); original = where the space is now. Riding costs 1 DOOMCOIN between any two stations",
+ "stations": {
+  "I00": {
+   "name": "Church Road / Monks Lane",
+   "original": [
+    340,
+    195
+   ],
+   "marker": [
+    340,
+    195
+   ]
+  },
+  "I04": {
+   "name": "Bullet Drive / Stage Door Drive",
+   "original": [
+    2316,
+    195
+   ],
+   "marker": [
+    2316,
+    195
+   ]
+  },
+  "I12": {
+   "name": "Green Park Avenue",
+   "original": [
+    1333,
+    590
+   ],
+   "marker": [
+    1333,
+    590
+   ]
+  },
+  "H2_0": {
+   "name": "West Street",
+   "original": [
+    170,
+    1068
+   ],
+   "marker": [
+    40,
+    1060
+   ]
+  },
+  "I24": {
+   "name": "Coin Street / Hoop Lane",
+   "original": [
+    2316,
+    1068
+   ],
+   "marker": [
+    2316,
+    1068
+   ]
+  },
+  "I32": {
+   "name": "Riverside View / South Bridge Ave",
+   "original": [
+    1333,
+    1544
+   ],
+   "marker": [
+    1333,
+    1544
+   ]
+  }
+ }
+}
