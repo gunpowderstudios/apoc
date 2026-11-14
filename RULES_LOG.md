@@ -298,3 +298,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 - Test-build tool (v1.258): cog menu 'Blocks' toggle colour-codes every building by its city block (same colour = same block, listed in the sandbox panel). In a sandbox game click a building, then one in the block it belongs to, to move it there; Download blocks.json to send. Doors list also has Download doors.json.
 - Test-build tool (v1.259): in sandbox, door boxes and block dots are small and draggable: drag a door box to move it (drop it on a different street space to re-link the door), click it to switch the door on/off; drag a building's block dot onto a building in the block it belongs to. Download doors.json / blocks.json to send.
+
+- Test-build tool (v1.260): door boxes, block dots and building glow rings sit much lower, close to the table.
