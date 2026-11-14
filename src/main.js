@@ -635,7 +635,7 @@ function throwDice(r) {
   if (r.kind === 'day' || r.kind === 'night' || r.kind === 'news') sp = [{ set: r.kind, face: r.face }];
   else if (r.kind === 'risk') sp = [{ set: 'num', face: Math.max(0, Math.min(5, (r.value || 1) - 1)) }];
   else if (r.kind === 'fight') sp = [r.a, r.d].map(x => ({ set: 'num', face: Math.max(0, Math.min(5, ((x && x.r) || 1) - 1)) }));
-  if (sp) { closeNewsBig(); { const z = $('#zoom'); if (z && !z.hidden) z.hidden = true; } V3.rollDice(sp, r.pl, S.players.length); if (followArmed && !whole) V3.followDice(); }
+  if (sp) { { const z = $('#zoom'); if (z && !z.hidden) z.hidden = true; } V3.rollDice(sp, r.pl, S.players.length); if (followArmed && !whole) V3.followDice(); }
 }
 function rollSound() {
   const k = S.lastRoll ? (S.lastRoll.rn || JSON.stringify(S.lastRoll)) : null;   // one throw per roll: keyed on the roll itself, not on the log length

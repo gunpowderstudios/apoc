@@ -346,3 +346,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 ## Decision prompts in the player panel (v1.283)
 - Prompts such as Keep dice / Re-roll (and every other choice a player must make) now appear in a highlighted box at the top of the player panel on the right instead of a pop-up, so nothing covers the board or dice.
+
+## News card stays up (v1.284)
+- The big news card now stays on screen after the dice are rolled until the player closes it (click or Esc), also during AI turns. (Reverts the v1.276 auto-close on roll.)
