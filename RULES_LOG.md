@@ -314,3 +314,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.267): the Sandbox checkbox on the start screen is hidden from other players; add ?dev=1 to the game address once to show it in your browser (?dev=0 hides it again).
 
 - Test-build tool (v1.268): clicking the DEFCON chart pop-up now shows the SHTF token (and the Panic Index tokens) in their current positions.
+
+- Test-build tool (v1.269): shortcut legend (P = Player) and Tips for playing share one transparent black panel.

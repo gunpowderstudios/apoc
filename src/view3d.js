@@ -581,7 +581,7 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.innerHTML = '<div class="keys">B  Board / Centre\nC  Card\nP  Piece\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause</div>' + `<details id="tips"><summary>Tips for playing</summary><ol>
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.innerHTML = '<div class="keys">B  Board / Centre\nC  Card\nP  Player\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause</div>' + `<details id="tips"><summary>Tips for playing</summary><ol>
 <li><b>Your turn:</b> Eat (1 food, or lose 1 health), Draw the news, roll the news dice, then roll Day or Night to get your moves.</li>
 <li><b>Keep food in your pack.</b> No food at the start of your turn costs you 1 health.</li>
 <li><b>Pick up free resources</b> lying on streets and at the Church. Resources inside buildings belong to the shop: buy, steal or loot them.</li>
