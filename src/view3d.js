@@ -556,7 +556,7 @@ export class View3D {
     specs.forEach((sp, k) => {
       const mats = [0, 1, 2, 3, 4, 5].map(i => { const m = new THREE.MeshStandardMaterial({ roughness: 0.45 }); if (sp.set === 'news') m.color.set([0xff7a70, 0x6fb0ff, 0xffd54f][i] || 0xffffff);   // tint each news face with its event colour (pandemic red, AI blue, nuclear amber)
       const u = `assets/dice/f${String(base[sp.set] + i).padStart(2, '0')}.webp`; m.map = this.texs['d' + u] || (this.texs['d' + u] = this.tl.load(u)); m.map.colorSpace = THREE.SRGBColorSpace; return m; });
-      const geo = roundedDie(SZ, SZ * 0.09, 6), mesh = new THREE.Mesh(geo, mats); mesh.castShadow = true; mesh.receiveShadow = true; this.dice.add(mesh);
+      const geo = new THREE.BoxGeometry(SZ, SZ, SZ), mesh = new THREE.Mesh(geo, mats); mesh.castShadow = true; mesh.receiveShadow = true; this.dice.add(mesh);
       // final orientation: slot `face` normal -> +Y, then a random spin about Y
       const q0 = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(...nrm[sp.face]), new THREE.Vector3(0, 1, 0));
       // spin about Y so the picture on the top face is the right way up for the camera (the top of the artwork points away from the viewer)

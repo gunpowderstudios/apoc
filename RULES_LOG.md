@@ -324,3 +324,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.272): dice now have slightly rounded corners and edges, like real dice.
 
 - Test-build tool (v1.273): new shortcut O = Overhead View: looks straight down on the board, no angle, filling the window; press O again to go back.
+
+- Test-build tool (v1.274): dice are square-edged again (rounded dice tried in v1.272 and removed).
