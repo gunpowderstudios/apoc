@@ -283,3 +283,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (online lobby, v1.250): the host screen starts as "Me + 3 open seats". Friends join with the room link and take an open seat themselves; seats you set to AI or Empty show as closed to them. Any open seat nobody takes becomes an AI at the start.
 
 - Test-build tool (v1.251): setup name boxes default to Player 1-4 (no real names); your own name is remembered in this browser until you change it; default AI seats are named after the character, e.g. Sam (AI).
+
+- Test-build tool (v1.252): glowing buildings now have a bigger ring on top of the piles; clicking a pile or the door area walks you in. Volume sliders now work on iPad/iPhone.

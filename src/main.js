@@ -16,7 +16,13 @@ const aiName = (name, prepper) => /^Player \d$/.test(name) ? E.D.prepper[prepper
 // ---- volume: music and sound effects have their own sliders in the cog menu (saved on this device)
 const VOL = (() => { try { return Object.assign({ music: 0.35, fx: 1 }, JSON.parse(localStorage.getItem('apoc-vol'))); } catch (e) { return { music: 0.35, fx: 1 }; } })();
 const fxAudios = [];
-const FXAudio = src => { const a = new Audio(src); a.volume = VOL.fx; fxAudios.push(a); return a; };
+// iPad/iPhone ignore audio.volume, so every sound goes through a WebAudio gain node (works on all devices) (v1.252)
+let _ac = null; const getAC = () => { try { if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)(); if (_ac.state === 'suspended') _ac.resume(); } catch (e) {} return _ac; };
+const routeAudio = (a, key) => { let g = null; const hook = () => { if (g) return; const ac = getAC(); if (!ac) return; try { g = ac.createGain(); ac.createMediaElementSource(a).connect(g); g.connect(ac.destination); a._gain = g; a.volume = 1; g.gain.value = a._vol; } catch (e) {} };
+  a._vol = key === 'music' ? VOL.music : VOL.fx; a._route = hook;
+  const play = a.play.bind(a); a.play = () => { hook(); return play(); };
+  Object.defineProperty(a, 'vol', { set(v) { a._vol = v; if (a._gain) a._gain.gain.value = v; else a.volume = Math.min(1, v); }, get() { return a._vol; } }); return a; };
+const FXAudio = src => { const a = routeAudio(new Audio(src), 'fx'); a.volume = 1; fxAudios.push(a); return a; };
 const img = src => new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -222,7 +228,7 @@ function loadGame(o) {
 }
 
 // ---------------------------------------------------------------- app shell
-const music = new Audio('assets/sfx/ambient.mp3'); music.loop = true; music.volume = VOL.music;
+const music = routeAudio(new Audio('assets/sfx/ambient.mp3'), 'music'); music.loop = true; music.volume = 1; music.vol = VOL.music;
 let musicOn = (() => { try { return localStorage.getItem('apoc-music') !== 'off'; } catch (e) { return true; } })();
 function syncMusic() {
   const b = $('#bMusic'); if (b) b.textContent = musicOn ? '🔇 Music off' : '🎵 Music on';
@@ -246,8 +252,8 @@ function enterApp() {
   $('#bMusic').onclick = toggleMusic; syncMusic();
   { const save = () => { try { localStorage.setItem('apoc-vol', JSON.stringify(VOL)); } catch (e) {} };
     const vm = $('#volMusic'), vf = $('#volFx'); vm.value = Math.round(VOL.music / 0.7 * 100); vf.value = Math.round(VOL.fx * 100);
-    vm.oninput = () => { VOL.music = vm.value / 100 * 0.7; music.volume = VOL.music; save(); };
-    vf.oninput = () => { VOL.fx = vf.value / 100; fxAudios.forEach(a => { a.volume = VOL.fx; }); save(); };
+    vm.oninput = () => { VOL.music = vm.value / 100 * 0.7; music.vol = VOL.music; save(); };
+    vf.oninput = () => { VOL.fx = vf.value / 100; fxAudios.forEach(a => { a.vol = VOL.fx; }); save(); };
     vf.onchange = () => { try { diceSnd.currentTime = 0; diceSnd.play().catch(() => {}); } catch (e) {} }; }   // ambient music while playing
   V2 = new View2D($('#cv'), D.board, boardImg, icons);
   V2.onClick = onBoardClick; V2.onHover = onHover; V2.onToken = onToken; V2.canDrag = canDrag2D; V2.onDragHover = onDragHover; V2.onDrop = onDrop;
@@ -501,6 +507,9 @@ function onBoardClick(id, pt) {
   if (V2 && V2.edit) { V2.sel = id; V2.dirty = true; return; }
   if (moveSel) return void dropStack(id, pt);
   if (S.sandbox && sbxMove) return void doCmd({ t: 'sbxMove', to: id, p: sbxTarget });
+  if (!targets[id] && pt) {   // clicked just outside a glowing building's door (perspective leaves a gap): walk in
+    for (const k of Object.keys(targets)) { const n = E.D.node[k]; if (n && n.kind === 'building' && (n.entArrows || []).some(a => Math.hypot(a[0] - pt.x, a[1] - pt.y) < 70) && n.entrances.includes(id)) { id = k; break; } }
+  }
   const t = targets[id]; if (!t) return;
   doCmd(t.steps.length === 1 ? { t: 'move', to: id } : { t: 'path', steps: t.steps });
 }

@@ -130,6 +130,7 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
+      if (h && h.type === 'token' && !this.editPiles && h.info && h.info.node !== undefined && this.targets && this.targets[h.info.node]) { const bp = this.boardPoint(e); if (this.onClick) this.onClick(h.info.node, bp ? { x: bp.bx, y: bp.by } : null); return; }   // a glowing building is covered by its resource piles: clicking a pile still moves you in (v1.252)
       if (h && h.type === 'token') { if (this.editPiles) { if (this.onPileClick && h.info && h.info.node !== undefined) this.onPileClick(h.info.node); return; } if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }
       if (h && h.type === 'mat') { if (this.onMat) this.onMat(h.matId, h.cardImg); return; }
@@ -298,10 +299,13 @@ export class View3D {
     if (msig !== this.markSig) {
       this.markSig = msig; this.marks.clear();
       const rg = new THREE.RingGeometry(0.011, 0.016, 28);
+      const rgB = new THREE.RingGeometry(0.022, 0.032, 36);   // buildings: bigger ring drawn on top of the resource piles so it can't be hidden
       for (const id of Object.keys(ui.targets || {})) {
         const t = ui.targets[id], n = this.nodes[id], [cx, cz] = this.w(n);
         const m = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ color: t.kind === 'subway' ? 0xff9800 : t.kind === 'act' ? 0xffd54f : 0x7cf29a, side: THREE.DoubleSide, transparent: true, opacity: 0.95 }));
-        m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.002, cz); this.marks.add(m);
+        m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.002, cz);
+        if (n.kind === 'building') { m.geometry = rgB; m.material.depthTest = false; m.position.y = 0.03; m.renderOrder = 12; }
+        this.marks.add(m);
       }
     }
   }
