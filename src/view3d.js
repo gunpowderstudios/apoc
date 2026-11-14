@@ -78,12 +78,14 @@ export class View3D {
       if (e.button !== 0) return;
       const h = this.hit(e);
       if (h && h.type === 'cube' && !this.heldG && this.canAdjustHealth) { const hc = h.mesh.userData.healthCube; this.cdrag = { ...hc, mesh: h.mesh, hp: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
+      if (this.markEdit) { this.ndc(e); const hs = this.ray.intersectObjects([...(this.doorG ? this.doorG.children : []), ...(this.blkG ? this.blkG.children : [])], false).filter(x => x.object.userData.mk); if (hs.length) { const o = hs[0].object; this.mdrag = { mk: o.userData.mk, mesh: o.userData.main || o, moved: false }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); return; } }
       if (h && h.type === 'token' && this.editPiles && h.info && h.info.node !== undefined) { this.pdrag = { node: h.info.node, r: h.info.r }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
       if (h && h.type === 'pawn' && this.canDrag && this.canDrag(h.pid)) { this.drag = { pid: h.pid, mesh: this.pawnMeshes[h.pid], node: null }; this.ctl.enabled = false; el.setPointerCapture(e.pointerId); }
     }, true);
     el.addEventListener('pointermove', e => {
       if (this.heldG) { this.ndc(e); const pt = new THREE.Vector3(); if (this.ray.ray.intersectPlane(this.heldPlane, pt)) this.heldG.position.set(pt.x, 0.03, pt.z); el.style.cursor = 'grabbing'; this.updateDrop(e); }
       if (down && Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y) > 5) down.moved = true;
+      if (this.mdrag) { if (!down || !down.moved) return; this.ndc(e); const pt = new THREE.Vector3(); if (!this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.033), pt)) return; const d = this.mdrag; d.moved = true; d.bx = pt.x / this.k + this.board.width / 2; d.by = pt.z / this.k + this.board.height / 2; d.mesh.position.x = pt.x; d.mesh.position.z = pt.z; el.style.cursor = 'grabbing'; return; }
       if (this.pdrag) {   // layout editor: dragging a whole pile of tokens on the board
         if (!down || !down.moved) return; const pt = this.boardPoint(e); if (!pt) return; const d = this.pdrag; d.bx = pt.bx; d.by = pt.by;
         for (const m of this.tokens.children) if (m.userData.tok && m.userData.tok.node === d.node && m.userData.tok.r === d.r) { m.position.x = pt.x; m.position.z = pt.z; }
@@ -114,6 +116,7 @@ export class View3D {
     });
     const up = e => {
       if (this._leftWas !== undefined) { this.ctl.mouseButtons.LEFT = this._leftWas; this._leftWas = undefined; }
+      if (this.mdrag) { const d = this.mdrag; this.mdrag = null; this.ctl.enabled = true; const mv = down && down.moved && d.moved; down = null; if (this.onMark) this.onMark(d.mk, mv ? { x: d.bx, y: d.by } : null); this.blkKey = this.doorKey = null; return; }
       if (this.pdrag) {
         const d = this.pdrag; this.pdrag = null; this.ctl.enabled = true;
         if (down && down.moved && d.bx !== undefined) { down = null; this.layout = this.layout || {}; (this.layout[d.node] = this.layout[d.node] || {})[d.r] = [Math.round(d.bx), Math.round(d.by)]; if (this.onLayout) this.onLayout(this.layout); return; }
@@ -318,17 +321,18 @@ export class View3D {
     const key = JSON.stringify([items, sel]); if (key === this.blkKey) return; this.blkKey = key;
     if (!this.blkG) { this.blkG = new THREE.Group(); this.scene.add(this.blkG); } this.blkG.clear();
     const blocks = {}; for (const it of items) (blocks[it.block] = blocks[it.block] || []).push(it);
-    const names = Object.keys(blocks).sort(), dg = new THREE.CircleGeometry(0.014, 20);
+    const names = Object.keys(blocks).sort(), dg = new THREE.CircleGeometry(0.0075, 16), hg = new THREE.CircleGeometry(0.02, 12);
     names.forEach((b, k) => {
       const col = new THREE.Color().setHSL((k * 0.618) % 1, 0.9, 0.55), list = blocks[b];
       const cx = list.reduce((s, i) => s + i.x, 0) / list.length, cy = list.reduce((s, i) => s + i.y, 0) / list.length, [mx, mz] = this.w({ x: cx, y: cy });
       const mat = new THREE.LineBasicMaterial({ color: col, depthTest: false, transparent: true, opacity: 0.9 });
       for (const it of list) {
         const [x, z] = this.w({ x: it.x, y: it.y });
-        const d = new THREE.Mesh(dg, new THREE.MeshBasicMaterial({ color: col, depthTest: false })); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.033, z); d.renderOrder = 14; this.blkG.add(d);
+        const d = new THREE.Mesh(dg, new THREE.MeshBasicMaterial({ color: col, depthTest: false })); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.033, z); d.renderOrder = 14; d.userData.mk = { kind: 'blk', id: it.id }; this.blkG.add(d);
+        { const h = new THREE.Mesh(hg, new THREE.MeshBasicMaterial({ visible: false })); h.rotation.x = -Math.PI / 2; h.position.set(x, 0.035, z); h.userData.mk = d.userData.mk; h.userData.main = d; this.blkG.add(h); }
         if (list.length > 1) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, 0.032, z), new THREE.Vector3(mx, 0.032, mz)]), mat); l.renderOrder = 13; this.blkG.add(l); }
       }
-      if (list.length > 1) { const s = this.numSprite ? null : null; const c = new THREE.Mesh(new THREE.RingGeometry(0.01, 0.016, 4, 1, Math.PI / 4), new THREE.MeshBasicMaterial({ color: col, depthTest: false, side: THREE.DoubleSide })); c.rotation.x = -Math.PI / 2; c.position.set(mx, 0.034, mz); c.renderOrder = 14; this.blkG.add(c); }
+      if (list.length > 1) { const s = this.numSprite ? null : null; const c = new THREE.Mesh(new THREE.RingGeometry(0.006, 0.009, 4, 1, Math.PI / 4), new THREE.MeshBasicMaterial({ color: col, depthTest: false, side: THREE.DoubleSide })); c.rotation.x = -Math.PI / 2; c.position.set(mx, 0.034, mz); c.renderOrder = 14; this.blkG.add(c); }
     });
     const SEL = items.find(i => i.id === sel);
     if (SEL) { const [x, z] = this.w({ x: SEL.x, y: SEL.y }); const r = new THREE.Mesh(new THREE.RingGeometry(0.03, 0.04, 32), new THREE.MeshBasicMaterial({ color: 0xffeb3b, depthTest: false, side: THREE.DoubleSide })); r.rotation.x = -Math.PI / 2; r.position.set(x, 0.036, z); r.renderOrder = 15; this.blkG.add(r); }
@@ -336,8 +340,9 @@ export class View3D {
   setDoorMarks(list) {   // sandbox door checker: a hollow box round each door arrow, green = door on, red = off
     const key = JSON.stringify(list); if (key === this.doorKey) return; this.doorKey = key;
     if (!this.doorG) { this.doorG = new THREE.Group(); this.scene.add(this.doorG); } this.doorG.clear();
-    const g = new THREE.RingGeometry(0.021, 0.026, 4, 1, Math.PI / 4);   // hollow square frame: the map underneath stays visible
-    for (const d of list) { const [cx, cz] = this.w({ x: d.x, y: d.y }); const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: d.open ? 0x2ecc71 : 0xe74c3c, transparent: true, opacity: 0.95, depthTest: false, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.03, cz); m.renderOrder = 13; this.doorG.add(m); }
+    const g = new THREE.RingGeometry(0.0125, 0.0165, 4, 1, Math.PI / 4), hg = new THREE.CircleGeometry(0.02, 12);   // hollow square frame: the map underneath stays visible
+    for (const d of list) { const [cx, cz] = this.w({ x: d.x, y: d.y }); const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: d.open ? 0x2ecc71 : 0xe74c3c, transparent: true, opacity: 0.95, depthTest: false, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.03, cz); m.renderOrder = 13; m.userData.mk = { kind: 'door', key: d.key }; this.doorG.add(m);
+      const h = new THREE.Mesh(hg, new THREE.MeshBasicMaterial({ visible: false })); h.rotation.x = -Math.PI / 2; h.position.set(cx, 0.031, cz); h.userData.mk = m.userData.mk; h.userData.main = m; this.doorG.add(h); }
   }
   tex(url) {
     if (!this.texs[url]) { const x = this.tl.load(url); x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = 8; this.texs[url] = x; }

@@ -778,6 +778,20 @@ export function setDoor(b, e, open) {
 // sandbox: edit which buildings touch each other (used by the bolt-cutter / Sam rule) (v1.258)
 export function setNextTo(a, b, on) { for (const k of [a + '|' + b, b + '|' + a]) { if (on) D.nextTo.add(k); else D.nextTo.delete(k); } }
 export const nextToPairs = () => { const out = []; for (const k of D.nextTo) { const [a, b] = k.split('|'); if (a < b) out.push([a, b]); } return out.sort((x, y) => (x[0] + x[1]).localeCompare(y[0] + y[1])); };
+export function moveDoor(b, key, newE, arrow) {   // sandbox: move a door arrow on the map and (optionally) re-link it to another street space
+  const n = D.node[b], i = n.entrances.indexOf(key); if (i < 0) return key; const old = n.entrances[i];
+  if (arrow) { n.entArrows = n.entArrows || []; n.entArrows[i] = arrow; }
+  if (newE && newE !== old && D.node[newE] && D.node[newE].kind !== 'building') {
+    const closed = D.closed && D.closed.has(b + '|' + old); if (D.closed) D.closed.delete(b + '|' + old);
+    n.entrances[i] = newE;
+    if (!n.entrances.includes(old)) { D.adj[b] = D.adj[b].filter(x => x !== old); D.adj[old] = D.adj[old].filter(x => x !== b); }
+    if (!D.adj[b].includes(newE) && !closed) { D.adj[b].push(newE); D.adj[newE].push(b); }
+    if (closed) { D.closed.add(b + '|' + newE); }
+    return newE;
+  }
+  return old;
+}
+export const doorsData = () => Object.fromEntries(D.board.nodes.filter(n => n.kind === 'building').map(n => [n.id, n.entrances.map((e, i) => ({ entrance: e, arrow: (n.entArrows || [])[i] || null }))]));
 export function setBlock(id, blk) { D.node[id].block = blk; }
 export const blocksMap = () => Object.fromEntries(D.board.nodes.filter(n => n.kind === 'building').map(n => [n.id, n.block]));
 export const closedDoors = () => [...(D.closed || [])];
