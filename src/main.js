@@ -9,6 +9,8 @@ import { HostNet, GuestNet } from './net.js';
 const $ = s => document.querySelector(s);
 const ICON = { food: 'food', knowhow: 'know-how', chem: 'chem', hardware: 'hardware', tech: 'tech', meds: 'meds', ducttape: 'duct-tape' };
 const PREPS = ['jessica', 'sam', 'frost', 'naomi'];
+// Sandbox checkbox is hidden from other players: open the game once with ?dev=1 on the end of the address to show it in this browser (?dev=0 hides it again)
+{ try { const q = new URLSearchParams(location.search).get('dev'); if (q === '1') localStorage.setItem('apoc-dev', '1'); else if (q === '0') localStorage.removeItem('apoc-dev'); const row = document.getElementById('sandboxRow'); if (row) row.hidden = localStorage.getItem('apoc-dev') !== '1'; } catch (e) {} }
 const NAMES = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
 const savedName = () => { try { return (localStorage.getItem('apoc-name') || '').trim(); } catch (e) { return ''; } };   // your own name is remembered in this browser until you change it
 const saveName = v => { try { v = String(v).trim(); if (v && !/^Player \d$/.test(v)) localStorage.setItem('apoc-name', v); } catch (e) {} };
