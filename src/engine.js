@@ -950,6 +950,13 @@ function moveStack(s, pl, cmd) {
     return OK;
   }
   const B = s.loc[cmd.to]; if (!B || cmd.from === cmd.to) return err('Pick a different space');
+  const crate = !s.sandbox && D.node[cmd.to].kind === 'building' && cmd.to !== D.board.churchNode;   // resources left in a building go in its CRATE: free for anyone standing there to pick up, kept apart from the shop's own stock
+  if (crate) {
+    B.crate = B.crate || {};
+    if (cmd.r === 'coin') { A.coin -= n; B.crate.coin = (B.crate.coin || 0) + n; } else { A.res[cmd.r] -= n; if (!A.res[cmd.r]) delete A.res[cmd.r]; B.crate[cmd.r] = (B.crate[cmd.r] || 0) + n; }
+    logm(s, `${who} puts ${n} ${lab} in the crate at ${D.node[cmd.to].name || cmd.to} (free for anyone to pick up).`, pl);
+    return OK;
+  }
   if (cmd.r === 'coin') { A.coin -= n; B.coin += n; } else { A.res[cmd.r] -= n; if (!A.res[cmd.r]) delete A.res[cmd.r]; B.res[cmd.r] = (B.res[cmd.r] || 0) + n; }
   if (cmd.x !== undefined && D.node[cmd.to].kind !== 'building') B.at = [Math.round(cmd.x), Math.round(cmd.y)]; else delete B.at;
   logm(s, `${who} moves ${n} ${lab} from ${from} to ${D.node[cmd.to].name || cmd.to}.`, pl);
@@ -1031,14 +1038,15 @@ function turnCmd(s, p, cmd) {
       if (s.players.some(q => q.id !== p.id && q.node === p.node)) return err('Not while another prepper is here');
       spend(s, p, 'meds', 1); heal(s, p, 1); logm(s, `${p.name} uses 1 MEDS: health ${p.health}.`, p.id); return OK;
     }
-    case 'pickup': {   // free pick-up of resources on streets/intersections or at the church
+    case 'pickup': {   // free pick-up of resources on streets/intersections or at the church, or from a building's crate
       const L = s.loc[p.node];
+      if (cmd.crate) { const c = L.crate || {}; if (!c[cmd.r]) return err('None in the crate'); if (resTotal(p) >= holdLimit(p)) return err('You cannot carry any more'); c[cmd.r]--; if (!c[cmd.r]) delete c[cmd.r]; p.res[cmd.r]++; logm(s, `${p.name} picks up 1 ${RES_LABEL[cmd.r]} from the crate.`, p.id); return OK; }
       const freeSpot = D.node[p.node].kind !== 'building' || p.node === D.board.churchNode;
       if (!freeSpot) return err('Those belong to the location owner: buy, steal or loot them');
       if (!L.res[cmd.r]) return err('None there'); if (resTotal(p) >= holdLimit(p)) return err('You cannot carry any more');
       L.res[cmd.r]--; p.res[cmd.r]++; logm(s, `${p.name} picks up 1 ${RES_LABEL[cmd.r]}.`, p.id); return OK;
     }
-    case 'pickupCoin': { const L = s.loc[p.node]; if (L.coin < 1) return err('No coin here'); p.coin += L.coin; logm(s, `${p.name} picks up ${L.coin} DOOMCOIN.`, p.id); L.coin = 0; return OK; }
+    case 'pickupCoin': { const L = s.loc[p.node]; if (cmd.crate) { const c = L.crate || {}; if (!c.coin) return err('No coin in the crate'); p.coin += c.coin; logm(s, `${p.name} picks up ${c.coin} DOOMCOIN from the crate.`, p.id); delete c.coin; return OK; } if (L.coin < 1) return err('No coin here'); p.coin += L.coin; logm(s, `${p.name} picks up ${L.coin} DOOMCOIN.`, p.id); L.coin = 0; return OK; }
     case 'pickupItem': { const L = s.loc[p.node]; const i = L.items.findIndex(c => c.uid === cmd.uid); if (i < 0) return err('No item'); const [c] = L.items.splice(i, 1); giveCard(s, p, c); return OK; }
     case 'hunt': {
       if (!hasItem(p, 'bow') || ts.hunted) return err('Cannot hunt'); ts.hunted = true;

@@ -763,6 +763,7 @@ function renderTurn0() {
     for (const x of E.actionsAt(S, pa)) if (x.a !== 'build') h += btn(esc(x.label), () => actionClick(x.a, pa), {});
     
     const L = S.loc[pa.node], freeSpot = E.D.node[pa.node].kind !== 'building' || pa.node === E.D.board.churchNode;
+    { const cr = L.crate || {}; for (const r of E.ALLRES) if (cr[r] > 0) h += btn(`📦 Pick up ${E.RES_LABEL[r]} (crate ${cr[r]})`, () => doCmd({ t: 'pickup', r, crate: true })); if (cr.coin > 0) h += btn(`📦 Pick up ${cr.coin} coin (crate)`, () => doCmd({ t: 'pickupCoin', crate: true })); }
     if (freeSpot) for (const r of E.ALLRES) if (L.res[r] > 0) h += btn(`Pick up ${E.RES_LABEL[r]}`, () => doCmd({ t: 'pickup', r }));
     if (freeSpot && L.coin > 0) h += btn(`Pick up ${L.coin} coin`, () => doCmd({ t: 'pickupCoin' }));
     if (pa.res.meds > 0 && pa.health < 10) h += btn('💊 Use MEDS (+1)', () => doCmd({ t: 'heal' }));

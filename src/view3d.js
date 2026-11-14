@@ -243,7 +243,7 @@ export class View3D {
     this.setMobs(mobNodes(s));
     this.setGlow(s.glow ? s.glow.nodes : [], { nuclear: 0xffc107, pandemic: 0xff3b30, ai: 0x2e8bff }[s.glow && s.glow.type] || 0xffffff);
     // resource tokens
-    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at]), this.hide ? this.hide.size : -1, this.hl || null, this.layout || null]);
+    const sig = JSON.stringify([Object.entries(s.loc).map(([k, v]) => [k, v.res, v.coin, v.at, v.crate]), this.hide ? this.hide.size : -1, this.hl || null, this.layout || null]);
     if (sig !== this.sig) {
       this.sig = sig; this.tokens.clear();
       const geo = new THREE.CylinderGeometry(0.0075, 0.0075, 0.0028, 20), coinMat = new THREE.MeshStandardMaterial({ color: 0xe8b100, metalness: 0.7, roughness: 0.3 });
@@ -272,6 +272,12 @@ export class View3D {
           } else spot[i] = [px, pz];
           placed.push(spot[i]);
         });
+        if (L.crate && Object.keys(L.crate).length) {   // the CRATE: a small wooden box beside the building's piles holding tokens anyone may pick up
+          const cr = L.crate, ks = Object.keys(cr), bx = cx + 0.045, bz = cz - 0.03, wd = Math.max(0.03, ks.length * 0.0175 + 0.012);
+          const box = new THREE.Mesh(new THREE.BoxGeometry(wd, 0.006, 0.026), new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9 })); box.position.set(bx, 0.003, bz); box.castShadow = true; this.tokens.add(box);
+          ks.forEach((r, j) => { for (let k = 0; k < cr[r]; k++) { const m = new THREE.Mesh(geo, this.tokenMat(r)); m.position.set(bx - wd / 2 + 0.012 + j * 0.0175 + 0.003, 0.0075 + k * 0.003, bz); m.castShadow = true; this.tokens.add(m); } });
+          const lb = this.label('CRATE', '#ffd54f'); lb.scale.set(0.06, 0.012, 1); lb.position.set(bx, 0.02, bz + 0.02); this.tokens.add(lb);
+        }
         piles.forEach((pl, i) => {
           const row = Math.floor(i / PER), colN = Math.min(PER, piles.length - row * PER), col = i % PER;
           const [px, pz] = spot[i];   // saved layout position, or the default / free spot worked out above

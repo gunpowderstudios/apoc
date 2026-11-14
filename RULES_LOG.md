@@ -337,3 +337,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.278): collapsed reference tables on the left above the Recipe Book: Gun Shop prices, Hardware Store prices (live prices, e.g. Yard Sale), Dumpster diving table, Burglary table. When you finish moving and end up at a shop you get the shop pop-up straight away and can buy on your turn (the first purchase uses your action).
 - Test-build tool (v1.279): news papers are no longer turned over when their event happens. A round ACTIVE token (blue = AI, red = Pandemic, yellow = Nuclear, like the MOB token) sits at the top of the paper while its event is in play, and for the curfew paper (no night-time movement) the night die sits on the card until it is covered.
 - CONFIRMED by Tim (v1.280, casino): with no DOOMCOIN you get ONE free gamble per turn (the same throw ladder as a normal gamble; winning pays the pot as normal). If you bust on a free gamble you lose 1 HEALTH (a paid gamble that busts still takes 1 food).
+
+## Crate for deposited resources (v1.281)
+- Resources a player puts down on a building (Table View tool) go into that building's **CRATE**, kept separate from the shop's own stock. Anyone standing there can take them for free (one at a time, within their carrying limit; coins too). Shown as a small wooden crate beside the building's piles.
