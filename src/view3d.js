@@ -479,10 +479,10 @@ export class View3D {
         const a = s.stand[ty], top = a[a.length - 1]; if (!top || !(s.spent || []).includes(top)) continue;
         const [x, z] = this.newsPos[ty], h = a.length * 0.0007, col = { ai: '#2e8bff', pandemic: '#e0301e', nuclear: '#ffc107' }[ty];
         const tk = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.0125, 0.003, 32), [new THREE.MeshStandardMaterial({ color: col }), new THREE.MeshStandardMaterial({ map: this.activeTex(col, ty === 'nuclear'), roughness: 0.5 }), new THREE.MeshStandardMaterial({ color: col })]);
-        tk.position.set(x - 0.04, h + 0.0025, z - 0.07); tk.rotation.y = Math.PI / 2; tk.castShadow = true; this.piles.add(tk);   // over the top-left corner, text turned to read horizontally
+        tk.position.set(x - 0.062, h + 0.0025, z - 0.082); tk.rotation.y = Math.PI / 2; tk.castShadow = true; this.piles.add(tk);   // over the top-left corner, text turned to read horizontally
         for (const m of tk.material) { m.emissive = new THREE.Color(col); m.emissiveIntensity = 0.7; if (m.map) m.emissiveMap = m.map; }
-        const gl = new THREE.Mesh(new THREE.RingGeometry(0.0125, 0.024, 40), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending })); gl.rotation.x = -Math.PI / 2; gl.position.set(x - 0.04, h + 0.0012, z - 0.07); this.piles.add(gl);
-        const gl2 = new THREE.PointLight(col, 0.25, 0.12); gl2.position.set(x - 0.04, h + 0.02, z - 0.07); this.piles.add(gl2);
+        const gl = new THREE.Mesh(new THREE.RingGeometry(0.0125, 0.024, 40), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending })); gl.rotation.x = -Math.PI / 2; gl.position.set(x - 0.062, h + 0.0012, z - 0.082); this.piles.add(gl);
+        const gl2 = new THREE.PointLight(col, 0.25, 0.12); gl2.position.set(x - 0.062, h + 0.02, z - 0.082); this.piles.add(gl2);
         const c = D.newsById[top];
         if (c && c.effect === 'curfew') {   // no night-time movement: the night die sits on the card, out of play, until the card is covered
           const mats = [0, 1, 2, 3, 4, 5].map(i => { const m = new THREE.MeshStandardMaterial({ roughness: 0.45 }); m.map = this.tex(`assets/dice/f${String(7 + i).padStart(2, '0')}.webp`); return m; });

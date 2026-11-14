@@ -352,3 +352,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 
 ## ACTIVE token look (v1.285)
 - Test-build visual only: the ACTIVE token on a news card is turned to read horizontally, sits over the card's top-left corner and glows in its colour.
+
+- v1.286: the ACTIVE token sits on the very top-left corner of the news card, overlapping it slightly.
