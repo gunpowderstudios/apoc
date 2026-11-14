@@ -1112,9 +1112,9 @@ function onMarkDrag(mk, to) {   // sandbox: a door box or a building dot was cli
     const now = E.moveDoor(b, e, ne, [Math.round(to.x), Math.round(to.y)]); saveDoorPos();
     toast(D.node[b].name + ' door moved' + (now !== e ? ' - now opens onto ' + D.node[now].name : ' (still opens onto ' + D.node[e].name + ')'));
   } else if (to) {
-    let hit = null, bd = 90; for (const n of D.board.nodes) if (n.kind === 'building' && n.id !== mk.id) { const d = Math.hypot(n.x - to.x, n.y - to.y); if (d < bd) { bd = d; hit = n.id; } }   // nearest building to where it was dropped
+    let hit = null, bd = 1e9; for (const n of D.board.nodes) if (n.kind === 'building' && n.id !== mk.id) { const d = Math.hypot(n.x - to.x, n.y - to.y); if (d < bd) { bd = d; hit = n.id; } }   // nearest building to where it was dropped
     if (hit && hit !== mk.id && D.node[hit] && D.node[hit].kind === 'building') { E.setBlock(mk.id, D.node[hit].block); saveBlocks(); toast(D.node[mk.id].name + ' is now in the same block as ' + D.node[hit].name); }
-    else toast('Drop it on a building in the block you want');
+    else toast('Nothing changed');
   }
   syncDoorMarks(); syncBlockMarks(); render();
 }

@@ -300,3 +300,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.259): in sandbox, door boxes and block dots are small and draggable: drag a door box to move it (drop it on a different street space to re-link the door), click it to switch the door on/off; drag a building's block dot onto a building in the block it belongs to. Download doors.json / blocks.json to send.
 
 - Test-build tool (v1.260): door boxes, block dots and building glow rings sit much lower, close to the table.
+
+- Test-build tool (v1.261): dragging a block dot joins the block of the nearest building to where you drop it (no need to land exactly on one).
