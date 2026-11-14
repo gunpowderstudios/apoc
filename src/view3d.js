@@ -592,7 +592,7 @@ export class View3D {
     this.ctl.update(); this.updateHint(); this.r.render(this.scene, this.cam);
   }
   updateHint() {
-    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.innerHTML = '<div class="keys">B  Board / Centre\nC  Card\nP  Player\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause</div>' + `<details id="tips"><summary>Tips for playing</summary><ol>
+    if (!this.hint) { const h = this.hint = document.createElement('div'); h.id = 'chint'; h.innerHTML = '<div class="keys">B  Board / Centre\nO  Overhead View\nC  Card\nP  Player\nR  Recipes\nF  Full screen\nN  News\nD  DEFCON\nH  Hide resources\nSpace  Pause</div>' + `<details id="tips"><summary>Tips for playing</summary><ol>
 <li><b>Your turn:</b> Eat (1 food, or lose 1 health), Draw the news, roll the news dice, then roll Day or Night to get your moves.</li>
 <li><b>Keep food in your pack.</b> No food at the start of your turn costs you 1 health.</li>
 <li><b>Pick up free resources</b> lying on streets and at the Church. Resources inside buildings belong to the shop: buy, steal or loot them.</li>
@@ -609,9 +609,9 @@ export class View3D {
     this.hint.style.opacity = far ? '1' : '0.7';
   }
   // C key: centre the whole scene (chart, news row, board, pool, player mats) so it fills 90% of the window
-  fitBoard() {   // B: the board as large as the window allows, with a slight tilt
+  fitBoard(el = 1.15) {   // B: the board as large as the window allows, with a slight tilt (O: el = straight down)
     this.manual = false;
-    const el = 1.15, dir = new THREE.Vector3(0, Math.sin(el), Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.0, 0, -0.005);
+    const dir = new THREE.Vector3(0, Math.sin(el), Math.cos(el)), cam = this.cam.clone(), tg = new THREE.Vector3(0.0, 0, -0.005);
     const pts = []; for (const x of [-0.4, 0.4]) for (const z of [-0.2667, 0.2667]) pts.push(new THREE.Vector3(x, 0.01, z));
     let lo = 0.1, hi = 2;
     for (let i = 0; i < 24; i++) {
@@ -619,8 +619,8 @@ export class View3D {
       const fit = pts.every(v => { const q = v.clone().project(cam); return Math.abs(q.x) <= 0.98 && Math.abs(q.y) <= 0.98; });
       if (fit) hi = d; else lo = d;
     }
-    const dF = hi * 0.9, half = dF * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
-    tg.z += 0.2 * half / Math.sin(el);   // slide the view so the board sits 10% of the window height higher
+    const top = el > 1.4, dF = hi * (top ? 0.985 : 0.9), half = dF * Math.tan(THREE.MathUtils.degToRad(this.cam.fov / 2));
+    if (!top) tg.z += 0.2 * half / Math.sin(el);   // slide the view so the board sits 10% of the window height higher
     this.flyTo(tg.clone().addScaledVector(dir, dF), tg, 900);   // 10% closer than an exact fit
   }
   fitAll(hold) {

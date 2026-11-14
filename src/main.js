@@ -291,7 +291,7 @@ function setTool(tool) {
   if (V3) V3.setTool(tool);
 }
 document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
-let zoomStep = 0, zoomAt = 0, bOn = false;
+let zoomStep = 0, zoomAt = 0, bOn = false, oOn = false;
 document.addEventListener('click', e => { if (!(e.target.closest && e.target.closest('#logArrow, #loglive'))) return; const t = $('#topinfo'); t.classList.toggle('logmin'); try { localStorage.setItem('apoc-logmin', t.classList.contains('logmin') ? '1' : '0'); } catch (x) {} });
 let turnMin = false; try { turnMin = localStorage.getItem('apoc-turnmin') === '1'; } catch (e) {}
 document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('#turn h3'); if (!h) return; turnMin = !turnMin; try { localStorage.setItem('apoc-turnmin', turnMin ? '1' : '0'); } catch (x) {} $('#turn').classList.toggle('min', turnMin); });
@@ -300,7 +300,7 @@ window.addEventListener('keydown', e => {
   const kk = e.key.toLowerCase(), appOn = !$('#app').hidden;
   if (appOn && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey && (e.code === 'Space' || 'fcprhnbd'.includes(kk)) && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) cardUpSound(false);   // the pop sound for every shortcut key
   if (e.code === 'Space' && appOn) { e.preventDefault(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); togglePause(); return; }   // Space = pause / resume
-  if (appOn && V3 && 'cpndb'.includes(kk) && kk !== 'b') bOn = false;
+  if (appOn && V3 && 'cpndb'.includes(kk) && kk !== 'b') bOn = false; if (appOn && V3 && 'cpndbr'.includes(kk)) oOn = false;
   if (kk === 'f' && appOn && !(zoomFlipId !== null && $('#zoom') && !$('#zoom').hidden)) { $('#bFull').click(); return; }   // F = full screen on / off
   if (kk === 'r' && appOn) { const cb = $('#craftbtn'); if (modalFn === craftModal) { modalFn = null; render(); } else if (cb && !cb.hidden) cb.click(); return; }   // R = recipe book
   if (kk === 'p' && V3 && S && appOn) {   // P = zoom in on the active player's figure; press again to step through the other players' figures
@@ -315,7 +315,8 @@ window.addEventListener('keydown', e => {
   }
   if (e.key.toLowerCase() === 'h' && V3 && !$('#app').hidden) { window.toggleRes(); return; }   // H = hide / show the resources on the board
   if (e.key.toLowerCase() === 'n' && V3 && !$('#app').hidden) { V3.followNews(); return; }   // N = zoom to the three news event stands
-  if (kk === 'b' && V3 && appOn) { bOn = !bOn; if (bOn) V3.fitBoard(); else V3.fitAll(true); return; }   // B = board as large as possible; press again = centred overview (held)
+  if (kk === 'b' && V3 && appOn) { oOn = false; bOn = !bOn; if (bOn) V3.fitBoard(); else V3.fitAll(true); return; }   // B = board as large as possible; press again = centred overview (held)
+  if (kk === 'o' && V3 && appOn) { bOn = false; oOn = !oOn; if (oOn) V3.fitBoard(Math.PI / 2 - 0.0004); else V3.fitAll(true); return; }   // O = Overhead View: straight down on the board, filling the window; press again = overview
   if (e.key.toLowerCase() === 'd' && V3 && !$('#app').hidden) { V3.followDefcon(); return; }   // D = zoom to the DEFCON chart
   const k = { s: 'select' }[e.key.toLowerCase()]; if (k && !$('#app').hidden) { setTool(k); }
 });
