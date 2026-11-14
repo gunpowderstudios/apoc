@@ -318,3 +318,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.269): shortcut legend (P = Player) and Tips for playing share one transparent black panel.
 
 - Test-build tool (v1.270): all boxes around the screen edge (Round, turn panel, recipe book, shortcut legend, chat) now sit about 5 mm in from the edge.
+
+- Test-build tool (v1.271): when a player has everything for a bunker, a big glowing BUILD YOUR BUNKER button shows at the top of their turn panel in the action step (rule 10.1: building is an action, so it uses 1 action and can only be done then). Earlier in the turn the panel says 'READY to build - build it in your action step'.

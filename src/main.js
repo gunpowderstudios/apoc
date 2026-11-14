@@ -690,7 +690,7 @@ function renderTurn() {
   if (pa.bunker) bk = '<div class="bunkerline ok">🏠 Bunker built</div>';
   else {
     const miss = E.RES.filter(r => pa.res[r] < 1), tape = pa.res.ducttape || 0, ready = miss.length <= tape;
-    bk = ready ? `<div class="bunkerline ok">🏠 Bunker: READY to build${miss.length ? ' (duct tape covers ' + miss.map(r => E.RES_LABEL[r]).join(', ') + ')' : ''}</div>`
+    bk = ready ? `<div class="bunkerline ok">🏠 Bunker: READY to build${S.ts && S.ts.step !== 'prep' && S.cur === pa.id ? ' - build it in your action step' : ''}${miss.length ? ' (duct tape covers ' + miss.map(r => E.RES_LABEL[r]).join(', ') + ')' : ''}</div>`
       : `<div class="bunkerline">🏠 Bunker: ${6 - miss.length} of 6 - need ${miss.map(r => E.RES_LABEL[r]).join(', ')}${tape ? ' (' + tape + ' duct tape)' : ''}</div>`;
   }
   let shop = '';
@@ -734,8 +734,9 @@ function renderTurn0() {
     h += '<div class="note">Day = safer. Night = more moves, more risk.</div>';
   } else if (ts.step === 'prep') {
     h += `<div class="btns">${btn('End turn ▶', () => doCmd({ t: 'endTurn' }), { cls: 'primary' })}</div>`;   // name, then the big button, then the options
+    if (E.actionsAt(S, pa).some(x => x.a === 'build')) h += `<div class="btns">${btn('🏠 BUILD YOUR BUNKER', () => actionClick('build', pa), { cls: 'primary buildgo big' })}</div><div class="note">You have everything needed - building uses 1 action. Nothing is lost.</div>`;
     h += `<div class="mv">Moves <b>${ts.moves}</b> · Actions <b>${ts.actions}</b> ${ts.moveState === 'done' ? '<span class="note">(movement finished)</span>' : ''}</div><div class="btns opts">`;
-    for (const x of E.actionsAt(S, pa)) h += btn(esc(x.a === 'build' ? '🏠 ' + x.label : x.label), () => actionClick(x.a, pa), x.a === 'build' ? { cls: 'primary buildgo' } : {});
+    for (const x of E.actionsAt(S, pa)) if (x.a !== 'build') h += btn(esc(x.label), () => actionClick(x.a, pa), {});
     
     const L = S.loc[pa.node], freeSpot = E.D.node[pa.node].kind !== 'building' || pa.node === E.D.board.churchNode;
     if (freeSpot) for (const r of E.ALLRES) if (L.res[r] > 0) h += btn(`Pick up ${E.RES_LABEL[r]}`, () => doCmd({ t: 'pickup', r }));
