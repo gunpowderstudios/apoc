@@ -14,7 +14,7 @@ function roundedDie(size, r, seg) {
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { PREP_COL } from './view2d.js';
-import { mobNodes } from './engine.js';
+import { mobNodes, D } from './engine.js';
 
 // Player pieces: real figure height in metres (from the GLB file names: 40h/40h/38h/38h = mm)
 const PIECE_H = { frost: 0.0399, jessica: 0.0386232, naomi: 0.038, sam: 0.038 };
@@ -393,6 +393,13 @@ export class View3D {
       const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, transparent: true })); sp.scale.set(0.016, 0.016, 1); sp.renderOrder = 11; this.nums[k] = sp;
     } return this.nums[k].clone();
   }
+  activeTex(col, dark) {   // round ACTIVE token face
+    this._at = this._at || {}; if (this._at[col]) return this._at[col];
+    const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+    g.fillStyle = col; g.fillRect(0, 0, 256, 256); g.fillStyle = dark ? '#111' : '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 58px system-ui,sans-serif'; g.fillText('ACTIVE', 128, 128);
+    g.strokeStyle = dark ? '#111' : '#fff'; g.lineWidth = 10; g.beginPath(); g.arc(128, 128, 112, 0, Math.PI * 2); g.stroke();
+    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; return (this._at[col] = tx);
+  }
   label(text, color = '#fff') {
     const k = text + color; if (this.labels[k]) return this.labels[k].clone();
     const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d');
@@ -461,7 +468,18 @@ export class View3D {
         const m = new THREE.Mesh(new THREE.BoxGeometry(0.0945, h, 0.132), [side, side, top, side, side, side]); m.position.set(x, h / 2, z); m.castShadow = true; m.receiveShadow = true; m.userData.news = 'items'; this.piles.add(m);
         const lb = this.label(`ITEMS ${itemN}`, '#fff'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, h + 0.012, z - 0.085); this.piles.add(lb);
       }
-      for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? ((s.spent || []).includes(a[a.length - 1]) ? 'assets/news/back.jpg' : `assets/news/${a[a.length - 1]}.jpg`) : '', ty.toUpperCase()); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) { const a = s.stand[ty]; make(ty, a.length, a.length ? `assets/news/${a[a.length - 1]}.jpg` : '', ty.toUpperCase()); }
+      for (const ty of ['ai', 'pandemic', 'nuclear']) {   // an ACTIVE token (blue AI / red Pandemic / yellow Nuclear) sits at the top of a paper whose event is in play; the paper itself stays face up
+        const a = s.stand[ty], top = a[a.length - 1]; if (!top || !(s.spent || []).includes(top)) continue;
+        const [x, z] = this.newsPos[ty], h = a.length * 0.0007, col = { ai: '#2e8bff', pandemic: '#e0301e', nuclear: '#ffc107' }[ty];
+        const tk = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.0125, 0.003, 32), [new THREE.MeshStandardMaterial({ color: col }), new THREE.MeshStandardMaterial({ map: this.activeTex(col, ty === 'nuclear'), roughness: 0.5 }), new THREE.MeshStandardMaterial({ color: col })]);
+        tk.position.set(x, h + 0.0025, z - 0.075); tk.castShadow = true; this.piles.add(tk);
+        const c = D.newsById[top];
+        if (c && c.effect === 'curfew') {   // no night-time movement: the night die sits on the card, out of play, until the card is covered
+          const mats = [0, 1, 2, 3, 4, 5].map(i => { const m = new THREE.MeshStandardMaterial({ roughness: 0.45 }); m.map = this.tex(`assets/dice/f${String(7 + i).padStart(2, '0')}.webp`); return m; });
+          const die = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.028, 0.028), mats); die.position.set(x + 0.02, h + 0.0145, z + 0.02); die.rotation.y = 0.5; die.castShadow = true; this.piles.add(die);
+        }
+      }
       for (const ty of ['ai', 'pandemic', 'nuclear']) if (!s.stand[ty].length) { const [x, z] = this.newsPos[ty]; const lb = this.label(ty.toUpperCase(), '#9aa'); lb.scale.set(0.13, 0.025, 1); lb.position.set(x, 0.01, z); this.piles.add(lb); }
     }
     // player mats: character card (backpack side until bunker), resource piles and item cards
