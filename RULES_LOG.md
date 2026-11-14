@@ -293,3 +293,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.255): Sandbox > Doors > 'Check doors...' draws a green (on) / red (off) box round every door arrow on the map and lists every door; click a door in the list to switch it on/off to test movement (saved in this browser). 'Copy closed list' copies what you switched off so you can report back.
 
 - Test-build tool (v1.256): cog menu now has a 'Doors: on/off' toggle (boxes round every door); Sandbox tools sit in the cog menu collapsed by default, with the door on/off list inside.
+
+- Confirmed by Tim (v1.257): all 57 building doors on the board are correct (each building's door opens onto the right street space).
