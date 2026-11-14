@@ -244,14 +244,11 @@ function enterApp() {
   $('aside').prepend($('#topinfo'));
   { let mn = true; try { mn = localStorage.getItem('apoc-logmin') !== '0'; } catch (e) {} $('#topinfo').classList.toggle('logmin', mn); }   // log starts collapsed: only the newest (green) line shows
   document.body.classList.add('sidemin'); window.setSide = () => {};   // no side bar any more: round + live log top right, turn box bottom right, everything else under the cog
-  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bDoors', 'bBlocks', 'bRoads', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
+  { const menu = $('#cogmenu'); for (const id of ['bFull', 'bMusic', 'volM', 'volF', 'bStep', 'speed', 'bRes', 'bFollow', 'bReset', 'bGraph', 'bUndo', 'bSave', 'bLog', 'bRules']) { const e = $('#' + id); if (e) menu.appendChild(e); } menu.appendChild($('#sbx'));
     const cog = $('#cog'); cog.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
     document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target) && e.target !== cog) menu.hidden = true; });
   }
   const toggleRes = () => { const off = !(V3 && V3.hideRes); if (V3) V3.setHideRes(off); $('#bRes').textContent = off ? '👁 Resources: off' : '👁 Resources: on'; $('#bRes').classList.toggle('on', off); };
-  $('#bDoors').onclick = () => { doorsOpen = !doorsOpen; $('#bDoors').textContent = doorsOpen ? '🚪 Doors: on' : '🚪 Doors: off'; $('#bDoors').classList.toggle('on', doorsOpen); syncDoorMarks(); render(); };
-  $('#bBlocks').onclick = () => { blocksOn = !blocksOn; blkSel = null; $('#bBlocks').textContent = blocksOn ? '🧱 Blocks: on' : '🧱 Blocks: off'; $('#bBlocks').classList.toggle('on', blocksOn); syncBlockMarks(); render(); };
-  $('#bRoads').onclick = () => { roadsOn = !roadsOn; $('#bRoads').textContent = roadsOn ? '🛣 Roads: on' : '🛣 Roads: off'; $('#bRoads').classList.toggle('on', roadsOn); syncRoadMarks(); render(); };
   $('#bRes').onclick = toggleRes; window.toggleRes = toggleRes;
   $('#bFull').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) {} };
   document.addEventListener('fullscreenchange', () => { document.body.classList.toggle('fs', !!document.fullscreenElement); $('#bFull').textContent = document.fullscreenElement ? '⛶ Exit full screen' : '⛶ Full screen'; setTimeout(() => { window.dispatchEvent(new Event('resize')); if (V3) V3.fitAll(); }, 250); });
@@ -1087,13 +1084,15 @@ function sandboxPanel() {   // compact test tools, shown in the side bar (own bo
   <div class="sr"><span class="sl">Move</span>${mini(sbxMove ? '✔ click board' : 'Teleport…', () => { sbxMove = !sbxMove; render(); }, { cls: sbxMove ? 'on' : '' })}</div>
   <div class="sr"><span class="sl">Layout</span>${mini(V3 && V3.editPiles ? '✔ drag piles on board' : 'Move piles…', () => { V3.editPiles = !V3.editPiles; render(); }, { cls: V3 && V3.editPiles ? 'on' : '' })}${mini('Download', () => downloadLayout(), { title: 'Download the token layout as JSON to send back' })}${mini('Load…', () => $('#layoutFile').click())}${mini('Reset', () => { if (!confirm('Put every pile back to the default layout?')) return; try { localStorage.removeItem('apoc-tokenlayout'); localStorage.removeItem('apoc-setup'); } catch (e) {} applySetup({ ...origSetup, ...(tokDef && tokDef.setup || {}) }); V3.layout = JSON.parse(JSON.stringify(V3.defaultLayout || {})); render(); })}<input type="file" id="layoutFile" accept=".json" hidden></div>
 ${V3 && V3.editPiles ? pileEditor() : ''}
-  ${doorsPanel()}
-  ${blocksPanel()}
-  ${roadsPanel()}
+  ${overlayRow()}
+  ${doorsOpen ? doorsPanel() : ''}
+  ${blocksOn ? blocksPanel() : ''}
+  ${roadsOn ? roadsPanel() : ''}
+  ${subsOn ? subsPanel() : ''}
   <div class="sr"><span class="sl">Item</span><select id="sbxItem">${E.D.items.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select>${mini('Give', () => doCmd({ t: 'sbxItem', p: t, id: $('#sbxItem').value }))}</div></details>`;
 }
 let blocksOn = false, blkSel = null, blkPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-blockpos')) || {}; } catch (e) { return {}; } })();
-function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: (blkPos[n.id] || [n.x])[0], y: (blkPos[n.id] || [0, n.y])[1], block: String(n.block) })) : [], blkSel); }
+function syncBlockMarks() { if (!V3 || !V3.setBlockMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn || subsOn)); V3.blockEdit = !!(blocksOn && S && S.sandbox); V3.setBlockMarks(blocksOn ? D.board.nodes.filter(n => n.kind === 'building').map(n => ({ id: n.id, x: (blkPos[n.id] || [n.x])[0], y: (blkPos[n.id] || [0, n.y])[1], block: String(n.block) })) : [], blkSel); }
 function saveBlocks() { try { localStorage.setItem('apoc-blocks', JSON.stringify(E.blocksMap())); } catch (e) {} }
 function blockClick(id) {   // pick a building, then click one in the block it belongs to: it joins that block
   if (!D.node[id] || D.node[id].kind !== 'building') { toast('Click a building'); return; }
@@ -1104,26 +1103,41 @@ function blockClick(id) {   // pick a building, then click one in the block it b
 }
 let doorsOpen = false, sbxOpen = false; window.__sbxOpen = o => { sbxOpen = o; };
 function doorList() { const out = []; for (const n of D.board.nodes) if (n.kind === 'building') (n.entrances || []).forEach((e, i) => out.push({ b: n.id, e, name: n.name, st: D.node[e] ? D.node[e].name : e, arrow: (n.entArrows || [])[i] || null })); return out; }
-function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e), key: d.b + '|' + d.e })) : []); }
+function syncDoorMarks() { if (!V3 || !V3.setDoorMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn || subsOn)); const closed = new Set(E.closedDoors()); V3.setDoorMarks(doorsOpen ? doorList().filter(d => d.arrow).map(d => ({ x: d.arrow[0], y: d.arrow[1], open: !closed.has(d.b + '|' + d.e), key: d.b + '|' + d.e })) : []); }
 function toggleDoor(b, e) { const closed = E.closedDoors().includes(b + '|' + e); E.setDoor(b, e, closed); try { localStorage.setItem('apoc-doors-off', JSON.stringify(E.closedDoors())); } catch (x) {} render(); }
 function onMarkDrag(mk, to) {   // sandbox: a door box or a building dot was clicked (to = null) or dragged to a new spot on the board
   if (mk.kind === 'door') {
     const [b, e] = mk.key.split('|');
     if (!to) return void toggleDoor(b, e);
     E.moveDoor(b, e, e, [Math.round(to.x), Math.round(to.y)]); saveDoorPos(); toast(D.node[b].name + ' door marker moved');
+  } else if (mk.kind === 'sub') { if (to) { subPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-subpos', JSON.stringify(subPos)); } catch (e) {} toast('Subway station at ' + (D.node[mk.id].name || mk.id) + ' marker moved'); }
   } else if (mk.kind === 'road') { if (to) { roadPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-roadpos', JSON.stringify(roadPos)); } catch (e) {} toast((D.node[mk.id].name || mk.id) + ' marker moved'); }
   } else if (to) { blkPos[mk.id] = [Math.round(to.x), Math.round(to.y)]; try { localStorage.setItem('apoc-blockpos', JSON.stringify(blkPos)); } catch (e) {} toast(D.node[mk.id].name + ' marker moved'); }
-  syncDoorMarks(); syncBlockMarks(); syncRoadMarks(); render();
+  syncDoorMarks(); syncBlockMarks(); syncRoadMarks(); syncSubMarks(); render();
 }
 function saveDoorPos() { try { localStorage.setItem('apoc-doorpos', JSON.stringify(E.doorsData())); } catch (e) {} }
 let roadsOn = false, roadPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-roadpos')) || {}; } catch (e) { return {}; } })();
-function syncRoadMarks() { if (!V3 || !V3.setRoadMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn)); V3.setRoadMarks(roadsOn ? D.board.nodes.filter(n => n.kind === 'street' || n.kind === 'intersection').map(n => ({ id: n.id, kind: n.kind, seg: n.seg || null, x: (roadPos[n.id] || [n.x])[0], y: (roadPos[n.id] || [0, n.y])[1] })) : []); }
+function syncRoadMarks() { if (!V3 || !V3.setRoadMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn || subsOn)); V3.setRoadMarks(roadsOn ? D.board.nodes.filter(n => n.kind === 'street' || n.kind === 'intersection').map(n => ({ id: n.id, kind: n.kind, seg: n.seg || null, x: (roadPos[n.id] || [n.x])[0], y: (roadPos[n.id] || [0, n.y])[1] })) : []); }
 function roadsPanel() {
   const mini = (label, fn, o = {}) => btn(label, fn, o); setTimeout(syncRoadMarks, 0);
   if (!roadsOn) return '<div class="sr"><span class="sl">Roads</span><span class="note">turn on 🛣 Roads above</span></div>';
   const ns = D.board.nodes.filter(n => n.kind === 'street').length, ni = D.board.nodes.filter(n => n.kind === 'intersection').length;
   return `<div class="sr"><span class="sl">Roads</span><span class="note">${ns} road spaces (orange) + ${ni} junctions (white), each = 1 move. Drag a marker to where its circle should sit</span></div>
   <div class="sr">${mini('Download roads.json', () => dlJSON('roads.json', { note: 'APOC road spaces and junctions: id -> marker position on the board (px); original = where the move circle is now', version: VERSION, positions: Object.fromEntries(D.board.nodes.filter(n => n.kind === 'street' || n.kind === 'intersection').map(n => [n.id, { kind: n.kind, name: n.name || '', original: [n.x, n.y], marker: roadPos[n.id] || [n.x, n.y] }])) }))}${mini('Reset to default', () => { roadPos = {}; try { localStorage.removeItem('apoc-roadpos'); } catch (x) {} syncRoadMarks(); render(); })}</div>`;
+}
+let subsOn = false, subPos = (() => { try { return JSON.parse(localStorage.getItem('apoc-subpos')) || {}; } catch (e) { return {}; } })();
+const subIds = () => (D.board.subway || []).filter(id => D.node[id]);
+function syncSubMarks() { if (!V3 || !V3.setSubMarks) return; V3.markEdit = !!(S && S.sandbox && (doorsOpen || blocksOn || roadsOn || subsOn)); V3.setSubMarks(subsOn ? subIds().map(id => ({ id, x: (subPos[id] || [D.node[id].x])[0], y: (subPos[id] || [0, D.node[id].y])[1] })) : []); }
+function subsPanel() {
+  const mini = (label, fn, o = {}) => btn(label, fn, o); setTimeout(syncSubMarks, 0);
+  if (!subsOn) return '<div class="sr"><span class="sl">Subways</span><span class="note">turn on 🚇 Subways above</span></div>';
+  return `<div class="sr"><span class="sl">Subways</span><span class="note">${subIds().length} stations: ${subIds().map(id => esc(D.node[id].name || id)).join(', ')}. Drag a marker to where its station sits</span></div>
+  <div class="sr">${mini('Download subways.json', () => dlJSON('subways.json', { note: 'APOC subway stations: space id -> marker position on the board (px); original = where the space is now. Riding costs 1 DOOMCOIN between any two stations', version: VERSION, stations: Object.fromEntries(subIds().map(id => [id, { name: D.node[id].name || '', original: [D.node[id].x, D.node[id].y], marker: subPos[id] || [D.node[id].x, D.node[id].y] }])) }))}${mini('Reset to default', () => { subPos = {}; try { localStorage.removeItem('apoc-subpos'); } catch (x) {} syncSubMarks(); render(); })}</div>`;
+}
+function toggleOverlay(k) { if (k === 'doors') doorsOpen = !doorsOpen; else if (k === 'blocks') { blocksOn = !blocksOn; blkSel = null; } else if (k === 'roads') roadsOn = !roadsOn; else subsOn = !subsOn; syncDoorMarks(); syncBlockMarks(); syncRoadMarks(); syncSubMarks(); render(); }
+function overlayRow() {
+  const mini = (label, fn, o = {}) => btn(label, fn, o);
+  return `<div class="sr"><span class="sl">Overlays</span>${mini('🚪 Doors', () => toggleOverlay('doors'), { cls: doorsOpen ? 'on' : '' })}${mini('🧱 Blocks', () => toggleOverlay('blocks'), { cls: blocksOn ? 'on' : '' })}${mini('🛣 Roads', () => toggleOverlay('roads'), { cls: roadsOn ? 'on' : '' })}${mini('🚇 Subways', () => toggleOverlay('subs'), { cls: subsOn ? 'on' : '' })}</div>`;
 }
 function dlJSON(name, obj) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 1)], { type: 'application/json' })); a.download = name; a.click(); }
 function blocksPanel() {
@@ -1164,7 +1178,7 @@ function pileEditor() {   // add / remove starting tokens on the space you click
 let sbxKeep = null;
 function renderSandbox() {
   const el = $('#sbx'); if (!el) return;
-  if (!S || !S.sandbox) { el.innerHTML = ''; return; }
+  if (!S || !S.sandbox) { el.innerHTML = ''; if (doorsOpen || blocksOn || roadsOn || subsOn) { doorsOpen = blocksOn = roadsOn = subsOn = false; syncDoorMarks(); syncBlockMarks(); syncRoadMarks(); syncSubMarks(); } return; }
   if (document.activeElement && document.activeElement.id === 'sbxItem') return;   // don't rebuild while the item list is open
   const sel = sbxKeep; el.innerHTML = sandboxPanel(); { const lf = $('#layoutFile'); if (lf) lf.onchange = () => { const f = lf.files[0]; if (!f) return; f.text().then(t => { const j = JSON.parse(t); V3.layout = j.layout || j; try { localStorage.setItem('apoc-tokenlayout', JSON.stringify(V3.layout)); } catch (e) {} if (j.setup) { applySetup(j.setup); try { localStorage.setItem('apoc-setup', JSON.stringify(currentSetup())); } catch (e) {} } render(); }).catch(() => alert('That file is not a layout JSON')); }; } const si = $('#sbxItem'); if (si && sel) si.value = sel; if (si) si.onchange = () => { sbxKeep = si.value; };
   if (!renderSandbox.opened) { renderSandbox.opened = true; if (window.setSide) window.setSide(false); }   // sandbox games open the side bar once

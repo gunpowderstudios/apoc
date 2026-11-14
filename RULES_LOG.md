@@ -306,3 +306,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.262): door boxes and block dots now only reposition when dragged (they don't change which street a door opens onto or which block a building is in). Download doors.json / blocks.json include the new positions.
 
 - Test-build tool (v1.263): cog menu 'Roads' toggle shows every road space (orange) and junction (white) - each is one move. In sandbox drag a marker to where its circle should sit and Download roads.json to send.
+
+- Test-build tool (v1.264): cog menu 'Subways' toggle shows the 6 subway stations; in sandbox drag a marker to where its station sits and Download subways.json to send.
+- Test-build tool (v1.265): Doors / Blocks / Roads / Subways overlays now live only inside the Sandbox tools menu (cog menu, sandbox games only); they switch off in normal games.
