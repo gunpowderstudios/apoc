@@ -655,7 +655,7 @@ function render() {
   captureLog();
   rollSound();
   H = []; updateTargets();
-  renderStatus(); renderPlayers(); renderTurn(); renderSandbox(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderTurnBar(); renderModal();
+  autoShop(); renderStatus(); renderPlayers(); renderTurn(); renderSandbox(); renderLog(); renderHand(); renderBanner(); renderNewsPanel(); renderEventBanner(); renderCraftBtn(); renderRefPanels(); renderTurnBar(); renderModal();
   if (V2) { V2.targets = targets; V2.dirty = true; }
   if (V3 && view === '3d') {
     V3.sync(S, { targets, faint });
@@ -663,6 +663,28 @@ function render() {
     if (follow && !whole && key !== lastActorKey && !S.over && !(lastActorKey === null && !followArmed)) setTimeout(() => { if (V3.manual) return; if (!V3.followPawn(actor())) V3.follow(S.players.findIndex(p => p.id === actor()), S.players.length); }, 60);
     lastActorKey = key; followArmed = true; if (whole && !wholeDone) { wholeDone = true; setTimeout(() => V3.fitAll(true), 150); }
   }
+}
+// ---- reference tables on the left above the Recipe Book: Gun Shop and Hardware Store price lists, dumpster dive and burglary tables (collapsed; open state is kept)
+const REF_DIVE = [['1', 'Rats! Lose 2 health'], ['2', 'The garbage truck already came: nothing'], ['3', 'Mystery can: take 1 Food or 1 Chem'], ['4', '1 Duct tape'], ['5', '2 Food'], ['6', 'A BROKEN item card (fix it with 1 duct tape)']];
+const REF_BURGLE = [['1', 'Shot by the owner! Lose 2 health'], ['2', 'Alarm! No loot, back to the street'], ['3', '2 Food from the fridge'], ['4', '1 resource of your choice'], ['5', 'Padlocked containers: 2 resources of your choice with Bolt Cutters, otherwise 1 Hardware'], ['6', 'An ITEM card from the top of the deck']];
+const refOpen = new Set();
+function renderRefPanels() {
+  const wrap = $('#boardWrap'); if (!wrap || !S) return;
+  let box = $('#refpanels'); if (!box) { box = document.createElement('div'); box.id = 'refpanels'; wrap.appendChild(box); box.addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.k) { if (d.open) refOpen.add(d.dataset.k); else refOpen.delete(d.dataset.k); } }, true); }
+  const shop = (k, id, title) => {
+    const rows = (E.D.cfg.shops[id] || []).map(([it, price0]) => `<tr><td>${esc(it === 'DUCT' ? 'Duct tape' : E.D.item[it].name)}</td><td class="px">${E.shopPrice(S, id, price0)} coin</td></tr>`).join('');
+    return `<details data-k="${k}" ${refOpen.has(k) ? 'open' : ''}><summary>${title}</summary><table>${rows}</table></details>`;
+  };
+  const tbl = (k, title, note, rows) => `<details data-k="${k}" ${refOpen.has(k) ? 'open' : ''}><summary>${title}</summary><div class="rn">${note}</div><table>${rows.map(r => `<tr><td class="n">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table></details>`;
+  const html = shop('gun', 'gunshop', '🔫 Gun Shop prices') + shop('hw', 'hardwarestore', '🔧 Hardware Store prices') + tbl('dive', '🗑 Dumpster diving', 'Roll 1 die (plus modifiers), 1 action', REF_DIVE) + tbl('burg', '🏚 Burglary', 'Roll 1 die (plus modifiers) at a residence, 1 action', REF_BURGLE);
+  if (box._html !== html) { box._html = html; box.innerHTML = html; }
+}
+let shopSeen = '';
+function autoShop() {   // arriving at a shop (movement finished, your turn): open the shop so you can buy
+  if (!S || S.stage !== 'turn' || !S.ts || S.pending || S.over || modalFn || !iAct()) return;
+  const pa = S.players[actor()], n = E.D.node[pa.node];
+  if (S.ts.step !== 'prep' || !(S.ts.moves === 0 || S.ts.moveState === 'done') || !n.acts || !n.acts.includes('buy')) return;
+  const key = S.round + ':' + pa.id + ':' + pa.node; if (key === shopSeen) return; shopSeen = key; modalFn = shopModal;
 }
 function renderStatus() {
   const df = E.defc(S);

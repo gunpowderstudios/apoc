@@ -412,3 +412,11 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 /* v1.276: dice prompts (re-roll) dock at the bottom so they don't cover the dice */
 #modal.dock{background:transparent;align-items:flex-end;pointer-events:none;padding-bottom:210px}
 #modal.dock #modalBox{pointer-events:auto;box-shadow:0 4px 18px #000c}
+
+/* v1.278: reference tables above the Recipe Book */
+#refpanels{position:absolute;left:19px;bottom:100px;z-index:12;display:flex;flex-direction:column;gap:6px;width:250px;max-height:max(120px,calc(100% - 420px));overflow:auto}
+#refpanels details{background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;font-size:13px}
+#refpanels summary{cursor:pointer;padding:7px 12px;font-weight:700;font-size:14px}
+#refpanels table{width:100%;border-collapse:collapse;margin:0 0 6px}
+#refpanels td{padding:3px 12px;vertical-align:top}#refpanels td.px{text-align:right;white-space:nowrap;color:#ffd54f;font-weight:700}#refpanels td.n{width:18px;font-weight:800;color:#ffd54f}
+#refpanels .rn{padding:0 12px 4px;font-size:11px;opacity:.75}

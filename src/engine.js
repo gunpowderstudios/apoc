@@ -119,7 +119,7 @@ export function mobNodes(s) {   // End Times civil unrest: MOB tokens sit on the
   return out;
 }
 const shielded = (s, q, why) => { if (hasItem(q, 'hazmat-suit')) { logm(s, `${q.name}'s Hazmat Suit shields them from the ${why}.`); return true; } return false; };
-const shopPrice = (s, node, base) => (effectOn(s, 'yardSale') && ['gunshop', 'hardwarestore'].includes(node)) ? Math.floor(base / 2) : base;
+export const shopPrice = (s, node, base) => (effectOn(s, 'yardSale') && ['gunshop', 'hardwarestore'].includes(node)) ? Math.floor(base / 2) : base;
 function sectorOf(nodeId) { return D.node[nodeId].sector; }
 const WEST = ['NW', 'WC', 'SW'], EAST = ['NE', 'EC', 'SE'];
 
