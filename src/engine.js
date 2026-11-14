@@ -368,7 +368,7 @@ function gambleThrow(s, p) {
     else ask(s, { pl: p.id, kind: 'gambleNext', title: `Pot is ${g.pot}. Throw again (need ${[2, 3, 4, 4, 6][g.n]}+) or cash out?`, options: [opt('throw', 'Throw again'), opt('cash', `Cash out ${g.pot}`)] });
   } else {
     logm(s, `${p.name} throws ${r} (needed ${need}+) and busts! Loses the pot, takes 1 food.`, p.id);
-    gain(s, p, 'food', 1); s.ts.gamble = null;
+    if (g.free) { s.ts.gamble = null; hurt(s, p, 1, 'gambling with no money'); } else { gain(s, p, 'food', 1); s.ts.gamble = null; }
   }
 }
 RESOLVE.gambleNext = (s, pd, o) => {
@@ -831,6 +831,7 @@ export function actionsAt(s, p) {   // list of available action descriptors at t
   if (n.acts.includes('burgle') && df.burgle) out.push({ a: 'burgle', label: 'Burgle this residence' });
   if (n.acts.includes('dive')) out.push({ a: 'dive', label: 'Dumpster dive' });
   if (n.acts.includes('gamble') && p.coin >= 1) out.push({ a: 'gamble', label: 'Gamble (1 DOOMCOIN)' });
+  else if (n.acts.includes('gamble') && !ts.freeGamble) out.push({ a: 'gamble', label: 'Free gamble (no money: lose 1 health if you bust)' });
   if (D.cfg.tradeNodes.includes(p.node)) out.push({ a: 'swap', label: 'Trade resources' });
   if (!p.bunker && canBuild(p)) out.push({ a: 'build', label: 'Build your bunker' });
   if (!ts.raided && s.players.some(q => q.id !== p.id && q.bunker)) out.push({ a: 'raid', label: 'Raid a bunker' });
@@ -1173,7 +1174,7 @@ function doAction(s, p, cmd) {
   if (a === 'shop') { ts.shop = p.node; logm(s, `${p.name} browses the shop.`); return OK; }
   if (a === 'burgle') { doBurgle(s, p); return OK; }
   if (a === 'dive') { doDive(s, p); return OK; }
-  if (a === 'gamble') { p.coin -= 1; p.gambled = (p.gambled || 0) + 1; ts.gamble = { n: 0, pot: 0 }; gambleThrow(s, p); return OK; }
+  if (a === 'gamble') { const free = p.coin < 1; if (free) { if (ts.freeGamble) return err('Only one free gamble per turn'); ts.freeGamble = true; } else p.coin -= 1; p.gambled = (p.gambled || 0) + 1; ts.gamble = { n: 0, pot: 0, free }; gambleThrow(s, p); return OK; }
   if (a === 'build') {
     p.bunker = true; logm(s, `${p.name} BUILDS A BUNKER! Home sweet home.`, p.id);
     if (!s.bunkerBonusTaken) { s.bunkerBonusTaken = true; const c = drawTop(s); if (c) { giveCard(s, p, c); logm(s, `Bunker bonus: ${p.name} receives a ${D.item[c.id].name}.`, p.id); } }
