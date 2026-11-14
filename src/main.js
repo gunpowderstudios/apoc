@@ -88,7 +88,7 @@ function buildSeats() {
     $('#st' + i).value = carryT && o && [...$('#st' + i).options].some(x => x.value === o.t) ? o.t : (i === 0 ? 'human' : lobbyMode === 'host' ? 'remote' : i === 1 ? 'ai' : 'off');   // host: me + 3 open seats unless you add AI
     if (o) { $('#sn' + i).value = o.n; $('#sg' + i).value = o.g || 'balanced'; }
     if (i === 0) { const sv = savedName(); if (sv) $('#sn0').value = sv; $('#sn0').oninput = () => saveName($('#sn0').value); }
-    const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' || ($('#st' + i).value === 'remote') ? '' : 'none'; }; $('#st' + i).onchange = () => { gl(); lobbySync(); }; gl();
+    const gl = () => { $('#sg' + i).style.display = $('#st' + i).value === 'ai' ? '' : 'none'; }; $('#st' + i).onchange = () => { gl(); lobbySync(); }; gl();
   });
 }
 function bindLobby() {

@@ -326,3 +326,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build tool (v1.273): new shortcut O = Overhead View: looks straight down on the board, no angle, filling the window; press O again to go back.
 
 - Test-build tool (v1.274): dice are square-edged again (rounded dice tried in v1.272 and removed).
+
+- Test-build tool (v1.275): on the host's setup screen the AI play-style (trait) box only shows for AI seats, not for Open seats (humans). An open seat nobody takes still becomes a balanced AI.
