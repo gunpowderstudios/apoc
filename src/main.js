@@ -219,7 +219,7 @@ async function openRoom() {
 }
 const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
 window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied - paste it to your friends'); };
-const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; <div class="joinedline">Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}</div>${hostWait() > 0 ? ` <br><span class="note">${hostWait()} open seat${hostWait() > 1 ? 's' : ''} still to be taken.</span> <button onclick="startAnyway()">Start without them (empty seats become AI)</button>` : ''}`;
+const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; ${hostWait() > 0 ? ` <br><span class="note">${hostWait()} open seat${hostWait() > 1 ? 's' : ''} still to be taken.</span> <button onclick="startAnyway()">Start without them (empty seats become AI)</button>` : ''}`;
 window.startAnyway = () => onStart();
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');

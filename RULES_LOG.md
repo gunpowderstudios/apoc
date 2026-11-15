@@ -443,3 +443,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.311: host room screen: each open seat shows '(not joined)' in yellow inside its name box and 'Joined' (green) when a friend sits down; the Joined list is bigger.
 
 - v1.312: new AI trait 'Aggressive': attacks another prepper on its space (or raids a bunker) whenever it can, but only while it has more than 5 health; it also walks towards preppers it can reach.
+
+- v1.313: removed the separate 'Joined: (nobody yet)' line; join status is shown in each seat's name box only.
