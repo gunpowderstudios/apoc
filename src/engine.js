@@ -89,6 +89,11 @@ export function createGame(opts) {
 // ------------------------------------------------------------------ helpers
 export const cur = s => s.players[s.cur];
 export function logm(s, text, pl = null) { s.log.push({ n: ++s.seq, t: text, pl, r: s.round, c: s.cur }); if (s.log.length > 600) s.log.splice(0, 100); }
+function logWalk(s, w, p, nm) {   // one tight log line per walk: "X moves to A" grows into "X walks A → B → C" while the steps follow each other
+  const last = s.log[s.log.length - 1];
+  if (w.n && last && last.n === w.n) { w.names.push(nm); last.t = `${p.name} walks ${w.names.join(' → ')}.`; }
+  else { w.names = [nm]; logm(s, `${p.name} moves to ${nm}.`, p.id); w.n = s.seq; }
+}
 export function tally(p, k) { p.n = p.n || {}; p.n[k] = (p.n[k] || 0) + 1; }   // counts of what a player has done (used by AI goals)
 export const defc = s => D.cfg.defcon[s.defcon];
 export const nameOf = (s, i) => s.players[i].name;
@@ -986,7 +991,7 @@ function grabCmd(s, pl, cmd) {
   if (cmd.t === 'move') {
     if (g.moves <= 0) return err('No moves left');
     if (!D.adj[q.node].includes(cmd.to)) return err('Not adjacent');
-    q.node = cmd.to; g.moves--; logm(s, `${q.name} moves to ${D.node[cmd.to].name || cmd.to}.`, q.id);
+    q.node = cmd.to; g.moves--; logWalk(s, g.walk = g.walk || {}, q, D.node[cmd.to].name || cmd.to);
     if (D.node[cmd.to].kind === 'building') g.grabbed[cmd.to] = g.grabbed[cmd.to] || 0;
     // free grab from streets happens via 'grab' too
     return OK;
@@ -1110,7 +1115,7 @@ function doMove(s, p, to) {
   }
   if (opts.subway) { p.coin -= 1; logm(s, `${p.name} pays 1 DOOMCOIN and takes the subway to ${D.node[to].name}.`, p.id); }
   if (opts.cutters) logm(s, `${p.name} cuts through to ${D.node[to].name}.`, p.id);
-  if (!opts.subway && !opts.cutters) logm(s, `${p.name} moves to ${D.node[to].name || to}.`, p.id);
+  if (!opts.subway && !opts.cutters) logWalk(s, ts.walk = ts.walk || {}, p, D.node[to].name || to);
   ts.moves--; ts.moveState = 'moving';
   ts.prevNode = p.node; p.node = to;
   onEnter(s, p);
