@@ -371,3 +371,9 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.294: the in-game Rules tab is now player-facing: how to play (sections up to 6, version tags and our notes removed) plus the changelog under 'Changes'. Questions, guesses, confirmed lists and assumptions are no longer shown in the game; they stay in this file for Paul.
 
 - v1.295: section 1a (how the pre-APOC game ends) is no longer shown in the in-game Rules tab (still in this file).
+
+## Decision: online changes stay, Paul to update the rules (Tim, 15 Nov)
+- Where the online test build differs from Main Rules Draft 2, the online version stays for now and Paul will update the rules document to match.
+- Crate (v1.281): resources left in a building go in a crate that ANYONE there can take. Draft 2 says resources placed at a location belong to its owner (must buy / steal / loot); only coin, items, street/junction resources and the church are free.
+- Panic Grab: regular move +2 and take ALL resources and coin at the location you end on. Draft 2 says twice health, up to 2 resources per location.
+- Still to check against Draft 2 s.15: Gimme Shelter (nuclear: no bunker = health 1), removing Thug / Busted / Tagged tokens and returning coin, and the Black Friday rule when preppers share a location in the Panic Grab.
