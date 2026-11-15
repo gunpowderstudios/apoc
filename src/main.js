@@ -1131,7 +1131,12 @@ function rulesModal() {
   const secs = (k7 < 0 ? all : all.slice(0, k7)).filter(s => !/^1a\./.test(s.t)).map(s => ({ ...s, ask: false, t: scrub(inl(s.t)).replace(/ <b>.*$/, ''), h: scrub(s.h) }));
   const rest = (k7 < 0 ? [] : all.slice(k7)).filter(s => !/^(7|8|9|10)\./.test(s.t) && !/Confirmed by Tim/i.test(s.t));
   const upd = rest.map(s => `<h4 class="updh">${inl(s.t)}</h4>${s.h.replace(/<ul class="ask">/g, '<ul>').replace(/<ol class="ask">/g, '<ol>').replace(/<h4 class="ask">/g, '<h4>')}`).join('');
-  return `<div style="max-width:760px"><h2>Rules <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-ri="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
+  const printRules = () => {   // opens a clean white copy of the rules (every section open) and the print dialog: choose "Save as PDF" to download it
+    const w = window.open('', '_blank'); if (!w) return toast('Allow pop-ups to download the rules');
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>APOC rules</title><style>body{font:13px/1.45 system-ui,Arial,sans-serif;color:#111;max-width:760px;margin:20px auto;padding:0 16px}h1{margin:0 0 4px}h2{font-size:16px;margin:18px 0 4px;border-bottom:1px solid #999;padding-bottom:2px;break-after:avoid}h4{margin:10px 0 2px}li{margin:2px 0}table{border-collapse:collapse}td,th{border:1px solid #999;padding:2px 6px}.n{color:#666;font-size:12px}@media print{h2{break-after:avoid}li{break-inside:avoid}}</style></head><body><h1>APOC: Prepare to survive</h1><div class="n">Online test build rules (${esc(VERSION)}) - Gunpowder Studios</div>${secs.map(s => `<h2>${s.t}</h2>${s.h}`).join('')}<script>window.onload=()=>setTimeout(()=>print(),400)<\/script></body></html>`);
+    w.document.close();
+  };
+  return `<div style="max-width:760px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Rules <span class="note">(${esc(VERSION)})</span></h2>${btn('⬇ Download PDF', printRules, { title: 'Opens the print dialog: choose Save as PDF (or print it)' })}</div><div class="rules">${secs.length ? secs.map((s, i) => `<details data-ri="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {

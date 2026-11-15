@@ -421,3 +421,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.299: added plain-English How to play sections to the Rules tab (the basics, what you can do, the town).
 
 - v1.300: start screen has a small white radio icon (top right). On by default; click to switch the start-screen radio chatter and music off. It is remembered on that device.
+
+- v1.301: Rules popup has a Download PDF button (top right): opens a clean printable copy of the rules and the print dialog, so you can Save as PDF or print at home.
