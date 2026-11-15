@@ -436,3 +436,8 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 #radioBtn .slash{display:none}#radioBtn.off .slash{display:block}#radioBtn.off svg{opacity:.7}
 .hoststeps{margin:8px 0 4px;padding-left:20px;font-size:13px;color:#cfd3d8}.hoststeps li{margin:3px 0}
 .hostbanner{font-size:26px;font-weight:800;color:#ffd54f;text-align:center;margin:12px 0 2px;letter-spacing:.02em;text-shadow:0 0 14px #ffd54f55}
+/* v1.311: seat status inside the name box + bigger Joined line (host room screen) */
+.seat .nwrap{position:relative;flex:1;display:flex;min-width:0}.seat .nwrap input{flex:1;width:100%;min-width:0}
+.sstat{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:700 14px system-ui,sans-serif;font-style:normal;pointer-events:none}
+.sstat.wait{color:#ffd54f}.sstat.ok{color:#5fd16f}
+.joinedline{font-size:17px;font-weight:700;color:#ffd54f;margin:6px 0 2px}

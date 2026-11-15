@@ -439,3 +439,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.309: if a player's connection drops they try to reconnect automatically for ~2 minutes (the AI plays for them meanwhile); when they come back with the same name the host gives their character straight back.
 
 - v1.310: online games are now autosaved on the host's device too (friends' seats saved as AI seats), so a crashed or closed host tab can use Continue saved game.
+
+- v1.311: host room screen: each open seat shows '(not joined)' in yellow inside its name box and 'Joined' (green) when a friend sits down; the Joined list is bigger.

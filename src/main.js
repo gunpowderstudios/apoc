@@ -81,7 +81,7 @@ function buildSeats() {
   const carryT = lastSeatMode === lobbyMode; lastSeatMode = lobbyMode;   // switching between Solo and Host starts from that mode's default seats
   const types = lobbyMode === 'host' ? [['human', 'Me (this device)'], ['remote', 'Open seat (a friend takes it)'], ['ai', 'AI'], ['off', 'Empty']] : [['human', 'Human'], ['ai', 'AI'], ['off', 'Empty']];
   const old = [0, 1, 2, 3].map(i => $('#sn' + i) ? { n: $('#sn' + i).value, p: $('#sp' + i).value, t: $('#st' + i).value, g: $('#sg' + i).value } : null);
-  $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" id="sd${i}" style="background:${PREP_COL[PREPS[i]]}"></span><input id="sn${i}" value="${NAMES[i]}">
+  $('#seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="dot" id="sd${i}" style="background:${PREP_COL[PREPS[i]]}"></span><span class="nwrap"><input id="sn${i}" value="${NAMES[i]}"><i class="sstat" id="ss${i}"></i></span>
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
     <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
@@ -193,6 +193,8 @@ function hostRefresh() {
   const n = hostWait(), b = $('#startBtn');
   b.disabled = n > 0; b.textContent = n > 0 ? `Waiting for ${n} player${n > 1 ? 's' : ''} to sit down…` : 'Start game';
   $('#hostInfo').innerHTML = hostInfoHtml(hostCode);
+  { const taken = new Set([...claims.values()].map(c => c.i));   // per-seat status inside the name box
+    for (let k = 0; k < 4; k++) { const e = $('#ss' + k), st = $('#st' + k); if (!e || !st) continue; if (st.value === 'remote') { const j = taken.has(k); e.textContent = j ? 'Joined' : '(not joined)'; e.className = 'sstat ' + (j ? 'ok' : 'wait'); } else { e.textContent = ''; e.className = 'sstat'; } } }
   lobbyMsg(n > 0 ? 'Keep this screen open. Start game unlocks when every open seat is taken.' : 'Everyone is seated. Press Start game.');
 }
 async function openRoom() {
@@ -217,7 +219,7 @@ async function openRoom() {
 }
 const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
 window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied - paste it to your friends'); };
-const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}${hostWait() > 0 ? ` <br><span class="note">${hostWait()} open seat${hostWait() > 1 ? 's' : ''} still to be taken.</span> <button onclick="startAnyway()">Start without them (empty seats become AI)</button>` : ''}`;
+const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; <div class="joinedline">Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}</div>${hostWait() > 0 ? ` <br><span class="note">${hostWait()} open seat${hostWait() > 1 ? 's' : ''} still to be taken.</span> <button onclick="startAnyway()">Start without them (empty seats become AI)</button>` : ''}`;
 window.startAnyway = () => onStart();
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
