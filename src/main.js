@@ -260,9 +260,13 @@ function onGuestMsg(m) {
 }
 
 // ---------------------------------------------------------------- save / load
-const savePayload = () => ({ game: 'apoc', version: VERSION, savedAt: Date.now(), S });
+const savePayload = () => {   // in an online game the friends' seats are saved as AI seats, so the host can carry on alone or open a room again and friends take their characters back
+  if (mode !== 'host' || !remoteSeats.size) return { game: 'apoc', version: VERSION, savedAt: Date.now(), S };
+  const c = JSON.parse(JSON.stringify(S)); for (const i of remoteSeats) { const q = c.players[i]; if (q && !q.ai) { q.ai = true; q.name = q.name.replace(/ \(AI\)$/, '') + ' (AI)'; } }
+  return { game: 'apoc', version: VERSION, savedAt: Date.now(), S: c };
+};
 function readAutosave() { try { const o = JSON.parse(localStorage.getItem('apoc-save')); return o && o.game === 'apoc' && o.S && o.S.players ? o : null; } catch (e) { return null; } }
-function autosave() { if (mode !== 'local' || !S) return; try { localStorage.setItem('apoc-save', JSON.stringify(savePayload())); } catch (e) {} }
+function autosave() { if (mode === 'guest' || !S) return; try { localStorage.setItem('apoc-save', JSON.stringify(savePayload())); } catch (e) {} }
 function saveFile() {
   if (mode === 'guest') return toast('Only the host can save the game');
   download(`apoc-save-r${S.round}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.json`, JSON.stringify(savePayload()));
