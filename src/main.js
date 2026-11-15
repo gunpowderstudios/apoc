@@ -177,7 +177,9 @@ function takeSeat(pid, p) {
 function seatToAI(pid) {
   const seat = peerSeat.get(pid); if (!S || seat === undefined || seat < 0 || !S.players[seat] || !remoteSeats.has(seat)) return;
   const q = S.players[seat]; remoteSeats.delete(seat); peerSeat.delete(pid);
-  q.ai = true; q.name = q.name.replace(/ \(AI\)$/, '') + ' (AI)'; E.logm(S, `${q.name.replace(' (AI)', '')} left the room: the AI plays ${E.D.prepper[q.prepper].name} until they come back.`); afterChange();
+  q.ai = true; q.name = q.name.replace(/ \(AI\)$/, '') + ' (AI)'; E.logm(S, `${q.name.replace(' (AI)', '')} left the room: the AI plays ${E.D.prepper[q.prepper].name} until they come back.`);
+  { const msg = `${q.name.replace(' (AI)', '')} has left the game. AI taking over ${E.D.prepper[q.prepper].name}…`; notice(msg); if (net && net.conns) for (const g of net.conns.keys()) net.send(g, { notice: msg }); }
+  afterChange();
 }
 let hostCode = null;
 function hostWait() {   // open seats still waiting for a friend to sit down
@@ -230,6 +232,7 @@ function renderPick(l) {   // guest: take one of the open seats
 }
 function onGuestMsg(m) {
   if (m.err) return toast(m.err);
+  if (m.notice) notice(m.notice);
   if (m.lobby) renderPick(m.lobby);
   if (m.chatLog) { chatLog = []; m.chatLog.forEach(c => chatAdd(c.n, c.t, c.sys, true)); }
   if (m.chat) chatAdd(m.chat.n, m.chat.t, m.chat.sys);
@@ -395,6 +398,10 @@ function undo() {
   S = JSON.parse(hist.pop()); afterChange();
 }
 let toastEl;
+function notice(t) {   // big message everyone sees for a few seconds (e.g. a player left and the AI takes over)
+  let el = $('#noticeBar'); if (!el) { el = document.createElement('div'); el.id = 'noticeBar'; el.style.cssText = 'position:fixed;left:50%;top:84px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#ffd54f;border:2px solid #ffd54f;padding:12px 22px;border-radius:12px;z-index:60;max-width:80vw;font:700 20px system-ui,sans-serif;text-align:center;box-shadow:0 0 22px #ffd54f55'; document.body.appendChild(el); }
+  el.textContent = t; el.hidden = false; clearTimeout(el.t); el.t = setTimeout(() => (el.hidden = true), 8000);
+}
 function toast(t) { if (!toastEl) { toastEl = document.createElement('div'); toastEl.style.cssText = 'position:fixed;left:50%;top:60px;transform:translateX(-50%);background:#b03a2e;color:#fff;padding:8px 14px;border-radius:8px;z-index:50;max-width:80vw'; document.body.appendChild(toastEl); } toastEl.textContent = t; toastEl.hidden = false; clearTimeout(toastEl.t); toastEl.t = setTimeout(() => (toastEl.hidden = true), 3500); }
 
 // ---------------------------------------------------------------- game control
