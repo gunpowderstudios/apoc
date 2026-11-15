@@ -447,3 +447,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.313: removed the separate 'Joined: (nobody yet)' line; join status is shown in each seat's name box only.
 
 - v1.314: the 'needs a bigger table' phone message no longer gets clipped.
+
+- v1.315: the phone message has a 'Try anyway (landscape, may be cramped)' link so a phone can try the game; remembered on that device.
