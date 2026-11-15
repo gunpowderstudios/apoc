@@ -340,6 +340,16 @@ function setView(v) {
     render();
   });
   V3.onPileClick = id => { sbxNode = id; render(); }; V3.onMark = onMarkDrag;
+  V3.onDouble = h => {   // double-tap = the keyboard shortcuts for tablets: news stands (N), DEFCON chart (D), a player's card (C), a figure (P), the table (B / overhead)
+    const shut = () => { closePop(); closeNewsBig(); const z = $('#zoom'); if (z) z.hidden = true; if (modalFn && modalFn !== craftModal) { modalFn = null; } render(); };
+    if (!S || moveSel) return false; bOn = false; oOn = false;
+    if (h && h.type === 'news' && h.key !== 'items' && h.key !== 'deck') { shut(); V3.followNews(); return true; }
+    if (h && h.type === 'card' && /countdown/.test(h.img || '')) { shut(); V3.followDefcon(); return true; }
+    if (h && (h.type === 'mat' || h.type === 'cube')) { shut(); V3.follow(h.matId !== undefined ? h.matId : h.pid, S.players.length); return true; }
+    if (h && h.type === 'pawn') { shut(); if (!V3.followPawn(h.pid, true)) V3.fitAll(); return true; }
+    if (!h || h.type === 'board') { shut(); oOn = false; bOn = !bOn; if (bOn) V3.fitBoard(); else V3.fitAll(true); return true; }   // empty table / board: board as large as possible, double-tap again = whole table
+    return false;
+  };
   V3.onCard = img => { if (!moveSel) zoomCard(img); }; V3.onToken = onToken; V3.canDrag = pid => canDragPawn(pid); V3.onDragHover = onDragHover; V3.onDrop = onDrop; V3.pickBoard = (x, y) => V2.pick(x, y); V3.setTool('select');
     const f = t => { if (view === '3d') V3.frame(t); requestAnimationFrame(f); }; requestAnimationFrame(f);
   }

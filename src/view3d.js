@@ -144,6 +144,8 @@ export class View3D {
       if (!down) return; const moved = down.moved; down = null;
       if (moved || e.button !== 0) return;
       const h = this.hit(e);
+      { const now = performance.now(), lt = this._lt; this._lt = { t: now, x: e.clientX, y: e.clientY };   // DOUBLE-TAP / double-click: zoom the camera onto what was tapped (the touch-screen version of the keyboard shortcuts)
+        if (lt && now - lt.t < 380 && Math.hypot(e.clientX - lt.x, e.clientY - lt.y) < 28 && this.onDouble && !this.editPiles && !this.blockEdit && !this.drag) { this._lt = null; if (this.onDouble(h)) return; } }
       if (h && h.type === 'token' && !this.editPiles && h.info && h.info.node !== undefined && ((this.targets && this.targets[h.info.node]) || this.blockEdit)) { const bp = this.boardPoint(e); if (this.onClick) this.onClick(h.info.node, bp ? { x: bp.bx, y: bp.by } : null); return; }   // a glowing building is covered by its resource piles: clicking a pile still moves you in (v1.252)
       if (h && h.type === 'token') { if (this.editPiles) { if (this.onPileClick && h.info && h.info.node !== undefined) this.onPileClick(h.info.node); return; } if (this.onToken) this.onToken({ ...h.info, cx: e.clientX, cy: e.clientY }); return; }
       if (h && h.type === 'news') { if (this.onNews) this.onNews(h.key); return; }

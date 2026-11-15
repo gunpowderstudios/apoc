@@ -358,3 +358,6 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.287: the Gun Shop, Hardware Store, Dumpster diving and Burglary reference lists now sit under one collapsed 'Shopping' tab on the left (same width as the legend until opened).
 
 - v1.288: the Shopping tab sits directly under the legend (follows it when the legend expands).
+
+## Double-tap shortcuts for tablets (v1.289)
+- Test-build control only: double-tap (or double-click) a news stand = zoom to the news stands (N), the DEFCON chart = zoom to it (D), a player's card = zoom to it (C), a figure = zoom to it (P), the table/board = board as large as possible (B); double-tap the table again = whole-table view.
