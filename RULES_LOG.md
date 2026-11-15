@@ -12,6 +12,37 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - When DEFCON goes red (the SHTF token reaches the red space) the town flips to its post-APOC state and survival becomes a final race through a town you no longer recognise.
 - **This online test build plays the pre-APOC part only.** When SHTF is triggered everyone does the Panic Grab, the board is cleared and the game ends, telling you which Mission Pack to open. Post-APOC is not built yet.
 
+## How to play: the basics
+- **Your turn in short:** eat 1 food, a news paper is drawn, the news dice are rolled (an event may happen), you roll the day or night dice, then you move and/or take your action, then end your turn. When any one pile of news papers reaches five, DEFCON goes up.
+- **Moves:** the dice (plus your character and items) decide how many moves you get. Each door, each junction and each road you enter costs 1 move. Highlighted spaces show where you can go. Move first then act, or act then move: you can't split your movement around an action.
+- **Day or night dice?** Day is the safer choice. Night can be more rewarding but is riskier: you can be bitten or robbed. If you are tagged you can only roll day dice, and some news events ban night movement.
+- **One action per turn.** Free things that don't use your action: crafting an item (once a turn), breaking an item down (once a turn), healing with MEDS, and picking up free tokens (see below).
+- **Resources and coin:** you can carry up to 10 resources in your backpack (a bunker has no limit). DoomCoin is money and doesn't count towards the limit. Spent, sold or lost resources go back to the pool.
+- **Health:** you start on 10 and can't go above 10. Each MEDS you use heals 1 (not while another prepper is on your space). At 0 health you can go to the hospital (your turn ends) while it is open, or stay out there and carry on.
+- **Free to pick up:** tokens lying on streets and junctions, anything at the church, and anything in a building's crate (items and coin placed there too). Picking up doesn't use your action.
+
+## How to play: what you can do
+- **Buy or sell resources:** at any building with resource tokens you can buy them for coin. The price rises as DEFCON rises (1, then 2, then 3 coin). Sell resources for 1 coin at the purple coin places: Truck Stop, Salvage Yard, Prison, Pawn Shop.
+- **Buy items:** the Gun Shop and Hardware Store sell items for coin (open the Shopping tab on the left for the price lists).
+- **Steal:** take a resource from a building while DEFCON is green (PEACE). Push your luck and take more, but if you're caught you lose it all and you're busted.
+- **Loot:** from DEFCON yellow, shops are fair game. A failed loot costs you what you took and 2 health.
+- **Burgle:** from DEFCON yellow you can burgle residences for items and resources (Shopping tab: Burglary table).
+- **Dumpster dive:** at the two dumpsters, roll for a find (Shopping tab: Dumpster diving table).
+- **Gamble:** at the Casino, pay 1 coin and throw up to five times. Each win adds to the pot, and you can cash out any time, but a bust loses the pot (you get 1 food as a consolation). With no coin you get one free go a turn, but a bust costs 1 health. Part of every big win goes to the church plate.
+- **Trade resources:** swap resources at the Prison and Basketball Court.
+- **Craft and break down:** use the green APOC Recipe Book button (see section 3).
+- **Build a bunker:** when you hold one of each of the six resources (duct tape stands in for a missing one), take the Build action anywhere (see section 3).
+- **Raid a bunker:** once another player has a bunker you can try to raid it.
+- **Fight:** you can fight another prepper on your space; the difference of the rolls is the damage (max 3).
+- **Thugs:** recruit a thug at the Bar for 2 coin and 1 food. You pay or give them a job each turn.
+
+## How to play: the town
+- **Church:** coin collects on the church collection plate (casino winnings feed it). The first prepper to arrive takes it.
+- **Park:** where everyone starts. Jessica forages 1 food here.
+- **Hospital:** heals you fully if you go in with 0 health, at the cost of your turn. It closes as DEFCON rises.
+- **Police Station:** if you're busted you're taken here and your turn ends.
+- **DEFCON:** PEACE (stealing allowed, cheap prices), PANIC (no stealing, looting and burgling open, prices up), MAYHEM (prices up again and the hospital closes), then SHTF, the end of the pre-APOC game.
+
 ## 1a. How the pre-APOC game ends
 1. DEFCON reaches the last level (5th paper in a pile at End Turn): the APOC event (AI, Pandemic or Nuclear) is triggered. Thugs and coin are cleared; in a Nuclear event players without a bunker drop to 1 health.
 2. Panic Grab: players may spend MEDS first, then take one last turn each (order: highest health, then fewest resources, then a die roll), moving your regular 2 moves per health point +2, then taking ALL the items from the location you end up at (CONFIRMED by Tim, v1.277; the old limit of 2 per building is gone). Two players ending in the same building fight over it (Black Friday).
@@ -386,3 +417,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.297: the changelog is no longer in the in-game Rules tab. It lives on a private page (changes-3358afacf9.html on the test site). Rules text now says players start with 4 FOOD.
 
 - v1.298: rules checked against the engine. Added section 7 'The End game' (open one of the 3 Mission Packs). Fixed: bunker paragraph no longer shows a leftover 'please confirm' note; being busted now says you go to the Police Station and your turn ends.
+
+- v1.299: added plain-English How to play sections to the Rules tab (the basics, what you can do, the town).
