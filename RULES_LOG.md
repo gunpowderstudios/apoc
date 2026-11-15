@@ -445,3 +445,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.312: new AI trait 'Aggressive': attacks another prepper on its space (or raids a bunker) whenever it can, but only while it has more than 5 health; it also walks towards preppers it can reach.
 
 - v1.313: removed the separate 'Joined: (nobody yet)' line; join status is shown in each seat's name box only.
+
+- v1.314: the 'needs a bigger table' phone message no longer gets clipped.
