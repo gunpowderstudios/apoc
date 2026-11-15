@@ -434,3 +434,4 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 /* v1.300: radio on/off icon, start screen top right */
 #radioBtn{position:fixed;top:14px;right:16px;z-index:5;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.45);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
 #radioBtn .slash{display:none}#radioBtn.off .slash{display:block}#radioBtn.off svg{opacity:.7}
+.hoststeps{margin:8px 0 4px;padding-left:20px;font-size:13px;color:#cfd3d8}.hoststeps li{margin:3px 0}

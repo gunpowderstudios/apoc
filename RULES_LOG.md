@@ -425,3 +425,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.301: Rules popup has a Download PDF button (top right): opens a clean printable copy of the rules and the print dialog, so you can Save as PDF or print at home.
 
 - v1.302: reverted the 'DEFCON goes red' wording in Object of the game to the original text.
+
+- v1.304: hosting online is clearer: numbered steps on the Host online tab (set seats, Open room, share link, stay until everyone has sat down). Start game stays locked ('Waiting for N players to sit down') until every open seat is taken; 'Start without them' turns empty seats into AI.

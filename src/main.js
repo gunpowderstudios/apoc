@@ -85,7 +85,7 @@ function buildSeats() {
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
     <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
-  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<p class="note">Set yourself to <b>Me</b>, add <b>AI</b> players, and leave the other seats as <b>Open seat</b>: your friends take an open seat themselves after they join. Any open seat nobody takes becomes an AI when you start.</p>');
+  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<ol class="hoststeps"><li><b>Set up the seats:</b> you are <b>Me</b>; add any <b>AI</b> players; leave a seat as <b>Open seat</b> for each friend.</li><li>Press <b>Open room</b>.</li><li><b>Share the link</b> with your friends. They open it, type their name and pick an open seat.</li><li><b>Stay on this screen</b> until everyone has sat down. <b>Start game</b> unlocks once every open seat is taken (or use <i>Start without them</i> and the empty seats become AI).</li></ol>');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
@@ -100,7 +100,7 @@ function bindLobby() {
   document.querySelectorAll('#modeTabs button').forEach(b => b.onclick = () => {
     lobbyMode = b.dataset.m; document.querySelectorAll('#modeTabs button').forEach(x => x.classList.toggle('on', x === b));
     $('#seatsBox').hidden = lobbyMode === 'join'; $('#joinBox').hidden = lobbyMode !== 'join'; $('#hostInfo').hidden = lobbyMode !== 'host' || !net;
-    $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'Start game' : 'Enter Room') : 'New game';
+    $('#startBtn').disabled = false; $('#startBtn').textContent = lobbyMode === 'join' ? 'Join room' : lobbyMode === 'host' ? (net ? 'Start game' : 'Open room') : 'New game';
     if (lobbyMode !== 'join') buildSeats();
   });
   $('#startBtn').onclick = onStart;
@@ -155,7 +155,7 @@ function lobbyState(pid) {
   const mine = claims.has(pid) ? $('#sp' + claims.get(pid).i).value : null;
   return { taken, mine, open };
 }
-function lobbySync() { if (!net || !net.conns || S || mode === 'guest') return; for (const pid of net.conns.keys()) net.send(pid, { lobby: lobbyState(pid) }); }
+function lobbySync() { if (!net || !net.conns || S || mode === 'guest') return; hostRefresh(); for (const pid of net.conns.keys()) net.send(pid, { lobby: lobbyState(pid) }); }
 function releaseClaim(pid) { const c = claims.get(pid); if (!c) return; claims.delete(pid); const st = $('#st' + c.i); if (st) { st.value = c.prevT; $('#sn' + c.i).value = c.prevN; if (st.onchange) st.onchange(); } }
 function claimSeat(pid, p) {
   let i = -1; for (let k = 0; k < 4; k++) if ($('#sp' + k) && $('#sp' + k).value === p) i = k;
@@ -179,8 +179,21 @@ function seatToAI(pid) {
   const q = S.players[seat]; remoteSeats.delete(seat); peerSeat.delete(pid);
   q.ai = true; q.name = q.name.replace(/ \(AI\)$/, '') + ' (AI)'; E.logm(S, `${q.name.replace(' (AI)', '')} left the room: the AI plays ${E.D.prepper[q.prepper].name} until they come back.`); afterChange();
 }
+let hostCode = null;
+function hostWait() {   // open seats still waiting for a friend to sit down
+  validClaims(); const taken = new Set([...claims.values()].map(c => c.i)); let n = 0;
+  for (let k = 0; k < 4; k++) { const st = $('#st' + k); if (st && st.value === 'remote' && !taken.has(k)) n++; }
+  return n;
+}
+function hostRefresh() {
+  if (!net || mode === 'guest' || S || !hostCode || lobbyMode !== 'host') return;
+  const n = hostWait(), b = $('#startBtn');
+  b.disabled = n > 0; b.textContent = n > 0 ? `Waiting for ${n} player${n > 1 ? 's' : ''} to sit down…` : 'Start game';
+  $('#hostInfo').innerHTML = hostInfoHtml(hostCode);
+  lobbyMsg(n > 0 ? 'Keep this screen open. Start game unlocks when every open seat is taken.' : 'Everyone is seated. Press Start game.');
+}
 async function openRoom() {
-  lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open();
+  lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open(); hostCode = code;
   net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
   net.onPick = (pid, p) => { if (S) return takeSeat(pid, p); claimSeat(pid, p); lobbySync(); };
   net.onJoin = (pid, name) => { guestNames.set(pid, name); if (S && !peerSeat.has(pid)) peerSeat.set(pid, -1); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); lobbySync(); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
@@ -189,11 +202,12 @@ async function openRoom() {
   setInterval(() => { if (net && net.conns && mode === 'host' && S && !S.over) { broadcast(); schedule(); } }, 4000);   // safety net: keeps guests in step and nudges the AI if it ever stalls
   try { history.replaceState(null, '', roomLink(code)); } catch (e) {}   // the address bar now holds the room link too
   $('#hostInfo').hidden = false; $('#hostInfo').innerHTML = hostInfoHtml(code); setTimeout(netChip, 0);
-  $('#startBtn').textContent = 'Start game'; lobbyMsg('Share the room code, then press Start game. Unfilled remote seats become AI.');
+  hostRefresh();
 }
 const roomLink = code => `${location.origin}${location.pathname}?room=${code}`;
 window.copyRoomLink = () => { const l = $('#roomLink'); if (!l) return; (navigator.clipboard ? navigator.clipboard.writeText(l.value) : Promise.reject()).catch(() => { l.select(); document.execCommand('copy'); }); toast('Room link copied - paste it to your friends'); };
-const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}`;
+const hostInfoHtml = code => `Room code: <b style="font-size:22px;letter-spacing:3px">${code}</b> &nbsp; <input id="roomLink" readonly value="${roomLink(code)}" style="width:21em;max-width:60%" onfocus="this.select()"> <button class="primary" onclick="copyRoomLink()">🔗 Share room link</button> &nbsp; Joined: ${[...guestNames.values()].map(esc).join(', ') || '(nobody yet)'}${hostWait() > 0 ? ` <br><span class="note">${hostWait()} open seat${hostWait() > 1 ? 's' : ''} still to be taken.</span> <button onclick="startAnyway()">Start without them (empty seats become AI)</button>` : ''}`;
+window.startAnyway = () => onStart();
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
