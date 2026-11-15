@@ -213,6 +213,7 @@ async function doJoin() {
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
   await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
   netChip(); lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
+  { const jb = $('#joinBox'); let g = $('#guestBanner'); if (!g) { g = document.createElement('div'); g.id = 'guestBanner'; g.className = 'hostbanner'; jb.insertAdjacentElement('afterbegin', g); } g.textContent = 'Waiting for host…'; }
 }
 function seatBar() {   // a guest with no seat can take over any character the AI is playing
   let b = $('#seatbar'); const free = mode === 'guest' && S && mySeat < 0 ? S.players.filter(q => q.ai) : [];
