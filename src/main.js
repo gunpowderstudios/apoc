@@ -85,7 +85,7 @@ function buildSeats() {
     <select id="sp${i}">${PREPS.map(p => `<option value="${p}">${E.D.prepper[p].name}</option>`).join('')}</select>
     <select id="st${i}" class="ty">${types.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
     <select id="sg${i}" class="goal" title="AI player: what it tries to do first, then plays balanced">${AI_GOALS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></div>`).join('');
-  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<ol class="hoststeps"><li><b>Set up the seats:</b> you are <b>Me</b>; add any <b>AI</b> players; leave a seat as <b>Open seat</b> for each friend.</li><li>Press <b>Open room</b>.</li><li><b>Share the link</b> with your friends. They open it, type their name and pick an open seat.</li><li><b>Stay on this screen</b> until everyone has sat down. <b>Start game</b> unlocks once every open seat is taken (or use <i>Start without them</i> and the empty seats become AI).</li></ol>');
+  if (lobbyMode === 'host') $('#seats').insertAdjacentHTML('beforeend', '<div class="hostbanner">You are hosting this game!</div><ol class="hoststeps"><li><b>Set up the seats:</b> you are <b>Me</b>; add any <b>AI</b> players; leave a seat as <b>Open seat</b> for each friend.</li><li>Press <b>Open room</b>.</li><li><b>Share the link</b> with your friends. They open it, type their name and pick an open seat.</li><li><b>Stay on this screen</b> until everyone has sat down. <b>Start game</b> unlocks once every open seat is taken (or use <i>Start without them</i> and the empty seats become AI).</li></ol>');
   [0, 1, 2, 3].forEach(i => {
     const o = old[i];
     $('#sp' + i).value = o ? o.p : PREPS[i];
