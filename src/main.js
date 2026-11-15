@@ -278,7 +278,7 @@ function enterApp() {
     const z = e.target.closest('img[data-zoom]'); if (z) zoomCard(z.dataset.zoom);
   }, true);
   document.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b && H[+b.dataset.i]) H[+b.dataset.i](e); });
-  $('#modalBox').addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.i !== undefined) { const i = +d.dataset.i; if (d.open) rulesOpen.add(i); else rulesOpen.delete(i); } }, true);
+  $('#modalBox').addEventListener('toggle', e => { const d = e.target; if (d && d.dataset && d.dataset.ri !== undefined) { const i = +d.dataset.ri; if (d.open) rulesOpen.add(i); else rulesOpen.delete(i); } }, true);
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' && modalFn) { modalFn = null; render(); } });
   $('#bUndo').hidden = mode === 'guest';
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && modalFn) { modalFn = null; render(); } });
@@ -1126,7 +1126,7 @@ function rulesModal() {
   const secs = (k7 < 0 ? all : all.slice(0, k7)).filter(s => !/^1a\./.test(s.t)).map(s => ({ ...s, ask: false, t: scrub(inl(s.t)).replace(/ <b>.*$/, ''), h: scrub(s.h) }));
   const rest = (k7 < 0 ? [] : all.slice(k7)).filter(s => !/^(7|8|9|10)\./.test(s.t) && !/Confirmed by Tim/i.test(s.t));
   const upd = rest.map(s => `<h4 class="updh">${inl(s.t)}</h4>${s.h.replace(/<ul class="ask">/g, '<ul>').replace(/<ol class="ask">/g, '<ol>').replace(/<h4 class="ask">/g, '<h4>')}`).join('');
-  return `<div style="max-width:760px"><h2>Rules <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-i="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}${upd ? `<h3 class="chg">Changes</h3><details data-i="999" ${rulesOpen.has(999) ? 'open' : ''}><summary>Updates we have made</summary>${upd}</details>` : ''}</div><div class="btns">${closeBtn()}</div></div>`;
+  return `<div style="max-width:760px"><h2>Rules <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-ri="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}${upd ? `<h3 class="chg">Changes</h3><details data-ri="999" ${rulesOpen.has(999) ? 'open' : ''}><summary>Updates we have made</summary>${upd}</details>` : ''}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {

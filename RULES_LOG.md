@@ -377,3 +377,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Crate (v1.281): resources left in a building go in a crate that ANYONE there can take. Draft 2 says resources placed at a location belong to its owner (must buy / steal / loot); only coin, items, street/junction resources and the church are free.
 - Panic Grab: regular move +2 and take ALL resources and coin at the location you end on. Draft 2 says twice health, up to 2 resources per location.
 - Still to check against Draft 2 s.15: Gimme Shelter (nuclear: no bunker = health 1), removing Thug / Busted / Tagged tokens and returning coin, and the Black Friday rule when preppers share a location in the Panic Grab.
+
+- v1.296: fixed the Rules tab closing (or popping up a card) when a dropdown was clicked: the dropdown ids clashed with the on-screen buttons' click handlers.
