@@ -174,9 +174,10 @@ function takeSeat(pid, p) {
   q.ai = false; q.name = nm; remoteSeats.add(i); peerSeat.set(pid, i);
   E.logm(S, `${nm} takes over ${E.D.prepper[p].name}.`); afterChange();
 }
+const lostSeats = new Map();   // name (lower case) -> seat of a player who dropped out, so they get their character back when they return
 function seatToAI(pid) {
   const seat = peerSeat.get(pid); if (!S || seat === undefined || seat < 0 || !S.players[seat] || !remoteSeats.has(seat)) return;
-  const q = S.players[seat]; remoteSeats.delete(seat); peerSeat.delete(pid);
+  const q = S.players[seat]; remoteSeats.delete(seat); peerSeat.delete(pid); lostSeats.set(q.name.replace(/ \(AI\)$/, '').trim().toLowerCase(), seat);
   q.ai = true; q.name = q.name.replace(/ \(AI\)$/, '') + ' (AI)'; E.logm(S, `${q.name.replace(' (AI)', '')} left the room: the AI plays ${E.D.prepper[q.prepper].name} until they come back.`);
   { const msg = `${q.name.replace(' (AI)', '')} has left the game. AI taking over ${E.D.prepper[q.prepper].name}…`; notice(msg); if (net && net.conns) for (const g of net.conns.keys()) net.send(g, { notice: msg }); }
   afterChange();
@@ -198,7 +199,9 @@ async function openRoom() {
   lobbyMsg('Opening room…'); net = new HostNet(); const code = await net.open(); hostCode = code;
   net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
   net.onPick = (pid, p) => { if (S) return takeSeat(pid, p); claimSeat(pid, p); lobbySync(); };
-  net.onJoin = (pid, name) => { guestNames.set(pid, name); if (S && !peerSeat.has(pid)) peerSeat.set(pid, -1); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); lobbySync(); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
+  net.onJoin = (pid, name) => { guestNames.set(pid, name); if (S && !peerSeat.has(pid)) peerSeat.set(pid, -1); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); lobbySync(); $('#hostInfo').innerHTML = hostInfoHtml(code);
+    if (S) { const lost = lostSeats.get(name.trim().toLowerCase()); if (lost !== undefined && S.players[lost] && S.players[lost].ai && !remoteSeats.has(lost)) { lostSeats.delete(name.trim().toLowerCase()); takeSeat(pid, S.players[lost].prepper); notice(`${name} is back! Taking ${E.D.prepper[S.players[lost].prepper].name} back from the AI.`); for (const g of net.conns.keys()) net.send(g, { notice: `${name} is back! Taking ${E.D.prepper[S.players[lost].prepper].name} back from the AI.` }); }   // same name as the player who dropped out: give their character straight back
+      const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
   net.onRename = (pid, nm) => {   // a guest changed their name: update it everywhere for the host and the other players
     nm = nm.trim(); const old = guestNames.get(pid); if (!nm || nm === old) return; guestNames.set(pid, nm);
     const c = claims.get(pid); if (c && $('#sn' + c.i)) $('#sn' + c.i).value = nm;
@@ -219,7 +222,17 @@ window.startAnyway = () => onStart();
 async function doJoin() {
   const code = $('#joinCode').value.trim().toUpperCase(); if (!code) return lobbyMsg('Enter the room code.');
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
-  await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
+  const gname = $('#joinName').value.trim() || 'Guest'; let lost = false;
+  const onClose = async () => {   // connection dropped (Wi-Fi, sleep, reload of the page): keep trying to get back in with the same name for a couple of minutes
+    if (lost) return; lost = true; netChip();
+    for (let tries = 0; tries < 30; tries++) {
+      notice('Connection lost. Trying to reconnect… (the AI is playing for you meanwhile)');
+      await new Promise(r => setTimeout(r, 4000));
+      try { const g = new GuestNet(); await g.join(code, gname, onGuestMsg, onClose); net = g; mode = 'guest'; lost = false; netChip(); notice('Reconnected!'); return; } catch (e) {}
+    }
+    notice('Could not reconnect. Reload the page and use the room link again.');
+  };
+  await net.join(code, gname, onGuestMsg, onClose);
   netChip(); lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
   { const jn = $('#joinName'); jn.onchange = () => { const v = jn.value.trim(); if (v && net && mode === 'guest') { net.send({ rename: v }); saveName(v); } }; }   // changing your name after joining updates it for the host and everyone
   { const jb = $('#joinBox'); let g = $('#guestBanner'); if (!g) { g = document.createElement('div'); g.id = 'guestBanner'; g.className = 'hostbanner'; jb.insertAdjacentElement('afterbegin', g); } g.textContent = 'Waiting for host…'; }
