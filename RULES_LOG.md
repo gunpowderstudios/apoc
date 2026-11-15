@@ -9,7 +9,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 - Short of coin? Steal, loot or dumpster dive, and risk a stretch in jail or hospital.
 - Soon you need a **bunker** to keep your gear in and other players out.
 - Every turn a news headline points at one of three looming APOC events: AI uprising, nuclear strike or global pandemic. As DEFCON rises, easy pickings disappear, the town gets meaner and law and order fails.
-- When DEFCON goes red (the SHTF token reaches the red space) the town flips to its post-APOC state and survival becomes a final race through a town you no longer recognise.
+- When DEFCON goes red (the SHTF token reaches the red space) all players get one last Panic round to grab as many resources as they can, then the board is cleared and you will be instructed to open 1 of the 3 post-APOC mission packs...
 - **This online test build plays the pre-APOC part only.** When SHTF is triggered everyone does the Panic Grab, the board is cleared and the game ends, telling you which Mission Pack to open. Post-APOC is not built yet.
 
 ## How to play: the basics
@@ -423,3 +423,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.300: start screen has a small white radio icon (top right). On by default; click to switch the start-screen radio chatter and music off. It is remembered on that device.
 
 - v1.301: Rules popup has a Download PDF button (top right): opens a clean printable copy of the rules and the print dialog, so you can Save as PDF or print at home.
+
+- v1.302: Object of the game now says what happens when DEFCON goes red: one last Panic round to grab resources, then the board is cleared and you open 1 of the 3 post-APOC mission packs.
