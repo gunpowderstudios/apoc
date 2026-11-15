@@ -75,7 +75,7 @@ async function boot() {
   for (const [k, f] of Object.entries(ICON)) icons[k] = await img(`assets/counters/${f}.webp`);
   $('#verL').textContent = VERSION; buildSeats(); bindLobby();
 }
-const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino'], ['steal', 'First: steal and loot'], ['scavenge', 'First: burgle and dumpster dive'], ['hoard', 'First: hoard 8 DoomCoin'], ['raid', 'First: raid a bunker']];
+const AI_GOALS = [['balanced', 'Balanced (plays like a human)'], ['weapons', 'First: collect weapons'], ['bunker', 'First: build a bunker'], ['craft', 'First: craft items only'], ['thug', 'First: recruit a thug'], ['food10', 'First: collect 10 food'], ['gamble', 'First: gamble at the casino'], ['steal', 'First: steal and loot'], ['scavenge', 'First: burgle and dumpster dive'], ['hoard', 'First: hoard 8 DoomCoin'], ['raid', 'First: raid a bunker'], ['aggressive', 'Aggressive: attacks other players when it has more than 5 health']];
 let lastSeatMode = null;
 function buildSeats() {
   const carryT = lastSeatMode === lobbyMode; lastSeatMode = lobbyMode;   // switching between Solo and Host starts from that mode's default seats

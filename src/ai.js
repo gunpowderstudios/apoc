@@ -183,6 +183,11 @@ export function next(s) {
   }
   if (E.hasItem(p, 'bow') && !ts.hunted) return C({ t: 'hunt' });
   if (activeGoal(s, p) === 'raid' && p.health >= 5 && ts.actions > 0 && E.actionsAt(s, p).some(a => a.a === 'raid') && ok('raidgoal')) { fail('raidgoal'); const t = s.players.find(q => q.id !== p.id && q.bunker); if (t) return C({ t: 'raid', target: t.id }); }
+  if (p.goal === 'aggressive' && p.health > 5 && !ts.fought && ts.actions > 0) {   // AGGRESSIVE trait: attacks another prepper whenever it can and is healthy enough (more than 5 health)
+    const acts = E.actionsAt(s, p), foe = s.players.filter(q => q.id !== p.id && q.node === p.node).sort((x, y) => x.health - y.health)[0];
+    if (foe && acts.some(a => a.a === 'fight') && ok('aggfight')) { fail('aggfight'); return C({ t: 'fight', target: foe.id }); }
+    if (acts.some(a => a.a === 'raid') && ok('aggraid')) { fail('aggraid'); const bt = s.players.find(q => q.id !== p.id && q.bunker); if (bt) return C({ t: 'raid', target: bt.id }); }
+  }
   // crafting
   const craftPick = pickCraft(s, p);
   if (craftPick && ok('craft' + craftPick)) { fail('craft' + craftPick); return C({ t: 'craft', id: craftPick }); }
@@ -226,6 +231,10 @@ export function next(s) {
 }
 function goalTarget(s, p) {   // where the opening goal wants to go next (null = nowhere in particular)
   const g = activeGoal(s, p), ok = id => id !== p.node && E.pathTo(s, p.node, id);
+  if (p.goal === 'aggressive' && p.health > 5 && !s.ts.fought) {   // aggressive: walk towards the nearest prepper it can reach this turn
+    let best = null, bd = 1e9; for (const q of s.players) { if (q.id === p.id || !q.node || !ok(q.node)) continue; const d = E.pathTo(s, p.node, q.node).length; if (d <= Math.max(1, s.ts.moves) + 2 && d < bd) { bd = d; best = q.node; } }
+    if (best) return best;
+  }
   if (g === 'thug' && p.coin >= 2 && p.res.food >= 1 && ok(D.board.barNode)) return D.board.barNode;
   if (g === 'steal' || g === 'scavenge' || g === 'hoard') {
     let best = null, bv = 0; for (const n of D.board.nodes) { if (!ok(n.id)) continue; const sc = scoreNode(s, p, n.id); if (sc.v >= 7 && sc.what && sc.v / (1 + E.pathTo(s, p.node, n.id).length * 0.3) > bv) { bv = sc.v / (1 + E.pathTo(s, p.node, n.id).length * 0.3); best = n.id; } }
