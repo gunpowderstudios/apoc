@@ -986,7 +986,7 @@ function grabCmd(s, pl, cmd) {
   if (cmd.t === 'move') {
     if (g.moves <= 0) return err('No moves left');
     if (!D.adj[q.node].includes(cmd.to)) return err('Not adjacent');
-    q.node = cmd.to; g.moves--;
+    q.node = cmd.to; g.moves--; logm(s, `${q.name} moves to ${D.node[cmd.to].name || cmd.to}.`, q.id);
     if (D.node[cmd.to].kind === 'building') g.grabbed[cmd.to] = g.grabbed[cmd.to] || 0;
     // free grab from streets happens via 'grab' too
     return OK;
@@ -1110,6 +1110,7 @@ function doMove(s, p, to) {
   }
   if (opts.subway) { p.coin -= 1; logm(s, `${p.name} pays 1 DOOMCOIN and takes the subway to ${D.node[to].name}.`, p.id); }
   if (opts.cutters) logm(s, `${p.name} cuts through to ${D.node[to].name}.`, p.id);
+  if (!opts.subway && !opts.cutters) logm(s, `${p.name} moves to ${D.node[to].name || to}.`, p.id);
   ts.moves--; ts.moveState = 'moving';
   ts.prevNode = p.node; p.node = to;
   onEnter(s, p);

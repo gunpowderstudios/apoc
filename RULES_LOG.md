@@ -363,3 +363,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Test-build control only: double-tap (or double-click) a news stand = zoom to the news stands (N), the DEFCON chart = zoom to it (D), a player's card = zoom to it (C), a figure = zoom to it (P), the table/board = board as large as possible (B); double-tap the table again = whole-table view.
 
 - v1.290: the collapsed game log is a translucent black box, the same width as the player panel (visual only).
+
+- v1.291: the game log now records every space a player moves to (e.g. 'Jessica moves to Park Lane.'), including in the panic round, so games can be reviewed afterwards.
