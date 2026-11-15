@@ -449,3 +449,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.314: the 'needs a bigger table' phone message no longer gets clipped.
 
 - v1.315: the phone message has a 'Try anyway (landscape, may be cramped)' link so a phone can try the game; remembered on that device.
+
+- v1.316: removed the 'Try anyway' option again. Phones and small screens only see the 'needs a bigger table' message.
