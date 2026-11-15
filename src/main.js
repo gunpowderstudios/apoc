@@ -1118,8 +1118,18 @@ function mdToSections(md) {
 const rulesOpen = new Set([0]);
 function rulesModal() {
   if (rulesMd === null) { rulesMd = ''; fetch('RULES_LOG.md?v=' + Date.now()).then(r => r.text()).then(t => { rulesMd = t; render(); }).catch(() => { rulesMd = 'Could not load the rules.'; render(); }); }
-  const secs = rulesMd ? mdToSections(rulesMd) : [];
-  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-i="${i}" class="${s.ask ? 'ask' : ''}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
+  const all = rulesMd ? mdToSections(rulesMd) : [], k8 = all.findIndex(s => /^8\./.test(s.t));
+  const secs = k8 < 0 ? all : all.slice(0, k8 + 1), rest = k8 < 0 ? [] : all.slice(k8 + 1);
+  let upd = '';
+  if (k8 >= 0) {   // after section 8: no more dropdowns. 8 becomes the questions still to ask; everything else goes into one "Updates we have made" dropdown under a yellow "Changes" heading
+    const s8 = secs[k8], ci = s8.h.indexOf('<h4>Confirmed');
+    const qs = []; const om = (rulesMd.split(/^### Open questions[^\n]*\n/m)[1] || '').split('\n'); for (const l of om) { if (!/^- /.test(l) || /^- Test-build tool/.test(l)) break; qs.push(l.slice(2)); }
+    s8.t = '8. Still to ask (questions I am not clear on)'; s8.ask = true;
+    const conf = ci >= 0 ? s8.h.slice(ci) : ''; if (ci >= 0) s8.h = s8.h.slice(0, ci);
+    s8.h += (qs.length ? '<ul class="ask">' + qs.map(q => `<li>${inl(q)}</li>`).join('') + '</ul>' : '');
+    upd = conf + rest.map(s => `<h4 class="updh">${inl(s.t)}</h4>${s.h.replace(/<ul class="ask">/g, '<ul>').replace(/<ol class="ask">/g, '<ol>').replace(/<h4 class="ask">/g, '<h4>')}`).join('');
+  }
+  return `<div style="max-width:760px"><h2>Rules so far <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-i="${i}" class="${s.ask ? 'ask' : ''}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${inl(s.t)}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}${upd ? `<h3 class="chg">Changes</h3><details data-i="999" ${rulesOpen.has(999) ? 'open' : ''}><summary>Updates we have made</summary>${upd}</details>` : ''}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {

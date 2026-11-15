@@ -365,3 +365,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.290: the collapsed game log is a translucent black box, the same width as the player panel (visual only).
 
 - v1.291/v1.292: the game log records where a player moves, merged into one line per walk (e.g. "Jessica walks Left Field → Park Lane → Park View."), including the panic round, so games can be reviewed afterwards.
+
+- v1.293: Rules tab layout: dropdowns stop after section 8, which is now 'Still to ask (questions I am not clear on)'. Everything after it (confirmed list, assumptions, test tools, change notes) sits in one 'Updates we have made' dropdown under a yellow 'Changes' heading.
