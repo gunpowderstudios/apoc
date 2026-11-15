@@ -5,7 +5,7 @@ Format: **rule**, then (version it went in). Items marked "ASK" are guesses that
 
 ## Object of the game
 You are a prepper in Hope Falls, a town on the edge of collapse. Race your rivals to grab the essential resources (FOOD, KNOW-HOW, CHEM, HARDWARE, TECH, MEDS) and the DUCT TAPE that holds everything together, and stay alive.
-- You start in Central Park with a backpack, 2 DOOMCOIN and 3 FOOD. DOOMCOIN is portable crypto: use it to buy resources and items.
+- You start in Central Park with a backpack, 2 DOOMCOIN and 4 FOOD. DOOMCOIN is portable crypto: use it to buy resources and items.
 - Short of coin? Steal, loot or dumpster dive, and risk a stretch in jail or hospital.
 - Soon you need a **bunker** to keep your gear in and other players out.
 - Every turn a news headline points at one of three looming APOC events: AI uprising, nuclear strike or global pandemic. As DEFCON rises, easy pickings disappear, the town gets meaner and law and order fails.
@@ -379,3 +379,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - Still to check against Draft 2 s.15: Gimme Shelter (nuclear: no bunker = health 1), removing Thug / Busted / Tagged tokens and returning coin, and the Black Friday rule when preppers share a location in the Panic Grab.
 
 - v1.296: fixed the Rules tab closing (or popping up a card) when a dropdown was clicked: the dropdown ids clashed with the on-screen buttons' click handlers.
+
+- v1.297: the changelog is no longer in the in-game Rules tab. It lives on a private page (changes-3358afacf9.html on the test site). Rules text now says players start with 4 FOOD.

@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>APOC test build: changes</title>
+<style>body{background:#16181c;color:#eee;font:15px/1.5 system-ui,sans-serif;margin:0;padding:20px}main{max-width:820px;margin:0 auto}h1{font-size:22px}h2{color:#ffd54f;font-size:16px;border-bottom:1px solid #444;padding-bottom:3px;margin:26px 0 6px}h3{font-size:14px;color:#ffd54f}li{margin:4px 0}table{border-collapse:collapse}td,th{border:1px solid #444;padding:3px 8px}.note{color:#999;font-size:13px}</style></head><body><main>
+<h1>APOC online test build: changes <span class="note" id="ver"></span></h1><p class="note">Everything we changed or decided in the online test build (newest at the bottom). Private page, please don't share the link.</p><div id="out">Loading…</div></main>
+<script type="module">
+import { VERSION } from './src/version.js';
+document.getElementById('ver').textContent = '(' + VERSION + ')';
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])), inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+const md = (await (await fetch('RULES_LOG.md?v=' + Date.now())).text()).replace(/^### Open questions[^\n]*\n(?:- (?!Test-build tool).*\n)*/m, '');
+let out = '', on = false, list = null, tbl = false;
+const close = () => { if (list) { out += `</${list}>`; list = null; } if (tbl) { out += '</table>'; tbl = false; } };
+for (const raw of md.split('\n')) {
+  const l = raw.trimEnd(); let m;
+  if ((m = l.match(/^## (.*)/))) { close(); on = !/^(Object|1a?\.|2\.|3\.|4\.|5\.|6\.|7\.|8\.|9\.|10\.)/.test(m[1]) && !/Board facts/.test(m[1]); if (on) out += `<h2>${inl(m[1])}</h2>`; continue; }
+  if (!on) continue;
+  if ((m = l.match(/^### (.*)/))) { close(); if (!/Open questions|Confirmed by Tim/.test(m[1])) out += `<h3>${inl(m[1])}</h3>`; continue; }
+  if (/^\|/.test(l)) { if (/^\|[-| ]+\|$/.test(l)) continue; const c = l.split('|').slice(1, -1).map(x => x.trim()); if (!tbl) { close(); out += '<table>'; tbl = true; } out += '<tr>' + c.map(x => `<td>${inl(x)}</td>`).join('') + '</tr>'; continue; }
+  if ((m = l.match(/^- (.*)/))) { if (list !== 'ul') { close(); out += '<ul>'; list = 'ul'; } out += `<li>${inl(m[1])}</li>`; continue; }
+  if ((m = l.match(/^\d+\. (.*)/))) { if (list !== 'ol') { close(); out += '<ol>'; list = 'ol'; } out += `<li>${inl(m[1])}</li>`; continue; }
+  if (!l.trim()) { close(); continue; }
+  close(); out += `<p>${inl(l)}</p>`;
+}
+close(); document.getElementById('out').innerHTML = out;
+</script></body></html>

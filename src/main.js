@@ -1126,7 +1126,7 @@ function rulesModal() {
   const secs = (k7 < 0 ? all : all.slice(0, k7)).filter(s => !/^1a\./.test(s.t)).map(s => ({ ...s, ask: false, t: scrub(inl(s.t)).replace(/ <b>.*$/, ''), h: scrub(s.h) }));
   const rest = (k7 < 0 ? [] : all.slice(k7)).filter(s => !/^(7|8|9|10)\./.test(s.t) && !/Confirmed by Tim/i.test(s.t));
   const upd = rest.map(s => `<h4 class="updh">${inl(s.t)}</h4>${s.h.replace(/<ul class="ask">/g, '<ul>').replace(/<ol class="ask">/g, '<ol>').replace(/<h4 class="ask">/g, '<h4>')}`).join('');
-  return `<div style="max-width:760px"><h2>Rules <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-ri="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}${upd ? `<h3 class="chg">Changes</h3><details data-ri="999" ${rulesOpen.has(999) ? 'open' : ''}><summary>Updates we have made</summary>${upd}</details>` : ''}</div><div class="btns">${closeBtn()}</div></div>`;
+  return `<div style="max-width:760px"><h2>Rules <span class="note">(${esc(VERSION)})</span></h2><div class="rules">${secs.length ? secs.map((s, i) => `<details data-ri="${i}" ${rulesOpen.has(i) ? 'open' : ''}><summary>${s.t}</summary>${s.h}</details>`).join('') : esc(rulesMd || 'Loading…')}</div><div class="btns">${closeBtn()}</div></div>`;
 }
 let assumptions = null;
 function assumptionsModal() {
