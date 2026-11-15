@@ -54,9 +54,14 @@ async function gate() {
 async function boot() {
   await gate(); $('#lobby').hidden = false;
   { const radio = FXAudio('assets/sfx/radio-chatter.mp3'); let done = false;   // radio chatter on the start screen, played once (waits for the first click/key if the browser blocks autoplay)
-    const go = () => { if (done) return; radio.play().then(() => { done = true; rm(); if (musicOn) music.play().catch(() => {}); }).catch(() => {}); };   // ambient music starts with the radio chatter and keeps going into the game
+    let rOn = (() => { try { return localStorage.getItem('apoc-radio') !== 'off'; } catch (e) { return true; } })();   // the little radio icon top right of the start screen: on by default, remembered when switched off
+    const go = () => { if (done || !rOn) return; radio.play().then(() => { done = true; rm(); if (musicOn) music.play().catch(() => {}); }).catch(() => {}); };   // ambient music starts with the radio chatter and keeps going into the game
     const rm = () => { for (const ev of ['pointerdown', 'keydown']) window.removeEventListener(ev, go); };
-    go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); }
+    go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go);
+    const rb = $('#radioBtn'), paint = () => { rb.classList.toggle('off', !rOn); rb.title = rOn ? 'Start-screen radio and music: on (click to switch off)' : 'Start-screen radio and music: off (click to switch on)'; };
+    rb.onclick = e => { e.stopPropagation(); rOn = !rOn; try { localStorage.setItem('apoc-radio', rOn ? 'on' : 'off'); } catch (x) {} paint();
+      if (!rOn) { try { radio.pause(); } catch (x) {} music.pause(); } else { done = false; radio.currentTime = 0; go(); for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, go); } };
+    paint(); }
   const rd = n => fetch('data/' + n + '.json').then(r => r.json());
   const [board, items, news, preppers, config, adjacent] = await Promise.all(['board', 'items', 'news', 'preppers', 'config', 'adjacent'].map(rd));
   D = E.init({ board, items, news, preppers, config, adjacent });

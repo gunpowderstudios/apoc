@@ -419,3 +419,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.298: rules checked against the engine. Added section 7 'The End game' (open one of the 3 Mission Packs). Fixed: bunker paragraph no longer shows a leftover 'please confirm' note; being busted now says you go to the Police Station and your turn ends.
 
 - v1.299: added plain-English How to play sections to the Rules tab (the basics, what you can do, the town).
+
+- v1.300: start screen has a small white radio icon (top right). On by default; click to switch the start-screen radio chatter and music off. It is remembered on that device.

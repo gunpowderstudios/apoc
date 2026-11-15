@@ -431,3 +431,6 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 #topinfo.logmin #loglive{background:rgba(0,0,0,.7) !important;border:1px solid rgba(255,255,255,.18) !important;border-radius:10px !important;padding:7px 12px !important;width:100%;box-sizing:border-box;-webkit-mask-image:none !important;mask-image:none !important;box-shadow:none}
 .rules h3.chg{color:#ffd54f;margin:18px 0 4px;font-size:17px;letter-spacing:.04em;text-transform:uppercase}
 .rules h4.updh{color:#ffd54f;margin:16px 0 4px;font-size:14px;border-bottom:1px solid #444;padding-bottom:2px}
+/* v1.300: radio on/off icon, start screen top right */
+#radioBtn{position:fixed;top:14px;right:16px;z-index:5;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.45);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+#radioBtn .slash{display:none}#radioBtn.off .slash{display:block}#radioBtn.off svg{opacity:.7}
