@@ -1121,7 +1121,7 @@ function rulesModal() {
   // Players see HOW TO PLAY (the sections up to 6, with the notes between Tim and Claude scrubbed out) and, under a yellow "Changes" heading, one dropdown with the changelog.
   // Questions, guesses, "confirmed by Tim" lists and assumptions stay in RULES_LOG.md (for Paul) but are not shown in the game.
   const md = rulesMd.replace(/^### Open questions[^\n]*\n(?:- (?!Test-build tool).*\n)*/m, '');
-  const all = md ? mdToSections(md) : [], k7 = all.findIndex(s => /^(7|8)\./.test(s.t));
+  const all = md ? mdToSections(md) : [], k7 = all.findIndex(s => /^8\./.test(s.t));
   const scrub = h => h.replace(/\s*\([^()]*\b(?:ASK|Tim)\b[^()]*\)/g, '').replace(/\s*\(v\d[^()]*\)/g, '').replace(/[\s,.;:]*\bASK\b[:.]?[^<]*(?=<\/(?:li|td|p)>)/g, '').replace(/<ul class="ask">/g, '<ul>').replace(/<ol class="ask">/g, '<ol>').replace(/<h4 class="ask">/g, '<h4>');
   const secs = (k7 < 0 ? all : all.slice(0, k7)).filter(s => !/^1a\./.test(s.t)).map(s => ({ ...s, ask: false, t: scrub(inl(s.t)).replace(/ <b>.*$/, ''), h: scrub(s.h) }));
   const rest = (k7 < 0 ? [] : all.slice(k7)).filter(s => !/^(7|8|9|10)\./.test(s.t) && !/Confirmed by Tim/i.test(s.t));

@@ -65,7 +65,7 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 
 - Items that need a bunker to craft or keep: Bed, Hazmat Suit, Med Lab, Drone, Solar Panel, Hydroponics Lab. Chain: the Hydroponics Lab also needs you to own a Solar Panel; the Med Lab needs you to own both a Solar Panel and a Hydroponics Lab (you keep them, nothing is used up). The recipe book shows these requirements. These conditions only apply to crafting: item cards you are simply given (deck draws, bonus cards) can be kept without them. Drawn item cards are never skipped: a burglar can find any item, with or without a bunker. (Confirmed by Tim, v1.122.)
 
-- Building a bunker: take the Build action (1 action, any place) when you hold at least one of each of the six resources (Food, Know-how, Chem, Hardware, Tech, Meds). DUCT TAPE is wild: each duct tape you hold can stand in for one missing resource (v1.186). Nothing is used up: you keep every resource you collected (including the duct tape). Your character card turns over to the bunker side (unlimited resources, no backpack limit). The first player to build also receives a bonus item card. (As built in v1.122: please confirm, see Still to confirm.)
+- Building a bunker: take the Build action (1 action, any place) when you hold at least one of each of the six resources (Food, Know-how, Chem, Hardware, Tech, Meds). DUCT TAPE is wild: each duct tape you hold can stand in for one missing resource (v1.186). Nothing is used up: you keep every resource you collected (including the duct tape). Your character card turns over to the bunker side (unlimited resources, no backpack limit). The first player to build also receives a bonus item card.
 
 ## 4. The pool (resources that are on the table but not in play)
 - Shown on the right of the board in piles with counts. (v1.68)
@@ -77,13 +77,16 @@ You are a prepper in Hope Falls, a town on the edge of collapse. Race your rival
 ## 5. Stealing, looting, busted
 - **Steal:** roll to steal, pick a resource, may push your luck. **If you are caught, everything stolen in that steal action goes back to the place it came from**, then you are busted. (v1.69)
 - **Loot:** a failed loot loses everything looted that action back to the place and you are shot (2 damage) and crawl into the nearest dumpster.
-- Busted: pay a 1 DoomCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing) until the DEFCON next rises, then the tagged token is discarded (v1.132; before this it only cleared at DEFCON 1).
+- Busted: you are taken to the Police Station and your turn ends. Pay a 1 DoomCoin fine; no coin = 1 resource to the pool; nothing at all = police chief gives 1 coin. Three busts = tagged (day dice only, no stealing) until the DEFCON next rises, then the tagged token is discarded (v1.132; before this it only cleared at DEFCON 1).
 
 ## 6. Buying and selling
 - **Sell resources** only at the purple coin places: Truck Stop, Salvage Yard, Prison, Pawn Shop.
 - **Buy items** (yellow coin) only at the Gun Shop and Hardware Store.
 
-## 7. Board facts from Tim
+## 7. The End game
+Once the APOC event is triggered you will be instructed to open one of 3 mission packs, good luck citizens.
+
+## Board facts from Tim
 - Sectors are a 3x3 compass: West column NW / W / SW, centre column N / C (park) / S, East column NE / E / SE.
 - Building outlines in orange/yellow on the board are just graphics, no rules.
 - Pet Store door faces south onto Coin Street (map graphic to be fixed by Tim).
@@ -381,3 +384,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.296: fixed the Rules tab closing (or popping up a card) when a dropdown was clicked: the dropdown ids clashed with the on-screen buttons' click handlers.
 
 - v1.297: the changelog is no longer in the in-game Rules tab. It lives on a private page (changes-3358afacf9.html on the test site). Rules text now says players start with 4 FOOD.
+
+- v1.298: rules checked against the engine. Added section 7 'The End game' (open one of the 3 Mission Packs). Fixed: bunker paragraph no longer shows a leftover 'please confirm' note; being busted now says you go to the Police Station and your turn ends.
