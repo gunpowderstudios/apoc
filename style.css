@@ -442,5 +442,4 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 .sstat.wait{color:#ffd54f}.sstat.ok{color:#5fd16f}
 .joinedline{font-size:17px;font-weight:700;color:#ffd54f;margin:6px 0 2px}
 #mobilemsg{box-sizing:border-box;width:100%;overflow:hidden}#mobilemsg>div{max-width:100%;box-sizing:border-box}#mobilemsg p{max-width:min(360px,100%)}
-@media (max-width:820px),(pointer:coarse) and (max-width:1100px){html:not(.phoneok) body>*:not(#mobilemsg){display:none !important}html:not(.phoneok),html:not(.phoneok) body{overflow:hidden}}
-html.phoneok #mobilemsg{display:none !important}
+@media (max-width:820px),(pointer:coarse) and (max-width:1100px){body>*:not(#mobilemsg){display:none !important}html,body{overflow:hidden}}
