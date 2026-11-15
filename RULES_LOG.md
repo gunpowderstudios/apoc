@@ -369,3 +369,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.293: Rules tab layout: dropdowns stop after section 8, which is now 'Still to ask (questions I am not clear on)'. Everything after it (confirmed list, assumptions, test tools, change notes) sits in one 'Updates we have made' dropdown under a yellow 'Changes' heading.
 
 - v1.294: the in-game Rules tab is now player-facing: how to play (sections up to 6, version tags and our notes removed) plus the changelog under 'Changes'. Questions, guesses, confirmed lists and assumptions are no longer shown in the game; they stay in this file for Paul.
+
+- v1.295: section 1a (how the pre-APOC game ends) is no longer shown in the in-game Rules tab (still in this file).
