@@ -426,3 +426,6 @@ body.sidemin aside,body.fs aside{right:19px !important;bottom:19px !important}
 /* v1.287: all reference tables under one collapsed "Shopping" tab, as narrow as the legend until opened */
 #refpanels{width:135px}#refpanels.wide{width:250px}
 #refpanels details details{border:0;border-top:1px solid rgba(255,255,255,.15);border-radius:0;background:transparent}
+/* v1.290: collapsed log = same translucent black box as the other panels, same width as the player box bottom right */
+#topinfo{width:264px !important;box-sizing:border-box}
+#topinfo.logmin #loglive{background:rgba(0,0,0,.7) !important;border:1px solid rgba(255,255,255,.18) !important;border-radius:10px !important;padding:7px 12px !important;width:100%;box-sizing:border-box;-webkit-mask-image:none !important;mask-image:none !important;box-shadow:none}
