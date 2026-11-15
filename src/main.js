@@ -199,6 +199,12 @@ async function openRoom() {
   net.onChat = (pid, text) => chatPost(guestNames.get(pid) || 'Guest', text);
   net.onPick = (pid, p) => { if (S) return takeSeat(pid, p); claimSeat(pid, p); lobbySync(); };
   net.onJoin = (pid, name) => { guestNames.set(pid, name); if (S && !peerSeat.has(pid)) peerSeat.set(pid, -1); setTimeout(netChip, 0); chatPost('', name + ' joined the room', true); net.send(pid, { chatLog }); lobbySync(); $('#hostInfo').innerHTML = hostInfoHtml(code); if (S) { const seat = peerSeat.get(pid); net.send(pid, { state: E.publicView(S, seat ?? -1), seat: seat ?? -1 }); } };
+  net.onRename = (pid, nm) => {   // a guest changed their name: update it everywhere for the host and the other players
+    nm = nm.trim(); const old = guestNames.get(pid); if (!nm || nm === old) return; guestNames.set(pid, nm);
+    const c = claims.get(pid); if (c && $('#sn' + c.i)) $('#sn' + c.i).value = nm;
+    const seat = peerSeat.get(pid); if (S && seat !== undefined && seat >= 0 && S.players[seat] && remoteSeats.has(seat)) { S.players[seat].name = nm; E.logm(S, `${old || 'Guest'} is now called ${nm}.`); afterChange(); }
+    chatPost('', `${old || 'Guest'} is now called ${nm}`, true); lobbySync(); setTimeout(netChip, 0); if (hostCode) $('#hostInfo').innerHTML = hostInfoHtml(hostCode);
+  };
   net.onLeave = pid => { const nm = guestNames.get(pid) || 'Guest'; seatToAI(pid); peerSeat.delete(pid); guestNames.delete(pid); chatPost('', nm + ' left the room', true); releaseClaim(pid); lobbySync(); setTimeout(netChip, 0); $('#hostInfo').innerHTML = hostInfoHtml(code); };
   net.onCmd = (pid, cmd) => { const seat = peerSeat.get(pid); if (seat === undefined || seat < 0) return; const r = hostExec(seat, cmd); if (!r.ok) { net.send(pid, { err: r.error }); net.send(pid, { state: E.publicView(S, seat), seat }); } };   // a refused command also re-sends the table so the guest's screen is never out of step
   setInterval(() => { if (net && net.conns && mode === 'host' && S && !S.over) { broadcast(); schedule(); } }, 4000);   // safety net: keeps guests in step and nudges the AI if it ever stalls
@@ -215,6 +221,7 @@ async function doJoin() {
   lobbyMsg('Connecting…'); net = new GuestNet(); mode = 'guest';
   await net.join(code, $('#joinName').value.trim() || 'Guest', onGuestMsg, () => { toast('Disconnected from host'); netChip(); });
   netChip(); lobbyMsg('Connected. Waiting for the host to start…'); $('#startBtn').disabled = true;
+  { const jn = $('#joinName'); jn.onchange = () => { const v = jn.value.trim(); if (v && net && mode === 'guest') { net.send({ rename: v }); saveName(v); } }; }   // changing your name after joining updates it for the host and everyone
   { const jb = $('#joinBox'); let g = $('#guestBanner'); if (!g) { g = document.createElement('div'); g.id = 'guestBanner'; g.className = 'hostbanner'; jb.insertAdjacentElement('afterbegin', g); } g.textContent = 'Waiting for host…'; }
 }
 function seatBar() {   // a guest with no seat can take over any character the AI is playing

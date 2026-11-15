@@ -24,6 +24,7 @@ export class HostNet {
         else if (m.cmd && this.onCmd) this.onCmd(c.peer, m.cmd);
         else if (m.chat && this.onChat) this.onChat(c.peer, m.chat);
         else if (m.pick && this.onPick) this.onPick(c.peer, m.pick);
+        else if (m.rename && this.onRename) this.onRename(c.peer, String(m.rename).slice(0, 20));
       });
       c.on('close', () => { this.conns.delete(c.peer); if (this.onLeave) this.onLeave(c.peer); });
     });

@@ -433,3 +433,5 @@ Post-APOC (Mission Packs), End Times cards, and any event or item whose effect i
 - v1.306: guests who have joined a room see 'Waiting for host…' in big yellow text on their lobby screen.
 
 - v1.307: when a player leaves mid-game, everyone sees a big message ('Mike has left the game. AI taking over Sam...') as well as the log line.
+
+- v1.308: a guest who changes their name after joining (lobby) updates it for the host and everyone, in the seat list, the chat and the game. A player who returns can take their character back from the AI via the 'Take a seat' bar.
